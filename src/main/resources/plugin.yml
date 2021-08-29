@@ -4,4 +4,14 @@ main: world.arainu.core.metaverseplugin.MetaversePlugin
 api-version: 1.17
 authors: [ kumitatepazuru, kawattii ]
 description: あらいぬメタバースプロジェクトマインクラフトサーバーのプラグイン
-website: http://arainu.world
+website: https://arainu.world
+commands:
+  worldtp:
+    description: ワールド移動をするGUIを表示します。
+    usage: /worldtp
+    aliases:
+      - wtp
+    permission: metaverse.command.worldtp
+permissions:
+  metaverse.command.worldtp:
+    default: op
