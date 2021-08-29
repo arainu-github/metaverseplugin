@@ -5,7 +5,14 @@ import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.bukkit.Bukkit;
 
+/**
+ * サーバーのデータを格納するクラス
+ * @author kumitatepazuru
+ */
 public class ServerStore {
+    /**
+     * サーバーのデータを格納するクラス
+     */
     public ServerStore(){
         ServerStore.instance = this;
     }

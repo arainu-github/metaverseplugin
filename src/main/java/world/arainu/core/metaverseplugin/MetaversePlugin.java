@@ -10,12 +10,16 @@ import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.commands.CommandBase;
 import world.arainu.core.metaverseplugin.commands.CommandWorldtp;
 import world.arainu.core.metaverseplugin.gui.Gui;
-import world.arainu.core.metaverseplugin.listener.PlayerListener;
-import world.arainu.core.metaverseplugin.listener.PluginMessageListener;
+import world.arainu.core.metaverseplugin.listener.ServerListener;
+import world.arainu.core.metaverseplugin.listener.BungeeMessageListener;
 import world.arainu.core.metaverseplugin.store.ServerStore;
 
 import java.util.HashMap;
 
+/**
+ * メタバースプラグインの基本クラス
+ * @author kumitatepazuru
+ */
 public final class MetaversePlugin extends JavaPlugin {
 
     @Override
@@ -36,17 +40,24 @@ public final class MetaversePlugin extends JavaPlugin {
         getLogger().info("メタバースプラグインが無効になりました。");
     }
 
+    /**
+     * Storeを作成する関数
+     */
     public void createStore() {
         new ServerStore();
     }
 
+    /**
+     * Listenerを設定する関数
+     */
     public void setListener() {
         PluginManager PM = getServer().getPluginManager();
         Messenger msg = getServer().getMessenger();
-        PM.registerEvents(new PlayerListener(), this);
+
+        PM.registerEvents(new ServerListener(), this);
         PM.registerEvents(Gui.getInstance(), this);
         msg.registerOutgoingPluginChannel(this, "BungeeCord");
-        msg.registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageListener());
+        msg.registerIncomingPluginChannel(this, "BungeeCord", new BungeeMessageListener());
     }
 
     /**

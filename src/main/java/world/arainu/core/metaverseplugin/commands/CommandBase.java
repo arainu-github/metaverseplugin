@@ -9,6 +9,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * コマンドを実装するクラス。
+ * @author kumitatepazuru
+ */
 public abstract class CommandBase implements TabCompleter {
     /**
      * コマンドが呼び出されたときに動く関数
@@ -32,6 +36,7 @@ public abstract class CommandBase implements TabCompleter {
         return null;
     }
 
-    protected static final List<String> COMPLETE_LIST_EMPTY = new ArrayList<>();
+
+    /** TAB補完をしない */protected static final List<String> COMPLETE_LIST_EMPTY = new ArrayList<>();
 //    protected static final List<String> COMPLETE_LIST_ONOFF = List.of("on", "off");
 }

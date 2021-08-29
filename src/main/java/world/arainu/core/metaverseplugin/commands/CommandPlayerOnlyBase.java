@@ -5,6 +5,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+/**
+ * プレイヤーだけが実行できるコマンドを実装するクラス。
+ * @author kumitatepazuru
+ */
 public abstract class CommandPlayerOnlyBase extends CommandBase {
     /**
      * プレイヤーがコマンドが呼び出されたときに動く関数

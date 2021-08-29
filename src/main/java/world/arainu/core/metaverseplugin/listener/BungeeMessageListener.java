@@ -2,19 +2,24 @@ package world.arainu.core.metaverseplugin.listener;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
+import lombok.Getter;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.store.ServerStore;
 
-public class PluginMessageListener implements org.bukkit.plugin.messaging.PluginMessageListener {
-    static PluginMessageListener Instance;
+/**
+ * Bungeecordとの通信に使用するクラス
+ * @author kumitatepazuru
+ */
+public class BungeeMessageListener implements PluginMessageListener {
+    @Getter static private BungeeMessageListener Instance;
 
-    public PluginMessageListener(){
+    /**
+     * Bungeecordとの通信に使用するクラス
+     */
+    public BungeeMessageListener(){
         Instance = this;
-    }
-
-    public static PluginMessageListener getInstance(){
-        return Instance;
     }
 
     @Override

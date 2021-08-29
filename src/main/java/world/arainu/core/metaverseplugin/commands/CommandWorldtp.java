@@ -18,6 +18,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+/**
+ * ゲートを通らなくてもテレポートできるようにするコマンドを実装するクラス。
+ * 運営のみ使用可能。
+ * @author kumitatepazuru
+ */
 public class CommandWorldtp extends CommandPlayerOnlyBase {
     /**
      * worldtpコマンドが実行されたときに動く関数
