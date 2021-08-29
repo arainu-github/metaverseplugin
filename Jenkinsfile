@@ -14,5 +14,8 @@ pipeline {
     }
 
   }
-  tools {maven 'maven'}
+  tools {
+    maven 'maven'
+    jdk "JDK16"
+  }
 }
