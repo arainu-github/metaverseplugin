@@ -3,6 +3,7 @@ package world.arainu.core.metaverseplugin;
 import lombok.Getter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.Messenger;
@@ -67,7 +68,7 @@ public final class MetaversePlugin extends JavaPlugin {
      */
     private void addCommand(String commandName, CommandBase command) {
         commands.put(commandName, command);
-        final var cmd = getCommand(commandName);
+        final PluginCommand cmd = getCommand(commandName);
         if (cmd == null) {
             getLogger().warning("Command " + commandName + " is not defined at the plugin.yml");
             return;
@@ -87,9 +88,9 @@ public final class MetaversePlugin extends JavaPlugin {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
-        final var name = command.getName().toLowerCase();
+        final String name = command.getName().toLowerCase();
 
-        final var com = commands.get(name);
+        final CommandBase com = commands.get(name);
         if (com == null) return false;
 
         return com.execute(sender, command, label, args);
