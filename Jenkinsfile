@@ -13,9 +13,9 @@ pipeline {
       }
     }
 
-    stage('') {
+    stage('archive jar files') {
       steps {
-        archiveArtifacts(fingerprint: true, artifacts: './target/*.jar')
+        archiveArtifacts(fingerprint: true, artifacts: 'target/*.jar')
       }
     }
 
