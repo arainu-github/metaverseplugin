@@ -3,23 +3,14 @@ package world.arainu.core.metaverseplugin.listener;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import lombok.Getter;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.spigotmc.event.entity.EntityDismountEvent;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
 /**
- * サーバーの動作に関するイベントリスナーの関数
+ * サーバーの動作に関するイベントリスナーのクラス
  * @author kumitatepazuru
  */
 public class ServerListener implements Listener {
@@ -43,84 +34,5 @@ public class ServerListener implements Listener {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("GetServer");
         player.sendPluginMessage(MetaversePlugin.getInstance(), "BungeeCord", out.toByteArray());
-    }
-
-    /**
-     * アーマースタンドの召喚
-     * @author AreaEffectCloud
-     */
-    public void spawnArmorStand(Block block, Player player) {
-
-        synchronized (this) {
-            Location blockLocation = block.getLocation();
-
-            double stairsX = blockLocation.getBlockX() + 0.5;
-            double stairsY = blockLocation.getBlockY() - 1.2;
-            double stairsZ = blockLocation.getBlockZ() + 0.5;
-
-            Location loc = new Location(block.getWorld(), stairsX, stairsY, stairsZ);
-
-            Entity armorStand = loc.getWorld().spawnEntity(loc, EntityType.ARMOR_STAND);
-            armorStand.addPassenger(player);
-            armorStand.setInvulnerable(true);
-            armorStand.setGravity(false);
-            ArmorStand as = (ArmorStand) armorStand;
-            as.setVisible(false);
-        }
-    }
-
-    /**
-     * プレイヤーがメインハンドに何も持たずに板材系の階段ブロックをクリックしたとき、上記の"spawnArmorStand"を実行する
-     * プレイヤーがアーマースタンドから降りたら、アーマースタンドを消去する
-     * @param e イベント
-     */
-    @EventHandler
-    public void Sitting(PlayerInteractEvent e) {
-        Action action = e.getAction();
-        Block block = e.getClickedBlock();
-        Player player = e.getPlayer();
-
-        if (action == Action.RIGHT_CLICK_BLOCK) {
-            if (player.getInventory().getItemInMainHand().getType().isAir()) {
-
-                if (block.getType().equals(Material.ACACIA_STAIRS)) {
-                    this.spawnArmorStand(block, player);
-
-                } else if (block.getType().equals(Material.BIRCH_STAIRS)) {
-                    this.spawnArmorStand(block, player);
-
-                } else if (block.getType().equals(Material.DARK_OAK_STAIRS)) {
-                    this.spawnArmorStand(block, player);
-
-                } else if (block.getType().equals(Material.JUNGLE_STAIRS)) {
-                    this.spawnArmorStand(block, player);
-
-                } else if (block.getType().equals(Material.OAK_STAIRS)) {
-                    this.spawnArmorStand(block, player);
-
-                } else if (block.getType().equals(Material.SPRUCE_STAIRS)) {
-                    this.spawnArmorStand(block, player);
-
-                } else if (block.getType().equals(Material.CRIMSON_STAIRS)) {
-                    this.spawnArmorStand(block, player);
-
-                } else if (block.getType().equals(Material.WARPED_STAIRS)) {
-                    this.spawnArmorStand(block, player);
-
-                }
-            }
-        }
-    }
-
-    /**
-     * プレイヤーがアーマースタンドから降りたら、アーマースタンドを消去する
-     * @param e イベント
-     */
-    @EventHandler
-    public void Remove(EntityDismountEvent e) {
-        if (e.getDismounted().getType() == EntityType.ARMOR_STAND) {
-            ArmorStand armorStand = (ArmorStand) e.getDismounted();
-            armorStand.remove();
-        }
     }
 }
