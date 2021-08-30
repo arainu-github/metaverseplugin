@@ -13,9 +13,15 @@ pipeline {
       }
     }
 
+    stage('') {
+      steps {
+        archiveArtifacts(fingerprint: true, artifacts: './target/*.jar')
+      }
+    }
+
   }
   tools {
     maven 'maven'
-    jdk "JDK16"
+    jdk 'JDK16'
   }
 }
