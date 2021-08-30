@@ -26,7 +26,6 @@ public final class MetaversePlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         getLogger().info("メタバースプラグインが有効になりました。");
-        getLogger().info("てすてすてす");
         Instance = this;
         loadCommands();
         createStore();
