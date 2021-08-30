@@ -61,12 +61,10 @@ public class Gui implements Listener {
      * エラーをプレイヤーに表示します。
      * @param p エラーを表示させるプレイヤー
      * @param message エラー内容
-     * @return 常にtrue。コマンドの返り値に使うことを想定。
      */
-    public boolean error(Player p, String message) {
+    public void error(Player p, String message) {
         p.sendMessage(message);
         p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1, 0.5f);
-        return true;
     }
 
     /**
