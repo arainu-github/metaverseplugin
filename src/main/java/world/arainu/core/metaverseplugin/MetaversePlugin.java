@@ -13,6 +13,7 @@ import world.arainu.core.metaverseplugin.commands.CommandWorldtp;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.listener.ServerListener;
 import world.arainu.core.metaverseplugin.listener.BungeeMessageListener;
+import world.arainu.core.metaverseplugin.listener.SittingListener;
 import world.arainu.core.metaverseplugin.store.ServerStore;
 
 import java.util.HashMap;
@@ -56,6 +57,7 @@ public final class MetaversePlugin extends JavaPlugin {
         Messenger msg = getServer().getMessenger();
 
         PM.registerEvents(new ServerListener(), this);
+        PM.registerEvents(new SittingListener(), this);
         PM.registerEvents(Gui.getInstance(), this);
         msg.registerOutgoingPluginChannel(this, "BungeeCord");
         msg.registerIncomingPluginChannel(this, "BungeeCord", new BungeeMessageListener());

@@ -10,7 +10,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
 /**
- * サーバーの動作に関するイベントリスナーの関数
+ * サーバーの動作に関するイベントリスナーのクラス
  * @author kumitatepazuru
  */
 public class ServerListener implements Listener {
