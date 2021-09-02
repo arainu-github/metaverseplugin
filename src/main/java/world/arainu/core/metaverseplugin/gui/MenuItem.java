@@ -1,7 +1,9 @@
 package world.arainu.core.metaverseplugin.gui;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Consumer;
@@ -128,4 +130,5 @@ public class MenuItem {
     @Getter private final Consumer<MenuItem> onClick;
     @Getter private final Object customData;
     @Getter private final boolean shiny;
+    @Getter @Setter private Player clicker;
 }
