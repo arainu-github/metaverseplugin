@@ -1,4 +1,4 @@
-package world.arainu.core.metaverseplugin.commands;
+package world.arainu.core.metaverseplugin.iphone;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -19,21 +19,26 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
- * ゲートを通らなくてもテレポートできるようにするコマンドを実装するクラス。
- * 運営のみ使用可能。
- * @author kumitatepazuru
+ * bungeecordのワールド間テレポートツール。
+ * Mod＆Admin専用
  */
-public class CommandWorldtp extends CommandPlayerOnlyBase {
-    /**
-     * worldtpコマンドが実行されたときに動く関数
-     * @param player コマンドを実行したプレイヤーの情報が入っている
-     * @param command 実行されたコマンドに関する情報が入っている
-     * @param label 親コマンドが入っている
-     * @param args 子コマンド(引数)が入っている
-     * @return 正常に実行できたか
-     */
+public class Worldteleport extends iPhoneBase {
     @Override
     public boolean execute(Player player, Command command, String label, String[] args) {
+        Run(player);
+        return true;
+    }
+
+    @Override
+    public void executeGui(MenuItem menuItem) {
+        Run(menuItem.getClicker());
+    }
+
+    /**
+     * 主要関数
+     * @param player プレイヤー
+     */
+    private void Run(Player player){
         Consumer<MenuItem> TeleportPlayer = (m) -> {
             if (!Objects.equals(ServerStore.getInstance().getServerDisplayName(), m.getName())) {
                 ByteArrayDataOutput _out = ByteStreams.newDataOutput();
@@ -45,22 +50,13 @@ public class CommandWorldtp extends CommandPlayerOnlyBase {
                 Objects.requireNonNull(player).sendPluginMessage(MetaversePlugin.getInstance(), "BungeeCord", _out.toByteArray());
                 Bukkit.getServer().getLogger().info(player.getName()+"("+player.getUniqueId()+")を"+m.getName()+"に転送しました");
             } else {
-                Gui.getInstance().error(player,ChatColor.RED+"[エラー] 既にそのサーバーにいます");
+                Gui.getInstance().error(player, ChatColor.RED+"[エラー] 既にそのサーバーにいます");
             }
         };
 
-        Gui.getInstance().openMenu(player, "title", Arrays.asList(new MenuItem("ロビー", TeleportPlayer),new MenuItem("サバイバル", TeleportPlayer),new MenuItem("クリエイティブ", TeleportPlayer)));
-        return true;
+        Gui.getInstance().openMenu(player, "WorldTeleportGUI/MOD ONLY", Arrays.asList(new MenuItem("ロビー", TeleportPlayer),new MenuItem("サバイバル", TeleportPlayer),new MenuItem("クリエイティブ", TeleportPlayer)));
     }
 
-    /**
-     * TAB補完
-     * @param commandSender コマンドを入力中のプレイヤーかコンソールの情報が入っている
-     * @param command 実行されたコマンドに関する情報が入っている
-     * @param label コマンド名が入っている
-     * @param args 引数
-     * @return 引数のリスト
-     */
     @Override
     public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
                                       String[] args) {

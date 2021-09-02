@@ -86,8 +86,10 @@ public class Gui implements Listener {
         if (menuItems.length <= id) return;
         else if (id < 0) return;
         p.closeInventory();
-        final Consumer<MenuItem> handler = menuItems[id].getOnClick();
-        if (handler != null) handler.accept(menuItems[id]);
+        final MenuItem clickedMenuItem = menuItems[id];
+        clickedMenuItem.setClicker((Player) p);
+        final Consumer<MenuItem> handler = clickedMenuItem.getOnClick();
+        if (handler != null) handler.accept(clickedMenuItem);
     }
 
 
