@@ -1,21 +1,31 @@
 package world.arainu.core.metaverseplugin;
 
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.Messenger;
 import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.commands.CommandBase;
-import world.arainu.core.metaverseplugin.commands.CommandWorldtp;
+import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
+import world.arainu.core.metaverseplugin.gui.MenuItem;
+import world.arainu.core.metaverseplugin.iphone.Worldteleport;
 import world.arainu.core.metaverseplugin.listener.ServerListener;
 import world.arainu.core.metaverseplugin.listener.BungeeMessageListener;
 import world.arainu.core.metaverseplugin.listener.SittingListener;
 import world.arainu.core.metaverseplugin.store.ServerStore;
+import world.arainu.core.metaverseplugin.store.iPhoneStore;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 
 /**
@@ -28,9 +38,10 @@ public final class MetaversePlugin extends JavaPlugin {
     public void onEnable() {
         getLogger().info("メタバースプラグインが有効になりました。");
         Instance = this;
-        loadCommands();
         createStore();
+        loadCommands();
         setListener();
+        loadGuis();
     }
 
     @Override
@@ -42,11 +53,20 @@ public final class MetaversePlugin extends JavaPlugin {
         getLogger().info("メタバースプラグインが無効になりました。");
     }
 
+    private void loadGuis() {
+        ItemStack teleportItem = new ItemStack(Material.STONE);
+        ItemMeta teleportMeta = teleportItem.getItemMeta();
+        teleportMeta.lore(Collections.singletonList(Component.text("━━━Mod Only━━━").color(NamedTextColor.LIGHT_PURPLE)));
+        teleportItem.setItemMeta(teleportMeta);
+        iPhoneStore.addGuiItem(new MenuItem("ワールドテレポート",new Worldteleport()::executeGui,teleportItem,null,true),true);
+    }
+
     /**
      * Storeを作成する関数
      */
     public void createStore() {
         new ServerStore();
+        new iPhoneStore();
     }
 
     /**
@@ -85,7 +105,8 @@ public final class MetaversePlugin extends JavaPlugin {
     private void loadCommands() {
         commands.clear();
 
-        addCommand("worldtp",new CommandWorldtp());
+        addCommand("worldtp",new Worldteleport());
+        addCommand("iphone",new CommandiPhone());
     }
 
     @Override

@@ -12,6 +12,12 @@ commands:
     aliases:
       - wtp
     permission: metaverse.command.worldtp
+  iphone:
+    description: サーバー内で使用できるスマホを表示します。
+    usage: /iphone
+    permission: metaverse.command.iphone
 permissions:
   metaverse.command.worldtp:
     default: op
+  metaverse.command.iphone:
+    default: true
