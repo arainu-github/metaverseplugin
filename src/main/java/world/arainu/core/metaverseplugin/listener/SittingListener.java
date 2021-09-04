@@ -100,6 +100,7 @@ public class SittingListener implements Listener {
     @EventHandler
     public void Remove(EntityDismountEvent e) {
         if (e.getDismounted().getType() == EntityType.ARMOR_STAND) {
+            Entity entity = e.getEntity();
             ArmorStand armorStand = (ArmorStand) e.getDismounted();
             armorStand.remove();
             Location loc = entity.getLocation();
