@@ -96,13 +96,13 @@ public class SittingListener implements Listener {
      */
     @EventHandler
     public void Remove(EntityDismountEvent e) {
-        Player player = e.getPlayer();
         if (e.getDismounted().getType() == EntityType.ARMOR_STAND) {
+            Entity entity = e.getEntity();
             ArmorStand armorStand = (ArmorStand) e.getDismounted();
             armorStand.remove();
-            Location loc = player.getLocation();
+            Location loc = entity.getLocation();
             loc.setY(loc.getY() + 1);
-            player.teleport(loc);
+            entity.teleport(loc);
         }
     }
 }
