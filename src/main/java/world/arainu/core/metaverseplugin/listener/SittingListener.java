@@ -84,7 +84,8 @@ public class SittingListener implements Listener {
 
                 } else if (block.getType().equals(Material.POLISHED_BLACKSTONE_STAIRS)) {
                     spawnArmorStand(block, player);
-
+                } else if (block.getType().equals(Material.BLACKSTONE_STAIRS)) {
+                    spawnArmorStand(block, player);
                 }
             }
         }
@@ -101,7 +102,7 @@ public class SittingListener implements Listener {
             ArmorStand armorStand = (ArmorStand) e.getDismounted();
             armorStand.remove();
             Location loc = entity.getLocation();
-            loc.setY(loc.getY() + 1);
+            loc.setY(loc.getY() + 0.6);
             entity.teleport(loc);
         }
     }
