@@ -23,8 +23,14 @@ import java.util.function.Consumer;
 
 /**
  * ネット銀行の関数。
+ * @author kumitatepazuru
  */
 public class Bank extends iPhoneBase {
+    /**
+     * 口座のお金を現金に換金する関数。
+     * @param player 対象のプレイヤー
+     * @param yen 換金する額
+     */
     public static void addMoneyForPlayer(Player player, int yen){
         int log_money = (int) Math.log(yen);
         if (log_money > 5) {

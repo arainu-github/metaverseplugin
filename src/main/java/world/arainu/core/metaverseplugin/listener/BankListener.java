@@ -22,7 +22,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * 銀行に関するイベントをハンドリングしているクラス
+ * @author kumitatepazuru
+ */
 public class BankListener implements Listener {
+    /**
+     * インベントリをクリックしたときに発火する関数
+     * @param e イベント
+     */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
@@ -53,6 +61,10 @@ public class BankListener implements Listener {
         }
     }
 
+    /**
+     * GUIを閉じたときに発火する関数
+     * @param e イベント
+     */
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
         Player p = (Player) e.getPlayer();

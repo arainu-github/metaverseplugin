@@ -44,6 +44,7 @@ public class MenuItem {
      * メニューのアイテム。
      * @param name アイテム名
      * @param onClick クリック時のイベント
+     * @param close クリック時にGUIを閉じるか
      * @param icon アイテムのブロック
      */
     public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, Material icon) {
@@ -54,6 +55,7 @@ public class MenuItem {
      * メニューのアイテム。
      * @param name アイテム名
      * @param onClick クリック時のイベント
+     * @param close クリック時にGUIを閉じるか
      * @param icon アイテムのブロック
      * @param customData Itemにつける任意のデータ
      */
@@ -65,6 +67,7 @@ public class MenuItem {
      * メニューのアイテム。
      * @param name アイテム名
      * @param onClick クリック時のイベント
+     * @param close クリック時にGUIを閉じるか
      * @param icon アイテムのブロック
      * @param customData Itemにつける任意のデータ
      * @param shiny ブロックをキラキラさせるか
@@ -77,6 +80,7 @@ public class MenuItem {
      * メニューのアイテム。
      * @param name アイテム名
      * @param onClick クリック時のイベント
+     * @param close クリック時にGUIを閉じるか
      * @param icon アイテムのブロック
      * @param customData Itemにつける任意のデータ
      * @param count アイテムの個数
@@ -89,6 +93,7 @@ public class MenuItem {
      * メニューのアイテム。
      * @param name アイテム名
      * @param onClick クリック時のイベント
+     * @param close クリック時にGUIを閉じるか
      * @param icon アイテムのブロック
      * @param customData Itemにつける任意のデータ
      * @param count アイテムの個数
@@ -102,6 +107,7 @@ public class MenuItem {
      * メニューのアイテム。
      * @param name アイテム名
      * @param onClick クリック時のイベント
+     * @param close クリック時にGUIを閉じるか
      * @param icon アイテムのブロック
      */
     public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, ItemStack icon) {
@@ -112,6 +118,7 @@ public class MenuItem {
      * メニューのアイテム。
      * @param name アイテム名
      * @param onClick クリック時のイベント
+     * @param close クリック時にGUIを閉じるか
      * @param icon アイテムのブロック
      * @param customData Itemにつける任意のデータ
      */
@@ -123,6 +130,7 @@ public class MenuItem {
      * メニューのアイテム。
      * @param name アイテム名
      * @param onClick クリック時のイベント
+     * @param close クリック時にGUIを閉じるか
      * @param icon アイテムのブロック
      * @param customData Itemにつける任意のデータ
      * @param shiny ブロックをキラキラさせるか
