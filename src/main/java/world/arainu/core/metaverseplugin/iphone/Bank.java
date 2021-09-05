@@ -102,12 +102,57 @@ public class Bank extends iPhoneBase {
                 .plugin(MetaversePlugin.getInstance())
                 .open(menuItem.getClicker());
 
+        Consumer<MenuItem> remittance = (e) -> new AnvilGUI.Builder()
+                .onClose(player -> {
+                    if (!complete_flag.get()) player.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] お金の送金を取りやめました。");
+                })
+                .onComplete((player, text) -> {
+                    try {
+                        int remittance_yen = Integer.parseInt(text);
+                        if (remittance_yen < 0) {
+                            throw new NumberFormatException();
+                        } else if (econ.has(player, remittance_yen)) {
+                            AtomicBoolean complete_flag_ = new AtomicBoolean(false);
+                            new AnvilGUI.Builder()
+                                    .onClose(p -> {
+                                        if (!complete_flag_.get()) p.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] お金の送金を取りやめました。");
+                                    })
+                                    .onComplete((p, t) -> {
+                                        Player player_ = Bukkit.getPlayer(t);
+                                        if (player_ != null){
+                                            econ.withdrawPlayer(p, remittance_yen);
+                                            econ.depositPlayer(player_, remittance_yen);
+                                            player.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + econ.format(remittance_yen) + "を"+ player_.getDisplayName() +"に送金しました。");
+                                        } else {
+                                            Gui.error(p, "そのようなプレイヤーはいません："+t);
+                                        }
+                                        return AnvilGUI.Response.close();
+                                    }).title("送金するプレイヤーを入力")
+                                    .plugin(MetaversePlugin.getInstance())
+                                    .text("プレイヤー名")
+                                    .open(player);
+                            complete_flag.set(true);
+                        } else {
+                            Gui.error(player, "あなたはそこまでお金を持っていません！");
+                            player.sendMessage(ChatColor.RED + "[メタバースプラグイン][エラー] 残高: " + econ.format(econ.getBalance(player)));
+                        }
+                    } catch (NumberFormatException err) {
+                        Gui.error(player, "数字以外のものが含まれているか無効な数字です！");
+                    }
+                    return AnvilGUI.Response.close();
+                })
+                .title("送金する金額を入力")
+                .text("半角数字で!!!")
+                .plugin(MetaversePlugin.getInstance())
+                .open(menuItem.getClicker());
+
         Gui.getInstance().openMenu(menuItem.getClicker(),
-                ChatColor.GREEN + "銀行",
+                ChatColor.DARK_GREEN + "銀行",
                 Arrays.asList(
                         new MenuItem(ChatColor.LIGHT_PURPLE + "残高: " + econ.format(econ.getBalance(menuItem.getClicker())), null, false, Material.EMERALD),
                         new MenuItem(ChatColor.GOLD + "引き出し", withdrawal, true, Material.REDSTONE),
-                        new MenuItem(ChatColor.RED + "入金", payment, true, Material.GOLD_INGOT)
+                        new MenuItem(ChatColor.RED + "入金", payment, true, Material.GOLD_INGOT),
+                        new MenuItem(ChatColor.YELLOW + "入金", remittance, true, Material.DIAMOND)
                 )
         );
     }
