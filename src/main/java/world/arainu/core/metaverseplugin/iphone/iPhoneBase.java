@@ -25,7 +25,7 @@ public abstract class iPhoneBase extends CommandPlayerOnlyBase {
 
     @Override
     public boolean execute(Player player, Command command, String label, String[] args) {
-        Gui.getInstance().error(player, ChatColor.RED+"[エラー] コマンドは実装されていません");
+        Gui.error(player, "コマンドは実装されていません");
         return false;
     }
 

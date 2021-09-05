@@ -27,7 +27,17 @@ public class MenuItem {
      * @param onClick クリック時のイベント
      */
     public MenuItem(String name, Consumer<MenuItem> onClick) {
-        this(name, onClick, Material.STONE);
+        this(name, onClick, true, Material.STONE);
+    }
+
+    /**
+     * メニューのアイテム。
+     * @param name アイテム名
+     * @param onClick クリック時のイベント
+     * @param close クリックしたときにインベントリを閉じるかどうか
+     */
+    public MenuItem(String name, Consumer<MenuItem> onClick,Boolean close) {
+        this(name, onClick,close, Material.STONE);
     }
 
     /**
@@ -36,8 +46,8 @@ public class MenuItem {
      * @param onClick クリック時のイベント
      * @param icon アイテムのブロック
      */
-    public MenuItem(String name, Consumer<MenuItem> onClick, Material icon) {
-       this(name, onClick, icon, null);
+    public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, Material icon) {
+       this(name, onClick, close, icon, null,false);
     }
 
     /**
@@ -47,8 +57,8 @@ public class MenuItem {
      * @param icon アイテムのブロック
      * @param customData Itemにつける任意のデータ
      */
-    public MenuItem(String name, Consumer<MenuItem> onClick, Material icon, Object customData) {
-        this(name, onClick, icon, customData, 1);
+    public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, Material icon, Object customData) {
+        this(name, onClick, close, icon, customData, 1);
     }
 
     /**
@@ -59,8 +69,8 @@ public class MenuItem {
      * @param customData Itemにつける任意のデータ
      * @param shiny ブロックをキラキラさせるか
      */
-    public MenuItem(String name, Consumer<MenuItem> onClick, Material icon, Object customData, boolean shiny) {
-        this(name, onClick, icon, customData, 1, shiny);
+    public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, Material icon, Object customData, boolean shiny) {
+        this(name, onClick, close, icon, customData, 1, shiny);
     }
 
     /**
@@ -71,8 +81,8 @@ public class MenuItem {
      * @param customData Itemにつける任意のデータ
      * @param count アイテムの個数
      */
-    public MenuItem(String name, Consumer<MenuItem> onClick, Material icon, Object customData, int count) {
-        this(name, onClick, icon, customData, count, false);
+    public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, Material icon, Object customData, int count) {
+        this(name, onClick, close, icon, customData, count, false);
     }
 
     /**
@@ -84,8 +94,8 @@ public class MenuItem {
      * @param count アイテムの個数
      * @param shiny ブロックをキラキラさせるか
      */
-    public MenuItem(String name, Consumer<MenuItem> onClick, Material icon, Object customData, int count, boolean shiny) {
-        this(name, onClick, new ItemStack(icon, count), customData, shiny);
+    public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, Material icon, Object customData, int count, boolean shiny) {
+        this(name, onClick, close, new ItemStack(icon, count), customData, shiny);
     }
 
     /**
@@ -94,8 +104,8 @@ public class MenuItem {
      * @param onClick クリック時のイベント
      * @param icon アイテムのブロック
      */
-    public MenuItem(String name, Consumer<MenuItem> onClick, ItemStack icon) {
-        this(name, onClick, icon, null);
+    public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, ItemStack icon) {
+        this(name, onClick, close, icon, null);
     }
 
     /**
@@ -105,8 +115,8 @@ public class MenuItem {
      * @param icon アイテムのブロック
      * @param customData Itemにつける任意のデータ
      */
-    public MenuItem(String name, Consumer<MenuItem> onClick, ItemStack icon, Object customData) {
-        this(name, onClick, icon, customData, false);
+    public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, ItemStack icon, Object customData) {
+        this(name, onClick, close, icon, customData, false);
     }
 
     /**
@@ -117,12 +127,13 @@ public class MenuItem {
      * @param customData Itemにつける任意のデータ
      * @param shiny ブロックをキラキラさせるか
      */
-    public MenuItem(String name, Consumer<MenuItem> onClick, ItemStack icon, Object customData, boolean shiny) {
+    public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, ItemStack icon, Object customData, boolean shiny) {
         this.name = name;
         this.onClick = onClick;
         this.icon = icon;
         this.customData = customData;
         this.shiny = shiny;
+        this.close = close;
     }
 
     @Getter private final String name;
@@ -130,5 +141,6 @@ public class MenuItem {
     @Getter private final Consumer<MenuItem> onClick;
     @Getter private final Object customData;
     @Getter private final boolean shiny;
+    @Getter private final boolean close;
     @Getter @Setter private Player clicker;
 }

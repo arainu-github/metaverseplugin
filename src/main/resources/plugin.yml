@@ -2,9 +2,11 @@ name: MetaversePlugin
 version: '${project.version}'
 main: world.arainu.core.metaverseplugin.MetaversePlugin
 api-version: 1.17
-authors: [ kumitatepazuru, kawattii ]
+authors: [ kumitatepazuru, kawattii, AreaEffectCloud ]
 description: あらいぬメタバースプロジェクトマインクラフトサーバーのプラグイン
 website: https://arainu.world
+depend:
+  - Vault
 commands:
   worldtp:
     description: ワールド移動をするGUIを表示します。

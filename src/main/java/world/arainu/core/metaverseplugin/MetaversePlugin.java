@@ -10,6 +10,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.Messenger;
 import org.jetbrains.annotations.NotNull;
@@ -17,14 +18,17 @@ import world.arainu.core.metaverseplugin.commands.CommandBase;
 import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
+import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.iphone.Worldteleport;
+import world.arainu.core.metaverseplugin.listener.BankListener;
 import world.arainu.core.metaverseplugin.listener.ServerListener;
 import world.arainu.core.metaverseplugin.listener.BungeeMessageListener;
 import world.arainu.core.metaverseplugin.listener.SittingListener;
+import world.arainu.core.metaverseplugin.store.BankStore;
 import world.arainu.core.metaverseplugin.store.ServerStore;
 import world.arainu.core.metaverseplugin.store.iPhoneStore;
+import net.milkbowl.vault.economy.Economy;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -33,6 +37,7 @@ import java.util.HashMap;
  * @author kumitatepazuru
  */
 public final class MetaversePlugin extends JavaPlugin {
+    @Getter private static Economy econ = null;
 
     @Override
     public void onEnable() {
@@ -42,6 +47,26 @@ public final class MetaversePlugin extends JavaPlugin {
         loadCommands();
         setListener();
         loadGuis();
+        EnablePlugins();
+    }
+
+    private void EnablePlugins() {
+        if (!setupEconomy() ) {
+            getLogger().severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
+            getServer().getPluginManager().disablePlugin(this);
+        }
+    }
+
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return true;
     }
 
     @Override
@@ -58,7 +83,8 @@ public final class MetaversePlugin extends JavaPlugin {
         ItemMeta teleportMeta = teleportItem.getItemMeta();
         teleportMeta.lore(Collections.singletonList(Component.text("━━━Mod Only━━━").color(NamedTextColor.LIGHT_PURPLE)));
         teleportItem.setItemMeta(teleportMeta);
-        iPhoneStore.addGuiItem(new MenuItem("ワールドテレポート",new Worldteleport()::executeGui,teleportItem,null,true),true);
+        iPhoneStore.addGuiItem(new MenuItem("ワールドテレポート", new Worldteleport()::executeGui,true, teleportItem, null, true),true);
+        iPhoneStore.addGuiItem(new MenuItem("ネット銀行",new Bank()::executeGui,true, Material.EMERALD_BLOCK));
     }
 
     /**
@@ -67,6 +93,7 @@ public final class MetaversePlugin extends JavaPlugin {
     public void createStore() {
         new ServerStore();
         new iPhoneStore();
+        new BankStore();
     }
 
     /**
@@ -78,6 +105,7 @@ public final class MetaversePlugin extends JavaPlugin {
 
         PM.registerEvents(new ServerListener(), this);
         PM.registerEvents(new SittingListener(), this);
+        PM.registerEvents(new BankListener(), this);
         PM.registerEvents(Gui.getInstance(), this);
         msg.registerOutgoingPluginChannel(this, "BungeeCord");
         msg.registerIncomingPluginChannel(this, "BungeeCord", new BungeeMessageListener());

@@ -1,6 +1,8 @@
 package world.arainu.core.metaverseplugin.gui;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.enchantments.Enchantment;
@@ -62,8 +64,8 @@ public class Gui implements Listener {
      * @param p エラーを表示させるプレイヤー
      * @param message エラー内容
      */
-    public void error(Player p, String message) {
-        p.sendMessage(message);
+    public static void error(Player p, String message) {
+        p.sendMessage(ChatColor.RED+"[メタバースプラグイン][エラー] "+message);
         p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1, 0.5f);
     }
 
@@ -85,8 +87,10 @@ public class Gui implements Listener {
 
         if (menuItems.length <= id) return;
         else if (id < 0) return;
-        p.closeInventory();
         final MenuItem clickedMenuItem = menuItems[id];
+        if (clickedMenuItem.isClose()){
+            p.closeInventory();
+        }
         clickedMenuItem.setClicker((Player) p);
         final Consumer<MenuItem> handler = clickedMenuItem.getOnClick();
         if (handler != null) handler.accept(clickedMenuItem);
@@ -109,7 +113,7 @@ public class Gui implements Listener {
     }
 
     private void openMenuJavaImpl(Player player, String title, MenuItem[] items) {
-        final Inventory inv = Bukkit.createInventory(null, (1 + items.length / 9) * 9, title);
+        final Inventory inv = Bukkit.createInventory(null, (1 + items.length / 9) * 9, Component.text(title));
 
         Arrays.stream(items).map(i -> {
             final ItemStack item = i.getIcon();
@@ -118,7 +122,7 @@ public class Gui implements Listener {
             }
             final ItemMeta meta = item.getItemMeta();
             assert meta != null;
-            meta.setDisplayName(i.getName());
+            meta.displayName(Component.text(i.getName()));
             item.setItemMeta(meta);
 
             return item;
