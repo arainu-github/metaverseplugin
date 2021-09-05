@@ -86,7 +86,7 @@ public class Bank extends iPhoneBase {
                             throw new NumberFormatException();
                         } else {
                             complete_flag.set(true);
-                            Inventory inv = Bukkit.createInventory(null, 9, Component.text("入金したいお金を入れてください。必要学を入れたら自動で入金します。"));
+                            Inventory inv = Bukkit.createInventory(null, 9, Component.text("入金したいお金を入れてください。"));
                             player.openInventory(inv);
                             HashMap<UUID, Integer> gui_hashmap = BankStore.getGui_hashmap();
                             gui_hashmap.put(player.getUniqueId(),payment_yen);
