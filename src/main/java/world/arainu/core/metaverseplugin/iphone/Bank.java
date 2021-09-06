@@ -7,6 +7,7 @@ import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -23,15 +24,17 @@ import java.util.function.Consumer;
 
 /**
  * ネット銀行の関数。
+ *
  * @author kumitatepazuru
  */
 public class Bank extends iPhoneBase {
     /**
      * 口座のお金を現金に換金する関数。
+     *
      * @param player 対象のプレイヤー
-     * @param yen 換金する額
+     * @param yen    換金する額
      */
-    public static void addMoneyForPlayer(Player player, int yen){
+    public static void addMoneyForPlayer(Player player, int yen) {
         int log_money = (int) Math.log(yen);
         if (log_money > 5) {
             log_money = 5;
@@ -95,7 +98,7 @@ public class Bank extends iPhoneBase {
                             Inventory inv = Bukkit.createInventory(null, 9, Component.text("入金したいお金を入れてください。"));
                             player.openInventory(inv);
                             HashMap<UUID, Integer> gui_hashmap = BankStore.getGui_hashmap();
-                            gui_hashmap.put(player.getUniqueId(),payment_yen);
+                            gui_hashmap.put(player.getUniqueId(), payment_yen);
                             BankStore.setGui_hashmap(gui_hashmap);
                         }
                     } catch (NumberFormatException err) {
@@ -118,19 +121,39 @@ public class Bank extends iPhoneBase {
                         if (remittance_yen < 0) {
                             throw new NumberFormatException();
                         } else if (econ.has(player, remittance_yen)) {
+                            complete_flag.set(true);
                             AtomicBoolean complete_flag_ = new AtomicBoolean(false);
                             new AnvilGUI.Builder()
                                     .onClose(p -> {
-                                        if (!complete_flag_.get()) p.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] お金の送金を取りやめました。");
+                                        if (!complete_flag_.get())
+                                            p.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] お金の送金を取りやめました。");
                                     })
                                     .onComplete((p, t) -> {
-                                        Player player_ = Bukkit.getPlayer(t);
-                                        if (player_ != null){
+                                        // TODO: getDisplayNameをDisplayNameに変更する
+                                        OfflinePlayer player_ = Bukkit.getOfflinePlayer(t);
+                                        if (econ.hasAccount(player_)) {
                                             econ.withdrawPlayer(p, remittance_yen);
                                             econ.depositPlayer(player_, remittance_yen);
-                                            player.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + econ.format(remittance_yen) + "を"+ player_.getDisplayName() +"に送金しました。");
+                                            player.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + econ.format(remittance_yen) + "を" + player_.getName() + "に送金しました。");
+                                            if (player_.isOnline()) {
+                                                final Player player_online = (Player) player_;
+                                                player_online.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + p.getDisplayName() + "があなたへ" + econ.format(remittance_yen) + "送金しました。");
+                                                player_online.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] 所持金は" + econ.format(econ.getBalance(player_)) + "です。");
+                                            } else {
+                                                player.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] 送金先のプレイヤーはオフラインです。プレイヤーが入室してきたときに送金の趣旨を通知します。");
+                                                HashMap<UUID, List<List<String>>> remittance_map = BankStore.getRemittance_map();
+                                                if (remittance_map.containsKey(player_.getUniqueId())) {
+                                                    List<List<String>> old_list = new ArrayList<>(remittance_map.get(player_.getUniqueId()));
+                                                    old_list.add(List.of(p.getDisplayName(), econ.format(remittance_yen)));
+                                                    remittance_map.replace(player_.getUniqueId(),old_list);
+                                                } else {
+                                                    remittance_map.put(player_.getUniqueId(), List.of(List.of(p.getDisplayName(), econ.format(remittance_yen))));
+                                                }
+                                                BankStore.setRemittance_map(remittance_map);
+                                            }
+                                            complete_flag_.set(true);
                                         } else {
-                                            Gui.error(p, "そのようなプレイヤーはいません："+t);
+                                            Gui.error(p, "そのようなプレイヤーはいません：" + t);
                                         }
                                         return AnvilGUI.Response.close();
                                     }).title("送金するプレイヤーを入力")

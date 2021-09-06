@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -90,6 +91,19 @@ public class BankListener implements Listener {
 
             gui_hashmap.remove(p.getUniqueId());
             BankStore.setGui_hashmap(gui_hashmap);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e){
+        Economy econ = MetaversePlugin.getEcon();
+
+        if (BankStore.getRemittance_map().containsKey(e.getPlayer().getUniqueId())){
+            List<List<String>> remittance = BankStore.getRemittance_map().get(e.getPlayer().getUniqueId());
+            for(List<String>i : remittance){
+                e.getPlayer().sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + i.get(0) + "があなたへ" + i.get(1) + "送金しました。");
+                e.getPlayer().sendMessage(ChatColor.GREEN + "[メタバースプラグイン] 所持金は" + econ.format(econ.getBalance(e.getPlayer())) + "です。");
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ import org.bukkit.NamespacedKey;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -24,4 +25,6 @@ public class BankStore {
     @Getter private static NamespacedKey key;
     @Getter private static BankStore Instance;
     @Getter @Setter private static HashMap<UUID, Integer> gui_hashmap = new HashMap<>();
+    // TODO: Mysqlに移行
+    @Getter @Setter private static HashMap<UUID, List<List<String>>> remittance_map = new HashMap<>();
 }
