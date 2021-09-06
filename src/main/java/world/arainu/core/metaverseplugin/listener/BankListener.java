@@ -94,6 +94,10 @@ public class BankListener implements Listener {
         }
     }
 
+    /**
+     * プレイヤーがログインしてきたとき発火する関数
+     * @param e イベント
+     */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e){
         Economy econ = MetaversePlugin.getEcon();
