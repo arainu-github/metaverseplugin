@@ -115,6 +115,10 @@ public class BankListener implements Listener {
         BankStore.setLogin_money_map(login_money_map);
     }
 
+    /**
+     * プレイヤーが退出したときに発火する関数
+     * @param e イベント
+     */
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e){
         HashMap<UUID,Long> login_money_map = BankStore.getLogin_money_map();

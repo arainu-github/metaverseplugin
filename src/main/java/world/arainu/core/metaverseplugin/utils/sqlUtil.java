@@ -1,7 +1,6 @@
 package world.arainu.core.metaverseplugin.utils;
 
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
 import java.sql.Connection;
@@ -16,16 +15,13 @@ import java.util.UUID;
  * @author kumitatepazuru
  */
 public class sqlUtil {
-    public sqlUtil(){
-        db_name = MetaversePlugin.getConfiguration().getString("mysql.db_name");
-        url = MetaversePlugin.getConfiguration().getString("mysql.url");
-        user = MetaversePlugin.getConfiguration().getString("mysql.user");
-        pass = MetaversePlugin.getConfiguration().getString("mysql.pass");
-        port = MetaversePlugin.getConfiguration().getInt("mysql.port");
-
-        url_connection = "jdbc:mysql://"+url+":"+port+"/"+db_name;
-    }
-
+    /**
+     * 作ってみたけど使わなかった関数。
+     *
+     * @deprecated
+     * @param uuid player UUID
+     */
+    @Deprecated
     public void time_update(UUID uuid){
         try {
             Connection conn = DriverManager.getConnection(url_connection, user, pass);
@@ -38,10 +34,10 @@ public class sqlUtil {
         }
     }
 
-    @Getter private static String db_name;
-    @Getter private static String user;
-    @Getter private static String pass;
-    @Getter private static int port;
-    @Getter private static String url;
-    private static String url_connection;
+    @Getter private final static String db_name = MetaversePlugin.getConfiguration().getString("mysql.db_name");
+    @Getter private final static String user = MetaversePlugin.getConfiguration().getString("mysql.user");
+    @Getter private final static String pass = MetaversePlugin.getConfiguration().getString("mysql.pass");
+    @Getter private final static int port = MetaversePlugin.getConfiguration().getInt("mysql.port");
+    @Getter private final static String url = MetaversePlugin.getConfiguration().getString("mysql.url");
+    private final static String url_connection = "jdbc:mysql://"+url+":"+port+"/"+db_name;
 }
