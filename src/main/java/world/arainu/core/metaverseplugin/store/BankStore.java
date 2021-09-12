@@ -14,17 +14,10 @@ import java.util.UUID;
  * @author kumitatepazuru
  */
 public class BankStore {
-    /**
-     * 銀行システムに関する情報をまとめているクラス
-     */
-    public BankStore() {
-        key = new NamespacedKey(MetaversePlugin.getInstance(), "metaverse-bank__money");
-        Instance = this;
-    }
-
-    @Getter private static NamespacedKey key;
+    @Getter private static final NamespacedKey key = new NamespacedKey(MetaversePlugin.getInstance(), "metaverse-bank__money");
     @Getter private static BankStore Instance;
     @Getter @Setter private static HashMap<UUID, Integer> gui_hashmap = new HashMap<>();
     // TODO: Mysqlに移行
     @Getter @Setter private static HashMap<UUID, List<List<String>>> remittance_map = new HashMap<>();
+    @Getter @Setter private static HashMap<UUID, Long> login_money_map = new HashMap<>();
 }
