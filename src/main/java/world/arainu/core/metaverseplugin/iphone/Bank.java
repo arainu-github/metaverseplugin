@@ -28,7 +28,12 @@ import java.util.function.Consumer;
  * @author kumitatepazuru
  */
 public class Bank extends iPhoneBase {
-
+    /**
+     * プラグインのゲーム内通貨を取得するプログラム
+     * @param yen お金の金額
+     * @param quantity 枚数
+     * @return ItemStack
+     */
     public static ItemStack getPluginMoneyEmerald(int yen, int quantity){
         ItemStack moneyStack = new ItemStack(Material.EMERALD, quantity);
         ItemMeta itemMeta = moneyStack.getItemMeta();

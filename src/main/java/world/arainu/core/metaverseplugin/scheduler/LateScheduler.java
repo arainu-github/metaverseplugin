@@ -11,7 +11,9 @@ import world.arainu.core.metaverseplugin.commands.CommandSpawn;
 
 import java.util.*;
 
-
+/**
+ * 村人市場の取引に関するものをまとめているクラス
+ */
 public class LateScheduler extends BukkitRunnable {
     @Override
     public void run() {

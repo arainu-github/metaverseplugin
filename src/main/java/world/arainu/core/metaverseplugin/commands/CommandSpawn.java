@@ -24,11 +24,20 @@ import java.util.List;
 public class CommandSpawn extends CommandPlayerOnlyBase {
     @Getter private final CommandSpawn Instance;
 
+    /**
+     * プラグイン特有のmobをスポーンさせるコマンドを定義している関数
+     */
     public CommandSpawn(){
         this.Instance = this;
     }
 
-
+    /**
+     * 村人との取引（買いとり）のレシピを取得する関数
+     * @param yen お金の金額
+     * @param quantity 枚数
+     * @param ingredientItems 買取のアイテム
+     * @return レシピ
+     */
     public static MerchantRecipe createRecipe(int yen, int quantity, ItemStack... ingredientItems){
         MerchantRecipe recipe = new MerchantRecipe(Bank.getPluginMoneyEmerald(yen,quantity),0,2147483647,false);
         for(ItemStack ingredientItem : ingredientItems) {

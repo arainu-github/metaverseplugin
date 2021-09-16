@@ -14,6 +14,7 @@ import java.util.UUID;
  * @author kumitatepazuru
  */
 public class sqlUtil {
+    /** sql関係の便利関数を集めているクラス */
     public sqlUtil(){
         Instance = this;
     }
@@ -50,6 +51,7 @@ public class sqlUtil {
      * 何かしらのタイプとUUIDを紐付ける関数。
      *
      * @param type type
+     * @return UUID
      */
     public List<UUID> getuuidsbytype(String type){
         try {
