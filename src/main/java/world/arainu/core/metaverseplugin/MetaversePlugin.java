@@ -17,6 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.Messenger;
 import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.commands.CommandBase;
+import world.arainu.core.metaverseplugin.commands.CommandSpawn;
 import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
@@ -26,6 +27,7 @@ import world.arainu.core.metaverseplugin.listener.BankListener;
 import world.arainu.core.metaverseplugin.listener.BungeeMessageListener;
 import world.arainu.core.metaverseplugin.listener.ServerListener;
 import world.arainu.core.metaverseplugin.listener.SittingListener;
+import world.arainu.core.metaverseplugin.scheduler.LateScheduler;
 import world.arainu.core.metaverseplugin.scheduler.MoneyScheduler;
 import world.arainu.core.metaverseplugin.store.iPhoneStore;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
@@ -60,6 +62,7 @@ public final class MetaversePlugin extends JavaPlugin {
 
     private void setScheduler() {
         new MoneyScheduler().runTaskTimer(this, 0, 20);
+        new LateScheduler().runTaskTimer(this, 0, 20);
     }
 
     private void EnablePlugins() {
@@ -139,6 +142,7 @@ public final class MetaversePlugin extends JavaPlugin {
 
         addCommand("worldtp", new Worldteleport());
         addCommand("iphone", new CommandiPhone());
+        addCommand("spawn", new CommandSpawn());
     }
 
     @Override

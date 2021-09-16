@@ -3,10 +3,9 @@ package world.arainu.core.metaverseplugin.utils;
 import lombok.Getter;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -15,22 +14,60 @@ import java.util.UUID;
  * @author kumitatepazuru
  */
 public class sqlUtil {
+    public sqlUtil(){
+        Instance = this;
+    }
+
+    private void create_uuidtype_table(Connection conn){
+        try {
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `uuidtype` ( `uuid` VARCHAR(36) NOT NULL , `type` VARCHAR(20) NOT NULL , PRIMARY KEY (`uuid`)) ");
+            ps.executeUpdate();
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
     /**
-     * 作ってみたけど使わなかった関数。
+     * 何かしらのタイプとUUIDを紐付ける関数。
      *
-     * @deprecated
-     * @param uuid player UUID
+     * @param uuid UUID
+     * @param type type
      */
-    @Deprecated
-    public void time_update(UUID uuid){
+    public void setuuidtype(UUID uuid, String type){
         try {
             Connection conn = DriverManager.getConnection(url_connection, user, pass);
-            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `logintime` ( `uuid` VARCHAR(36) NOT NULL , `time` INT NOT NULL , PRIMARY KEY (`uuid`)) ");
+            create_uuidtype_table(conn);
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO `uuidtype` (`uuid`, `type`) VALUES('" + uuid + "', '" + type + "')");
             ps.executeUpdate();
-            ps = conn.prepareStatement("INSERT INTO `logintime` (`uuid`, `time`) VALUES('" + uuid + "', " + System.currentTimeMillis() / 1000 + ") ON DUPLICATE KEY UPDATE time=VALUES(time)");
-            ps.executeUpdate();
+            ps.close();
+            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * 何かしらのタイプとUUIDを紐付ける関数。
+     *
+     * @param type type
+     */
+    public List<UUID> getuuidsbytype(String type){
+        try {
+            Connection conn = DriverManager.getConnection(url_connection, user, pass);
+            create_uuidtype_table(conn);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM `uuidtype` WHERE `type` LIKE '"+type+"'");
+            List<UUID> uuidList = new ArrayList<>();
+            while(rs.next()){
+                uuidList.add(UUID.fromString(rs.getString("uuid")));
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+            return uuidList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -40,4 +77,5 @@ public class sqlUtil {
     @Getter private final static int port = MetaversePlugin.getConfiguration().getInt("mysql.port");
     @Getter private final static String url = MetaversePlugin.getConfiguration().getString("mysql.url");
     private final static String url_connection = "jdbc:mysql://"+url+":"+port+"/"+db_name;
+    @Getter private static sqlUtil Instance;
 }

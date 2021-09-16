@@ -28,6 +28,17 @@ import java.util.function.Consumer;
  * @author kumitatepazuru
  */
 public class Bank extends iPhoneBase {
+
+    public static ItemStack getPluginMoneyEmerald(int yen, int quantity){
+        ItemStack moneyStack = new ItemStack(Material.EMERALD, quantity);
+        ItemMeta itemMeta = moneyStack.getItemMeta();
+        itemMeta.getPersistentDataContainer().set(BankStore.getKey(), PersistentDataType.INTEGER, yen);
+        itemMeta.lore(Collections.singletonList(Component.text("ゲーム内通貨。").color(NamedTextColor.GREEN)));
+        itemMeta.displayName(Component.text("$" + yen));
+        moneyStack.setItemMeta(itemMeta);
+        return moneyStack;
+    }
+
     /**
      * 口座のお金を現金に換金する関数。
      *
@@ -40,12 +51,7 @@ public class Bank extends iPhoneBase {
             log_money = 5;
         }
         for (int i = log_money; i >= 0; i--) {
-            ItemStack moneyStack = new ItemStack(Material.EMERALD, (int) (yen / Math.pow(10, i)));
-            ItemMeta itemMeta = moneyStack.getItemMeta();
-            itemMeta.getPersistentDataContainer().set(BankStore.getKey(), PersistentDataType.INTEGER, (int) Math.pow(10, i));
-            itemMeta.lore(Collections.singletonList(Component.text("ゲーム内通貨。").color(NamedTextColor.GREEN)));
-            itemMeta.displayName(Component.text("$" + (int) Math.pow(10, i)));
-            moneyStack.setItemMeta(itemMeta);
+            ItemStack moneyStack = getPluginMoneyEmerald((int) Math.pow(10, i),(int) (yen / Math.pow(10, i)));
             player.getInventory().addItem(moneyStack);
             yen %= (int) Math.pow(10, i);
         }
