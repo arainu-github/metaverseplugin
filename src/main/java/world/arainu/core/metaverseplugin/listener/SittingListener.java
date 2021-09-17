@@ -3,6 +3,8 @@ package world.arainu.core.metaverseplugin.listener;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.Bisected;
+import org.bukkit.block.data.type.Stairs;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -12,6 +14,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.spigotmc.event.entity.EntityDismountEvent;
+
+import java.util.*;
 
 /**
  * 階段ブロックに座るときに使うイベントリスナーのクラス
@@ -26,18 +30,21 @@ public class SittingListener implements Listener {
         synchronized (this) {
             Location blockLocation = block.getLocation();
 
-            double stairsX = blockLocation.getBlockX() + 0.5;
-            double stairsY = blockLocation.getBlockY() - 1.2;
-            double stairsZ = blockLocation.getBlockZ() + 0.5;
+            if(!new ArrayList<>(shit_location_map.values()).contains(blockLocation)) {
+                double stairsX = blockLocation.getBlockX() + 0.5;
+                double stairsY = blockLocation.getBlockY() - 1.2;
+                double stairsZ = blockLocation.getBlockZ() + 0.5;
 
-            Location loc = new Location(block.getWorld(), stairsX, stairsY, stairsZ);
+                Location loc = new Location(block.getWorld(), stairsX, stairsY, stairsZ);
+                shit_location_map.put(player.getUniqueId(), loc);
 
-            Entity armorStand = loc.getWorld().spawnEntity(loc, EntityType.ARMOR_STAND);
-            armorStand.addPassenger(player);
-            armorStand.setInvulnerable(true);
-            armorStand.setGravity(false);
-            ArmorStand as = (ArmorStand) armorStand;
-            as.setVisible(false);
+                Entity armorStand = loc.getWorld().spawnEntity(loc, EntityType.ARMOR_STAND);
+                armorStand.addPassenger(player);
+                armorStand.setInvulnerable(true);
+                armorStand.setGravity(false);
+                ArmorStand as = (ArmorStand) armorStand;
+                as.setVisible(false);
+            }
         }
     }
 
@@ -49,45 +56,14 @@ public class SittingListener implements Listener {
     @EventHandler
     public void Sitting(PlayerInteractEvent e) {
         Action action = e.getAction();
-        Block block = e.getClickedBlock();
+        Block block = Objects.requireNonNull(e.getClickedBlock());
         Player player = e.getPlayer();
 
-        if (action == Action.RIGHT_CLICK_BLOCK) {
-            if (player.getInventory().getItemInMainHand().getType().isAir()) {
-
-                if (block.getType().equals(Material.ACACIA_STAIRS)) {
+        if (player.getInventory().getItemInMainHand().getType().isAir() && stair_matrials.contains(block.getType())) {
+            if (action == Action.RIGHT_CLICK_BLOCK) {
+                Stairs stairs = (Stairs) block.getBlockData();
+                if (stairs.getHalf().equals(Bisected.Half.BOTTOM)) {
                     spawnArmorStand(block, player);
-
-                } else if (block.getType().equals(Material.BIRCH_STAIRS)) {
-                    spawnArmorStand(block, player);
-
-                } else if (block.getType().equals(Material.DARK_OAK_STAIRS)) {
-                    spawnArmorStand(block, player);
-
-                } else if (block.getType().equals(Material.JUNGLE_STAIRS)) {
-                    spawnArmorStand(block, player);
-
-                } else if (block.getType().equals(Material.OAK_STAIRS)) {
-                    spawnArmorStand(block, player);
-
-                } else if (block.getType().equals(Material.SPRUCE_STAIRS)) {
-                    spawnArmorStand(block, player);
-
-                } else if (block.getType().equals(Material.CRIMSON_STAIRS)) {
-                    spawnArmorStand(block, player);
-
-                } else if (block.getType().equals(Material.WARPED_STAIRS)) {
-                    spawnArmorStand(block, player);
-                  
-                } else if (block.getType().equals(Material.WAXED_OXIDIZED_CUT_COPPER_STAIRS)) {
-                    spawnArmorStand(block, player);
-                  
-                } else if (block.getType().equals(Material.POLISHED_BLACKSTONE_STAIRS)) {
-                    spawnArmorStand(block, player);
-                  
-                } else if (block.getType().equals(Material.BLACKSTONE_STAIRS)) {
-                    spawnArmorStand(block, player);
-                  
                 }
             }
         }
@@ -106,6 +82,59 @@ public class SittingListener implements Listener {
             Location loc = entity.getLocation();
             loc.setY(loc.getY() + 0.6);
             entity.teleport(loc);
+            shit_location_map.remove(e.getEntity().getUniqueId());
         }
     }
+
+    private final HashMap<UUID,Location> shit_location_map = new HashMap<>();
+    private final List<Material> stair_matrials = Arrays.asList(
+            Material.CUT_COPPER_STAIRS,
+            Material.EXPOSED_CUT_COPPER_STAIRS,
+            Material.WEATHERED_CUT_COPPER_STAIRS,
+            Material.OXIDIZED_CUT_COPPER_STAIRS,
+            Material.WAXED_CUT_COPPER_STAIRS,
+            Material.WAXED_EXPOSED_CUT_COPPER_STAIRS,
+            Material.WAXED_WEATHERED_CUT_COPPER_STAIRS,
+            Material.WAXED_OXIDIZED_CUT_COPPER_STAIRS,
+            Material.PURPUR_STAIRS,
+            Material.OAK_STAIRS,
+            Material.COBBLESTONE_STAIRS,
+            Material.BRICK_STAIRS,
+            Material.STONE_BRICK_STAIRS,
+            Material.NETHER_BRICK_STAIRS,
+            Material.SANDSTONE_STAIRS,
+            Material.SPRUCE_STAIRS,
+            Material.BIRCH_STAIRS,
+            Material.JUNGLE_STAIRS,
+            Material.CRIMSON_STAIRS,
+            Material.WARPED_STAIRS,
+            Material.QUARTZ_STAIRS,
+            Material.ACACIA_STAIRS,
+            Material.DARK_OAK_STAIRS,
+            Material.PRISMARINE_STAIRS,
+            Material.PRISMARINE_BRICK_STAIRS,
+            Material.DARK_PRISMARINE_STAIRS,
+            Material.RED_SANDSTONE_STAIRS,
+            Material.POLISHED_GRANITE_STAIRS,
+            Material.SMOOTH_RED_SANDSTONE_STAIRS,
+            Material.MOSSY_STONE_BRICK_STAIRS,
+            Material.POLISHED_DIORITE_STAIRS,
+            Material.MOSSY_COBBLESTONE_STAIRS,
+            Material.END_STONE_BRICK_STAIRS,
+            Material.STONE_STAIRS,
+            Material.SMOOTH_SANDSTONE_STAIRS,
+            Material.SMOOTH_QUARTZ_STAIRS,
+            Material.GRANITE_STAIRS,
+            Material.ANDESITE_STAIRS,
+            Material.RED_NETHER_BRICK_STAIRS,
+            Material.POLISHED_ANDESITE_STAIRS,
+            Material.DIORITE_STAIRS,
+            Material.COBBLED_DEEPSLATE_STAIRS,
+            Material.POLISHED_DEEPSLATE_STAIRS,
+            Material.DEEPSLATE_BRICK_STAIRS,
+            Material.DEEPSLATE_TILE_STAIRS,
+            Material.BLACKSTONE_STAIRS,
+            Material.POLISHED_BLACKSTONE_STAIRS,
+            Material.POLISHED_BLACKSTONE_BRICK_STAIRS
+    );
 }
