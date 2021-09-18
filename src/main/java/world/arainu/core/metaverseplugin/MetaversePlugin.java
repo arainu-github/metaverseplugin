@@ -7,6 +7,8 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
@@ -29,6 +31,7 @@ import world.arainu.core.metaverseplugin.store.ServerStore;
 import world.arainu.core.metaverseplugin.store.iPhoneStore;
 import net.milkbowl.vault.economy.Economy;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -39,6 +42,9 @@ import java.util.HashMap;
 public final class MetaversePlugin extends JavaPlugin {
     @Getter private static Economy econ = null;
 
+    public static MetaversePlugin mainclass;
+    public static JavaPlugin plugin;
+
     @Override
     public void onEnable() {
         getLogger().info("メタバースプラグインが有効になりました。");
@@ -48,6 +54,7 @@ public final class MetaversePlugin extends JavaPlugin {
         setListener();
         loadGuis();
         EnablePlugins();
+        createStairsYml();
     }
 
     private void EnablePlugins() {
@@ -150,4 +157,22 @@ public final class MetaversePlugin extends JavaPlugin {
 
     @Getter private static MetaversePlugin Instance;
     private final HashMap<String, CommandBase> commands = new HashMap<>();
+
+    /**
+     * stairs.ymlの作成
+     */
+    private void createStairsYml() {
+        mainclass = this;
+        plugin= this;
+
+        saveResource("stairs.yml", false);
+        File stairsYml = new File(plugin.getDataFolder() + File.separator + "stairs.yml");
+        FileConfiguration stairsConfig = YamlConfiguration.loadConfiguration(stairsYml);
+
+        try  {
+            stairsConfig.save(stairsYml);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
