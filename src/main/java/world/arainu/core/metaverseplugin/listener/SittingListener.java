@@ -1,5 +1,6 @@
 package world.arainu.core.metaverseplugin.listener;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -21,9 +22,11 @@ import world.arainu.core.metaverseplugin.MetaversePlugin;
 
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 階段ブロックに座るときに使うイベントリスナーのクラス
+ *
  * @author AreaEffectCloud
  */
 public class SittingListener implements Listener {
@@ -68,7 +71,7 @@ public class SittingListener implements Listener {
         if (action == Action.RIGHT_CLICK_BLOCK) {
             if (player.getInventory().getItemInMainHand().getType().isAir()) {
                 for (String key : list) {
-                    if (block.getType() == Material.matchMaterial(key)) {
+                    if (Objects.requireNonNull(block).getType() == Material.matchMaterial(key)) {
                         Stairs stairs = (Stairs) block.getBlockData();
                         if (stairs.getHalf() == Bisected.Half.BOTTOM) {
                             if (stairs.getFacing() == BlockFace.NORTH) {
@@ -87,6 +90,8 @@ public class SittingListener implements Listener {
                         }
                     }
                 }
+            } else {
+                player.sendActionBar(Component.text("手に何も持っていない状態だと座れます"));
             }
         }
     }
