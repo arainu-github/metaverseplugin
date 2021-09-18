@@ -6,8 +6,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.gui.Gui;
+import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.store.iPhoneStore;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,7 +21,10 @@ public class CommandiPhone extends CommandPlayerOnlyBase {
     public boolean execute(Player player, Command command, String label, String[] args) {
         final String title = ChatColor.BLUE+"iPhone 12 Pro Max";
         if (player.isOp()){
-            Gui.getInstance().openMenu(player, title, iPhoneStore.getModonlyGuiItem());
+            List<MenuItem> guiItem = new ArrayList<>();
+            guiItem.addAll(iPhoneStore.getGuiItem());
+            guiItem.addAll(iPhoneStore.getModonlyGuiItem());
+            Gui.getInstance().openMenu(player, title, guiItem);
         } else {
             Gui.getInstance().openMenu(player, title, iPhoneStore.getGuiItem());
         }

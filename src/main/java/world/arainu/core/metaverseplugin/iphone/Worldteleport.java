@@ -50,7 +50,7 @@ public class Worldteleport extends iPhoneBase {
                 Objects.requireNonNull(player).sendPluginMessage(MetaversePlugin.getInstance(), "BungeeCord", _out.toByteArray());
                 Bukkit.getServer().getLogger().info(player.getName()+"("+player.getUniqueId()+")を"+m.getName()+"に転送しました");
             } else {
-                Gui.getInstance().error(player, ChatColor.RED+"[エラー] 既にそのサーバーにいます");
+                Gui.error(player, "既にそのサーバーにいます");
             }
         };
 
