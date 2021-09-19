@@ -161,9 +161,6 @@ public final class MetaversePlugin extends JavaPlugin {
         return com.execute(sender, command, label, args);
     }
 
-    @Getter private static MetaversePlugin Instance;
-    private final HashMap<String, CommandBase> commands = new HashMap<>();
-
     /**
      * stairs.ymlの作成
      */
