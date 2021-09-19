@@ -9,6 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
@@ -32,6 +33,7 @@ import world.arainu.core.metaverseplugin.scheduler.MoneyScheduler;
 import world.arainu.core.metaverseplugin.store.iPhoneStore;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -45,6 +47,9 @@ public final class MetaversePlugin extends JavaPlugin {
     @Getter private static MetaversePlugin Instance;
     @Getter private static FileConfiguration configuration;
     private final HashMap<String, CommandBase> commands = new HashMap<>();
+
+    public static MetaversePlugin mainclass;
+    public static JavaPlugin plugin;
 
     @Override
     public void onEnable() {
@@ -63,6 +68,7 @@ public final class MetaversePlugin extends JavaPlugin {
     private void setScheduler() {
         new MoneyScheduler().runTaskTimer(this, 0, 20);
         new LateScheduler().runTaskTimer(this, 0, 20);
+        createStairsYml();
     }
 
     private void EnablePlugins() {
@@ -153,5 +159,26 @@ public final class MetaversePlugin extends JavaPlugin {
         if (com == null) return false;
 
         return com.execute(sender, command, label, args);
+    }
+
+    @Getter private static MetaversePlugin Instance;
+    private final HashMap<String, CommandBase> commands = new HashMap<>();
+
+    /**
+     * stairs.ymlの作成
+     */
+    private void createStairsYml() {
+        mainclass = this;
+        plugin= this;
+
+        saveResource("stairs.yml", false);
+        File stairsYml = new File(plugin.getDataFolder() + File.separator + "stairs.yml");
+        FileConfiguration stairsConfig = YamlConfiguration.loadConfiguration(stairsYml);
+
+        try  {
+            stairsConfig.save(stairsYml);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
