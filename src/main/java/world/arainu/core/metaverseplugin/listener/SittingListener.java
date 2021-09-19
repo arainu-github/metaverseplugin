@@ -21,8 +21,10 @@ import org.spigotmc.event.entity.EntityDismountEvent;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+
 
 /**
  * 階段ブロックに座るときに使うイベントリスナーのクラス
@@ -57,6 +59,8 @@ public class SittingListener implements Listener {
 
     /**
      * プレイヤーがメインハンドに何も持たずに階段ブロックをクリックしたとき、上記の"spawnArmorStand"を実行する
+     * 他プレイヤーが座っている階段ブロックに座ることは出来ない
+     *
      * @param e イベント
      */
     @EventHandler
@@ -69,36 +73,39 @@ public class SittingListener implements Listener {
         List<String> list = stairsConfig.getStringList("stairs");
 
         if (action == Action.RIGHT_CLICK_BLOCK) {
-            if (player.getInventory().getItemInMainHand().getType().isAir()) {
-                for (String key : list) {
-                    if (Objects.requireNonNull(block).getType() == Material.matchMaterial(key)) {
+            for (String key : list) {
+                if (Objects.requireNonNull(block).getType() == Material.matchMaterial(key)) {
+                    if (player.getInventory().getItemInMainHand().getType().isAir()) {
                         Stairs stairs = (Stairs) block.getBlockData();
                         if (stairs.getHalf() == Bisected.Half.BOTTOM) {
-                            if (stairs.getFacing() == BlockFace.NORTH) {
-                                double yaw = 0;
-                                this.spawnArmorStand(block, player, yaw);
-                            } else if (stairs.getFacing() == BlockFace.EAST) {
-                                double yaw = 90;
-                                this.spawnArmorStand(block,player, yaw);
-                            } else if (stairs.getFacing() == BlockFace.SOUTH) {
-                                double yaw = 180;
-                                this.spawnArmorStand(block, player, yaw);
-                            } else if (stairs.getFacing() == BlockFace.WEST) {
-                                double yaw = 270;
-                                this.spawnArmorStand(block, player, yaw);
+                            Collection<Entity> armorstand = block.getWorld().getNearbyEntities(block.getLocation(), 0.5, 1, 0.5, (entity) -> entity.getType() == EntityType.ARMOR_STAND);
+                            if (armorstand.isEmpty()) {
+                                if (stairs.getFacing() == BlockFace.NORTH) {
+                                    double yaw = 0;
+                                    this.spawnArmorStand(block, player, yaw);
+                                } else if (stairs.getFacing() == BlockFace.EAST) {
+                                    double yaw = 90;
+                                    this.spawnArmorStand(block, player, yaw);
+                                } else if (stairs.getFacing() == BlockFace.SOUTH) {
+                                    double yaw = 180;
+                                    this.spawnArmorStand(block, player, yaw);
+                                } else if (stairs.getFacing() == BlockFace.WEST) {
+                                    double yaw = 270;
+                                    this.spawnArmorStand(block, player, yaw);
+                                }
                             }
                         }
+                    } else {
+                        player.sendActionBar(Component.text("何も持っていない状態だと座れます"));
                     }
                 }
-            } else {
-                player.sendActionBar(Component.text("手に何も持っていない状態だと座れます"));
             }
         }
     }
 
     /**
      * プレイヤーがアーマースタンドから降りたら、アーマースタンドを消去する
-     * 降りた際に階段ブロックに埋まるバグは未だに修正出来ていません /(ㄒoㄒ)/~~
+     *
      * @param e イベント
      */
     @EventHandler
