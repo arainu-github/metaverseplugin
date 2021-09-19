@@ -10,15 +10,6 @@ import org.bukkit.Bukkit;
  * @author kumitatepazuru
  */
 public class ServerStore {
-    /**
-     * サーバーのデータを格納するクラス
-     */
-    public ServerStore(){
-        ServerStore.instance = this;
-    }
-
-    @Getter
-    private static ServerStore instance;
     @Getter private static String serverName = "";
     @Getter private static final BidiMap<String, String> serverDisplayMap = new DualHashBidiMap<>(){{put("lobby","ロビー"); put("survival","サバイバル"); put("creative","クリエイティブ");}};
 
@@ -35,7 +26,7 @@ public class ServerStore {
      * サーバーのbungeeの表示名を取得する
      * @return 表示名
      */
-    public String getServerDisplayName(){
+    public static String getServerDisplayName(){
         return serverDisplayMap.get(serverName);
     }
 }

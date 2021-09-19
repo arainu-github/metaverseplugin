@@ -21,6 +21,8 @@ import java.util.function.Consumer;
 /**
  * bungeecordのワールド間テレポートツール。
  * Mod＆Admin専用
+ *
+ * @author kumitatepazuru
  */
 public class Worldteleport extends iPhoneBase {
     @Override
@@ -40,7 +42,7 @@ public class Worldteleport extends iPhoneBase {
      */
     private void Run(Player player){
         Consumer<MenuItem> TeleportPlayer = (m) -> {
-            if (!Objects.equals(ServerStore.getInstance().getServerDisplayName(), m.getName())) {
+            if (!Objects.equals(ServerStore.getServerDisplayName(), m.getName())) {
                 ByteArrayDataOutput _out = ByteStreams.newDataOutput();
 
                 _out.writeUTF("ConnectOther");
