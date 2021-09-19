@@ -18,8 +18,14 @@ commands:
     description: サーバー内で使用できるスマホを表示します。
     usage: /iphone
     permission: metaverse.command.iphone
+  spawn:
+    description: プラグイン特有のmobをスポーンさせます。
+    usage: /spawn [type]
+    permission: metaverse.command.spawn
 permissions:
   metaverse.command.worldtp:
     default: op
   metaverse.command.iphone:
     default: true
+  metaverse.command.spawn:
+    default: op

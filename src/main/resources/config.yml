@@ -1,0 +1,8 @@
+mysql:
+  db_name: metaverse
+  port: 3306
+  url: mc_mysql
+  user: root
+  pass: password
+econ:
+  login_money: 500

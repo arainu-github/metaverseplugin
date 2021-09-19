@@ -3,6 +3,7 @@ package world.arainu.core.metaverseplugin;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -17,19 +18,20 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.Messenger;
 import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.commands.CommandBase;
+import world.arainu.core.metaverseplugin.commands.CommandSpawn;
 import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.iphone.Worldteleport;
 import world.arainu.core.metaverseplugin.listener.BankListener;
-import world.arainu.core.metaverseplugin.listener.ServerListener;
 import world.arainu.core.metaverseplugin.listener.BungeeMessageListener;
+import world.arainu.core.metaverseplugin.listener.ServerListener;
 import world.arainu.core.metaverseplugin.listener.SittingListener;
-import world.arainu.core.metaverseplugin.store.BankStore;
-import world.arainu.core.metaverseplugin.store.ServerStore;
+import world.arainu.core.metaverseplugin.scheduler.LateScheduler;
+import world.arainu.core.metaverseplugin.scheduler.MoneyScheduler;
 import world.arainu.core.metaverseplugin.store.iPhoneStore;
-import net.milkbowl.vault.economy.Economy;
+import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.io.File;
 import java.util.Collections;
@@ -37,29 +39,41 @@ import java.util.HashMap;
 
 /**
  * メタバースプラグインの基本クラス
+ *
  * @author kumitatepazuru
  */
 public final class MetaversePlugin extends JavaPlugin {
     @Getter private static Economy econ = null;
+    @Getter private static MetaversePlugin Instance;
+    @Getter private static FileConfiguration configuration;
+    private final HashMap<String, CommandBase> commands = new HashMap<>();
 
     public static MetaversePlugin mainclass;
     public static JavaPlugin plugin;
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+        configuration = getConfig();
         getLogger().info("メタバースプラグインが有効になりました。");
         Instance = this;
-        createStore();
         loadCommands();
         setListener();
         loadGuis();
         EnablePlugins();
+        setScheduler();
+        new sqlUtil();
+    }
+
+    private void setScheduler() {
+        new MoneyScheduler().runTaskTimer(this, 0, 20);
+        new LateScheduler().runTaskTimer(this, 0, 20);
         createStairsYml();
     }
 
     private void EnablePlugins() {
-        if (!setupEconomy() ) {
-            getLogger().severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
+        if (!setupEconomy()) {
+            getLogger().severe(String.format("[%s] - Vaultが依存する経済プラグインがなかったためメタバースプラグインを無効にしました！！！", getDescription().getName()));
             getServer().getPluginManager().disablePlugin(this);
         }
     }
@@ -90,17 +104,8 @@ public final class MetaversePlugin extends JavaPlugin {
         ItemMeta teleportMeta = teleportItem.getItemMeta();
         teleportMeta.lore(Collections.singletonList(Component.text("━━━Mod Only━━━").color(NamedTextColor.LIGHT_PURPLE)));
         teleportItem.setItemMeta(teleportMeta);
-        iPhoneStore.addGuiItem(new MenuItem("ワールドテレポート", new Worldteleport()::executeGui,true, teleportItem, null, true),true);
-        iPhoneStore.addGuiItem(new MenuItem("ネット銀行",new Bank()::executeGui,true, Material.EMERALD_BLOCK));
-    }
-
-    /**
-     * Storeを作成する関数
-     */
-    public void createStore() {
-        new ServerStore();
-        new iPhoneStore();
-        new BankStore();
+        iPhoneStore.addGuiItem(new MenuItem("ワールドテレポート", new Worldteleport()::executeGui, true, teleportItem, null, true), true);
+        iPhoneStore.addGuiItem(new MenuItem("ネット銀行", new Bank()::executeGui, true, Material.EMERALD_BLOCK));
     }
 
     /**
@@ -120,8 +125,9 @@ public final class MetaversePlugin extends JavaPlugin {
 
     /**
      * コマンドをコアシステムに登録します。
+     *
      * @param commandName コマンド名
-     * @param command コマンドのインスタンス
+     * @param command     コマンドのインスタンス
      */
     private void addCommand(String commandName, CommandBase command) {
         commands.put(commandName, command);
@@ -140,8 +146,9 @@ public final class MetaversePlugin extends JavaPlugin {
     private void loadCommands() {
         commands.clear();
 
-        addCommand("worldtp",new Worldteleport());
-        addCommand("iphone",new CommandiPhone());
+        addCommand("worldtp", new Worldteleport());
+        addCommand("iphone", new CommandiPhone());
+        addCommand("spawn", new CommandSpawn());
     }
 
     @Override
@@ -153,10 +160,6 @@ public final class MetaversePlugin extends JavaPlugin {
 
         return com.execute(sender, command, label, args);
     }
-
-
-    @Getter private static MetaversePlugin Instance;
-    private final HashMap<String, CommandBase> commands = new HashMap<>();
 
     /**
      * stairs.ymlの作成

@@ -29,6 +29,22 @@ import java.util.function.Consumer;
  */
 public class Bank extends iPhoneBase {
     /**
+     * プラグインのゲーム内通貨を取得するプログラム
+     * @param yen お金の金額
+     * @param quantity 枚数
+     * @return ItemStack
+     */
+    public static ItemStack getPluginMoneyEmerald(int yen, int quantity){
+        ItemStack moneyStack = new ItemStack(Material.EMERALD, quantity);
+        ItemMeta itemMeta = moneyStack.getItemMeta();
+        itemMeta.getPersistentDataContainer().set(BankStore.getKey(), PersistentDataType.INTEGER, yen);
+        itemMeta.lore(Collections.singletonList(Component.text("ゲーム内通貨。").color(NamedTextColor.GREEN)));
+        itemMeta.displayName(Component.text("$" + yen));
+        moneyStack.setItemMeta(itemMeta);
+        return moneyStack;
+    }
+
+    /**
      * 口座のお金を現金に換金する関数。
      *
      * @param player 対象のプレイヤー
@@ -40,12 +56,7 @@ public class Bank extends iPhoneBase {
             log_money = 5;
         }
         for (int i = log_money; i >= 0; i--) {
-            ItemStack moneyStack = new ItemStack(Material.EMERALD, (int) (yen / Math.pow(10, i)));
-            ItemMeta itemMeta = moneyStack.getItemMeta();
-            itemMeta.getPersistentDataContainer().set(BankStore.getKey(), PersistentDataType.INTEGER, (int) Math.pow(10, i));
-            itemMeta.lore(Collections.singletonList(Component.text("ゲーム内通貨。").color(NamedTextColor.GREEN)));
-            itemMeta.displayName(Component.text("$" + (int) Math.pow(10, i)));
-            moneyStack.setItemMeta(itemMeta);
+            ItemStack moneyStack = getPluginMoneyEmerald((int) Math.pow(10, i),(int) (yen / Math.pow(10, i)));
             player.getInventory().addItem(moneyStack);
             yen %= (int) Math.pow(10, i);
         }
@@ -181,7 +192,7 @@ public class Bank extends iPhoneBase {
                         new MenuItem(ChatColor.LIGHT_PURPLE + "残高: " + econ.format(econ.getBalance(menuItem.getClicker())), null, false, Material.EMERALD),
                         new MenuItem(ChatColor.GOLD + "引き出し", withdrawal, true, Material.REDSTONE),
                         new MenuItem(ChatColor.RED + "入金", payment, true, Material.GOLD_INGOT),
-                        new MenuItem(ChatColor.YELLOW + "入金", remittance, true, Material.DIAMOND)
+                        new MenuItem(ChatColor.YELLOW + "送金", remittance, true, Material.DIAMOND)
                 )
         );
     }
