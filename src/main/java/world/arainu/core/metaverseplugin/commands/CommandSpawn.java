@@ -58,7 +58,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     villager.setCustomNameVisible(true);
                     villager.setAI(false);
                     villager.setInvulnerable(true);
-                    sqlUtil.getInstance().setuuidtype(villager.getUniqueId(), args[0]);
+                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
                     List<MerchantRecipe> recipes = new ArrayList<>();
                     recipes.add(createRecipe(1,50,new ItemStack(Material.COAL)));
                     recipes.add(createRecipe(5,40,new ItemStack(Material.RAW_COPPER)));

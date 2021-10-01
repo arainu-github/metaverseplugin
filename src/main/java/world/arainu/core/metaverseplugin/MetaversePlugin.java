@@ -1,9 +1,11 @@
 package world.arainu.core.metaverseplugin;
 
+import com.onarandombox.MultiverseCore.MultiverseCore;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -23,6 +25,7 @@ import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.iphone.Bank;
+import world.arainu.core.metaverseplugin.iphone.TrapTower;
 import world.arainu.core.metaverseplugin.iphone.Worldteleport;
 import world.arainu.core.metaverseplugin.listener.BankListener;
 import world.arainu.core.metaverseplugin.listener.BungeeMessageListener;
@@ -31,7 +34,6 @@ import world.arainu.core.metaverseplugin.listener.SittingListener;
 import world.arainu.core.metaverseplugin.scheduler.LateScheduler;
 import world.arainu.core.metaverseplugin.scheduler.MoneyScheduler;
 import world.arainu.core.metaverseplugin.store.iPhoneStore;
-import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.io.File;
 import java.util.Collections;
@@ -46,10 +48,8 @@ public final class MetaversePlugin extends JavaPlugin {
     @Getter private static Economy econ = null;
     @Getter private static MetaversePlugin Instance;
     @Getter private static FileConfiguration configuration;
+    @Getter private static MultiverseCore core;
     private final HashMap<String, CommandBase> commands = new HashMap<>();
-
-    public static MetaversePlugin mainclass;
-    public static JavaPlugin plugin;
 
     @Override
     public void onEnable() {
@@ -62,7 +62,6 @@ public final class MetaversePlugin extends JavaPlugin {
         loadGuis();
         EnablePlugins();
         setScheduler();
-        new sqlUtil();
     }
 
     private void setScheduler() {
@@ -72,6 +71,10 @@ public final class MetaversePlugin extends JavaPlugin {
     }
 
     private void EnablePlugins() {
+        core = (MultiverseCore) Bukkit.getServer().getPluginManager().getPlugin("Multiverse-Core");
+        if(core == null){
+            getLogger().warning(String.format("[%s] - MultiverseCoreが導入されていないので一部機能が無効になりました。", getDescription().getName()));
+        }
         if (!setupEconomy()) {
             getLogger().severe(String.format("[%s] - Vaultが依存する経済プラグインがなかったためメタバースプラグインを無効にしました！！！", getDescription().getName()));
             getServer().getPluginManager().disablePlugin(this);
@@ -105,7 +108,14 @@ public final class MetaversePlugin extends JavaPlugin {
         teleportMeta.lore(Collections.singletonList(Component.text("━━━Mod Only━━━").color(NamedTextColor.LIGHT_PURPLE)));
         teleportItem.setItemMeta(teleportMeta);
         iPhoneStore.addGuiItem(new MenuItem("ワールドテレポート", new Worldteleport()::executeGui, true, teleportItem, null, true), true);
+
         iPhoneStore.addGuiItem(new MenuItem("ネット銀行", new Bank()::executeGui, true, Material.EMERALD_BLOCK));
+
+        ItemStack traptowerItem = new ItemStack(Material.CRACKED_STONE_BRICKS);
+        ItemMeta traptowerMeta = teleportItem.getItemMeta();
+        traptowerMeta.lore(Collections.singletonList(Component.text("利用料金 200円/分").color(NamedTextColor.RED)));
+        traptowerItem.setItemMeta(traptowerMeta);
+        iPhoneStore.addGuiItem(new MenuItem("トラップタワーに行く", new TrapTower()::executeGui, true, traptowerItem));
     }
 
     /**
@@ -165,14 +175,11 @@ public final class MetaversePlugin extends JavaPlugin {
      * stairs.ymlの作成
      */
     private void createStairsYml() {
-        mainclass = this;
-        plugin= this;
-
         saveResource("stairs.yml", false);
-        File stairsYml = new File(plugin.getDataFolder() + File.separator + "stairs.yml");
+        File stairsYml = new File(Instance.getDataFolder() + File.separator + "stairs.yml");
         FileConfiguration stairsConfig = YamlConfiguration.loadConfiguration(stairsYml);
 
-        try  {
+        try {
             stairsConfig.save(stairsYml);
         } catch (Exception e) {
             e.printStackTrace();

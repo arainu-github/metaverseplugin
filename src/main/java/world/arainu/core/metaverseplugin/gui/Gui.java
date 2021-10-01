@@ -65,6 +65,7 @@ public class Gui implements Listener {
      * @param message エラー内容
      */
     public static void error(Player p, String message) {
+        Bukkit.getLogger().warning("プレイヤーへのエラーメッセージ>> "+message);
         p.sendMessage(ChatColor.RED+"[メタバースプラグイン][エラー] "+message);
         p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1, 0.5f);
     }

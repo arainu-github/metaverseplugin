@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
+import world.arainu.core.metaverseplugin.utils.condition_item;
 import world.arainu.core.metaverseplugin.store.iPhoneStore;
 
 import java.util.ArrayList;
@@ -19,15 +20,14 @@ import java.util.List;
 public class CommandiPhone extends CommandPlayerOnlyBase {
     @Override
     public boolean execute(Player player, Command command, String label, String[] args) {
-        final String title = ChatColor.BLUE+"iPhone 12 Pro Max";
-        if (player.isOp()){
-            List<MenuItem> guiItem = new ArrayList<>();
-            guiItem.addAll(iPhoneStore.getGuiItem());
-            guiItem.addAll(iPhoneStore.getModonlyGuiItem());
-            Gui.getInstance().openMenu(player, title, guiItem);
-        } else {
-            Gui.getInstance().openMenu(player, title, iPhoneStore.getGuiItem());
+        final String title = ChatColor.BLUE+"iPhone 13 Pro Max";
+        List<MenuItem> guiItem = new ArrayList<>();
+        for(condition_item item:iPhoneStore.getGuiItem()){
+            if(item.getCondition().apply(player)){
+                guiItem.add(item.getMenuItem());
+            }
         }
+        Gui.getInstance().openMenu(player, title, guiItem);
         return true;
     }
 

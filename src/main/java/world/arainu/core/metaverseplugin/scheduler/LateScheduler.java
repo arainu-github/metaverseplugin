@@ -33,7 +33,7 @@ public class LateScheduler extends BukkitRunnable {
 
     private void update(String type, List<List<Object>> recipeData){
         List<Integer> villager_use = Arrays.asList(0, 0, 0, 0, 0, 0, 0);
-        for (UUID uuid : Objects.requireNonNull(sqlUtil.getInstance().getuuidsbytype(type))) {
+        for (UUID uuid : Objects.requireNonNull(sqlUtil.getuuidsbytype(type))) {
             Villager villager = (Villager) Bukkit.getEntity(uuid);
             List<MerchantRecipe> recipes = Objects.requireNonNull(villager).getRecipes();
             for (int i = 0; i < recipes.size(); i++) {
@@ -66,7 +66,7 @@ public class LateScheduler extends BukkitRunnable {
                 recipes.add(CommandSpawn.createRecipe((int) data.get(0),(int) Math.round((int) data.get(1) + ((int) data.get(2) * Math.tanh(p.get(0) / 5f))),new ItemStack((Material) data.get(3))));
             }
 
-            for (UUID uuid : Objects.requireNonNull(sqlUtil.getInstance().getuuidsbytype(type))) {
+            for (UUID uuid : Objects.requireNonNull(sqlUtil.getuuidsbytype(type))) {
                 Villager villager = (Villager) Bukkit.getEntity(uuid);
                 Objects.requireNonNull(villager).setRecipes(recipes);
             }

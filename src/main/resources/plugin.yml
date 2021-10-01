@@ -7,6 +7,8 @@ description: あらいぬメタバースプロジェクトマインクラフト�
 website: https://arainu.world
 depend:
   - Vault
+softdepend:
+  - Multiverse-Core
 commands:
   worldtp:
     description: ワールド移動をするGUIを表示します。
