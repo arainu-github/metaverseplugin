@@ -3,7 +3,7 @@ pipeline {
   stages {
     stage('clean') {
       steps {
-        sh 'ls -al'
+        sh 'mvn clean'
       }
     }
 
