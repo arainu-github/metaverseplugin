@@ -3,18 +3,14 @@ package world.arainu.core.metaverseplugin.iphone;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.store.ServerStore;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -57,11 +53,5 @@ public class Worldteleport extends iPhoneBase {
         };
 
         Gui.getInstance().openMenu(player, "WorldTeleportGUI/MOD ONLY", Arrays.asList(new MenuItem("ロビー", TeleportPlayer),new MenuItem("サバイバル", TeleportPlayer),new MenuItem("クリエイティブ", TeleportPlayer)));
-    }
-
-    @Override
-    public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
-                                      String[] args) {
-        return COMPLETE_LIST_EMPTY;
     }
 }

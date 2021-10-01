@@ -2,6 +2,7 @@ package world.arainu.core.metaverseplugin.iphone;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.milkbowl.vault.economy.Economy;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
@@ -17,6 +18,7 @@ import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.store.BankStore;
+import world.arainu.core.metaverseplugin.utils.BankNotice;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,7 +41,8 @@ public class Bank extends iPhoneBase {
         ItemMeta itemMeta = moneyStack.getItemMeta();
         itemMeta.getPersistentDataContainer().set(BankStore.getKey(), PersistentDataType.INTEGER, yen);
         itemMeta.lore(Collections.singletonList(Component.text("ゲーム内通貨。").color(NamedTextColor.GREEN)));
-        itemMeta.displayName(Component.text("$" + yen));
+        Component component = Component.text(yen+"円").decoration(TextDecoration.ITALIC,false);
+        itemMeta.displayName(component);
         moneyStack.setItemMeta(itemMeta);
         return moneyStack;
     }
@@ -69,7 +72,7 @@ public class Bank extends iPhoneBase {
 
         Consumer<MenuItem> withdrawal = (e) -> new AnvilGUI.Builder()
                 .onClose(player -> {
-                    if (!complete_flag.get()) player.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] お金の引き出しを取りやめました。");
+                    if (!complete_flag.get()) Gui.warning(player,"お金の引き出しを取りやめました。");
                 })
                 .onComplete((player, text) -> {
                     try {
@@ -97,7 +100,7 @@ public class Bank extends iPhoneBase {
 
         Consumer<MenuItem> payment = (e) -> new AnvilGUI.Builder()
                 .onClose(player -> {
-                    if (!complete_flag.get()) player.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] お金の入金を取りやめました。");
+                    if (!complete_flag.get()) Gui.warning(player,"お金の入金を取りやめました。");
                 })
                 .onComplete((player, text) -> {
                     try {
@@ -124,7 +127,7 @@ public class Bank extends iPhoneBase {
 
         Consumer<MenuItem> remittance = (e) -> new AnvilGUI.Builder()
                 .onClose(player -> {
-                    if (!complete_flag.get()) player.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] お金の送金を取りやめました。");
+                    if (!complete_flag.get()) Gui.warning(player,"お金の送金を取りやめました。");
                 })
                 .onComplete((player, text) -> {
                     try {
@@ -137,7 +140,7 @@ public class Bank extends iPhoneBase {
                             new AnvilGUI.Builder()
                                     .onClose(p -> {
                                         if (!complete_flag_.get())
-                                            p.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] お金の送金を取りやめました。");
+                                            Gui.warning(p,"お金の送金を取りやめました。");
                                     })
                                     .onComplete((p, t) -> {
                                         // TODO: getDisplayNameをDisplayNameに変更する
@@ -148,17 +151,17 @@ public class Bank extends iPhoneBase {
                                             player.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + econ.format(remittance_yen) + "を" + player_.getName() + "に送金しました。");
                                             if (player_.isOnline()) {
                                                 final Player player_online = (Player) player_;
-                                                player_online.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + p.getDisplayName() + "があなたへ" + econ.format(remittance_yen) + "送金しました。");
+                                                player_online.sendMessage(Component.text(ChatColor.GREEN+"[メタバースプラグイン] ").append(p.displayName()).append(Component.text("があなたへ"+econ.format(remittance_yen) + "送金しました。")));
                                                 player_online.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] 所持金は" + econ.format(econ.getBalance(player_)) + "です。");
                                             } else {
-                                                player.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] 送金先のプレイヤーはオフラインです。プレイヤーが入室してきたときに送金の趣旨を通知します。");
-                                                HashMap<UUID, List<List<String>>> remittance_map = BankStore.getRemittance_map();
+                                                Gui.warning(player,"送金先のプレイヤーはオフラインです。プレイヤーが入室してきたときに送金の趣旨を通知します。");
+                                                HashMap<UUID, List<BankNotice>> remittance_map = BankStore.getRemittance_map();
                                                 if (remittance_map.containsKey(player_.getUniqueId())) {
-                                                    List<List<String>> old_list = new ArrayList<>(remittance_map.get(player_.getUniqueId()));
-                                                    old_list.add(List.of(p.getDisplayName(), econ.format(remittance_yen)));
+                                                    List<BankNotice> old_list = new ArrayList<>(remittance_map.get(player_.getUniqueId()));
+                                                    old_list.add(new BankNotice(p,remittance_yen));
                                                     remittance_map.replace(player_.getUniqueId(),old_list);
                                                 } else {
-                                                    remittance_map.put(player_.getUniqueId(), List.of(List.of(p.getDisplayName(), econ.format(remittance_yen))));
+                                                    remittance_map.put(player_.getUniqueId(), List.of(new BankNotice(p,remittance_yen)));
                                                 }
                                                 BankStore.setRemittance_map(remittance_map);
                                             }

@@ -21,11 +21,13 @@ import java.util.function.Consumer;
 
 /**
  * UI システムのメインクラス。
+ *
  * @author kumitatepazuru
  */
 public class Gui implements Listener {
     /**
      * インスタンスを取得します。
+     *
      * @return インスタンス
      */
     public static Gui getInstance() {
@@ -41,9 +43,10 @@ public class Gui implements Listener {
 
     /**
      * メニューを開きます。
+     *
      * @param player メニューを開くプレイヤー
-     * @param title メニューのタイトル
-     * @param items メニューのアイテム
+     * @param title  メニューのタイトル
+     * @param items  メニューのアイテム
      */
     public void openMenu(Player player, String title, MenuItem... items) {
         openMenu(player, title, List.of(items));
@@ -51,9 +54,10 @@ public class Gui implements Listener {
 
     /**
      * メニューを開きます。
+     *
      * @param player メニューを開くプレイヤー
-     * @param title メニューのタイトル
-     * @param items メニューのアイテム
+     * @param title  メニューのタイトル
+     * @param items  メニューのアイテム
      */
     public void openMenu(Player player, String title, Collection<MenuItem> items) {
         openMenuJavaImpl(player, title, items.toArray(MenuItem[]::new));
@@ -61,18 +65,32 @@ public class Gui implements Listener {
 
     /**
      * エラーをプレイヤーに表示します。
-     * @param p エラーを表示させるプレイヤー
+     *
+     * @param p       エラーを表示させるプレイヤー
      * @param message エラー内容
      */
     public static void error(Player p, String message) {
-        p.sendMessage(ChatColor.RED+"[メタバースプラグイン][エラー] "+message);
+        Bukkit.getLogger().warning("プレイヤーへのエラーメッセージ>> " + message);
+        p.sendMessage(ChatColor.RED + "[メタバースプラグイン][エラー] " + message);
         p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1, 0.5f);
     }
 
     /**
+     * 警告をプレイヤーに表示します。
+     *
+     * @param p       警告を表示させるプレイヤー
+     * @param message 警告内容
+     */
+    public static void warning(Player p, String message) {
+        Bukkit.getLogger().info("プレイヤーへの警告メッセージ>> " + message);
+        p.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] " + message);
+    }
+
+    /**
      * JavaでインベントリをメニューUIとして使うため、そのハンドリングを行います。
+     *
      * @param e ハンドリングに使用するイベント
-    */
+     */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         final Inventory inv = e.getInventory();
@@ -88,7 +106,7 @@ public class Gui implements Listener {
         if (menuItems.length <= id) return;
         else if (id < 0) return;
         final MenuItem clickedMenuItem = menuItems[id];
-        if (clickedMenuItem.isClose()){
+        if (clickedMenuItem.isClose()) {
             p.closeInventory();
         }
         clickedMenuItem.setClicker((Player) p);
@@ -99,8 +117,9 @@ public class Gui implements Listener {
 
     /**
      * JavaでインベントリをメニューUIとして使うため、そのハンドリングを行います。
+     *
      * @param e ハンドリングに使用するイベント
-    */
+     */
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
         final Inventory inv = e.getInventory();
