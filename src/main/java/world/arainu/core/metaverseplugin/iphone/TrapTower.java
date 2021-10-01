@@ -8,15 +8,13 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.store.TrapTowerStore;
+import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -50,13 +48,14 @@ public class TrapTower extends iPhoneBase {
                 if (TrapTowerStore.getUsing_player_list().contains(null)) {
                     Economy econ = MetaversePlugin.getEcon();
                     if(econ.has(player, config.getInt("traptower.money"))) {
+                        List<UUID> using_player_list = TrapTowerStore.getUsing_player_list();
                         int i = 0;
-                        while (TrapTowerStore.getUsing_player_list().get(i) != null) {
+                        while (using_player_list.get(i) != null) {
                             i++;
                         }
-                        List<UUID> using_player_list = TrapTowerStore.getUsing_player_list();
                         using_player_list.set(i, player.getUniqueId());
                         TrapTowerStore.setUsing_player_list(using_player_list);
+                        sqlUtil.setplayerpos(player.getUniqueId(),player.getLocation());
                         final Map<?, ?> pos = config.getMapList("traptower.pos").get(i);
                         final Map<?, ?> spawn_pos = (Map<?, ?>) pos.get("spawn");
                         final Map<?, ?> init_pos = (Map<?, ?>) pos.get("init");
@@ -92,11 +91,5 @@ public class TrapTower extends iPhoneBase {
         } else {
             Bukkit.getLogger().severe("multiverseを導入してください！");
         }
-    }
-
-    @Override
-    public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
-                                      String[] args) {
-        return COMPLETE_LIST_EMPTY;
     }
 }

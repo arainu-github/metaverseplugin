@@ -27,10 +27,7 @@ import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.iphone.TrapTower;
 import world.arainu.core.metaverseplugin.iphone.Worldteleport;
-import world.arainu.core.metaverseplugin.listener.BankListener;
-import world.arainu.core.metaverseplugin.listener.BungeeMessageListener;
-import world.arainu.core.metaverseplugin.listener.ServerListener;
-import world.arainu.core.metaverseplugin.listener.SittingListener;
+import world.arainu.core.metaverseplugin.listener.*;
 import world.arainu.core.metaverseplugin.scheduler.LateScheduler;
 import world.arainu.core.metaverseplugin.scheduler.MoneyScheduler;
 import world.arainu.core.metaverseplugin.store.iPhoneStore;
@@ -129,6 +126,7 @@ public final class MetaversePlugin extends JavaPlugin {
         PM.registerEvents(new SittingListener(), this);
         PM.registerEvents(new BankListener(), this);
         PM.registerEvents(Gui.getInstance(), this);
+        PM.registerEvents(new PublicListener(), this);
         msg.registerOutgoingPluginChannel(this, "BungeeCord");
         msg.registerIncomingPluginChannel(this, "BungeeCord", new BungeeMessageListener());
     }

@@ -82,7 +82,7 @@ public class Gui implements Listener {
      * @param message 警告内容
      */
     public static void warning(Player p, String message) {
-        Bukkit.getLogger().warning("プレイヤーへの警告メッセージ>> " + message);
+        Bukkit.getLogger().info("プレイヤーへの警告メッセージ>> " + message);
         p.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] " + message);
     }
 
