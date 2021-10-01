@@ -2,6 +2,7 @@ package world.arainu.core.metaverseplugin.iphone;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.milkbowl.vault.economy.Economy;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
@@ -39,7 +40,8 @@ public class Bank extends iPhoneBase {
         ItemMeta itemMeta = moneyStack.getItemMeta();
         itemMeta.getPersistentDataContainer().set(BankStore.getKey(), PersistentDataType.INTEGER, yen);
         itemMeta.lore(Collections.singletonList(Component.text("ゲーム内通貨。").color(NamedTextColor.GREEN)));
-        itemMeta.displayName(Component.text("$" + yen));
+        Component component = Component.text(yen+"円").decoration(TextDecoration.ITALIC,false);
+        itemMeta.displayName(component);
         moneyStack.setItemMeta(itemMeta);
         return moneyStack;
     }
