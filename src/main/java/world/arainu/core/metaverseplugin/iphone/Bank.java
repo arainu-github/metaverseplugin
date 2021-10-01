@@ -18,6 +18,7 @@ import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.store.BankStore;
+import world.arainu.core.metaverseplugin.utils.BankNotice;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -150,17 +151,17 @@ public class Bank extends iPhoneBase {
                                             player.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + econ.format(remittance_yen) + "を" + player_.getName() + "に送金しました。");
                                             if (player_.isOnline()) {
                                                 final Player player_online = (Player) player_;
-                                                player_online.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + p.getDisplayName() + "があなたへ" + econ.format(remittance_yen) + "送金しました。");
+                                                player_online.sendMessage(Component.text(ChatColor.GREEN+"[メタバースプラグイン] ").append(p.displayName()).append(Component.text("があなたへ"+econ.format(remittance_yen) + "送金しました。")));
                                                 player_online.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] 所持金は" + econ.format(econ.getBalance(player_)) + "です。");
                                             } else {
                                                 player.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] 送金先のプレイヤーはオフラインです。プレイヤーが入室してきたときに送金の趣旨を通知します。");
-                                                HashMap<UUID, List<List<String>>> remittance_map = BankStore.getRemittance_map();
+                                                HashMap<UUID, List<BankNotice>> remittance_map = BankStore.getRemittance_map();
                                                 if (remittance_map.containsKey(player_.getUniqueId())) {
-                                                    List<List<String>> old_list = new ArrayList<>(remittance_map.get(player_.getUniqueId()));
-                                                    old_list.add(List.of(p.getDisplayName(), econ.format(remittance_yen)));
+                                                    List<BankNotice> old_list = new ArrayList<>(remittance_map.get(player_.getUniqueId()));
+                                                    old_list.add(new BankNotice(p,remittance_yen));
                                                     remittance_map.replace(player_.getUniqueId(),old_list);
                                                 } else {
-                                                    remittance_map.put(player_.getUniqueId(), List.of(List.of(p.getDisplayName(), econ.format(remittance_yen))));
+                                                    remittance_map.put(player_.getUniqueId(), List.of(new BankNotice(p,remittance_yen)));
                                                 }
                                                 BankStore.setRemittance_map(remittance_map);
                                             }

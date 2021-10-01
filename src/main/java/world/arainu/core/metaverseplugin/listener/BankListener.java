@@ -18,6 +18,7 @@ import org.bukkit.persistence.PersistentDataType;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.store.BankStore;
+import world.arainu.core.metaverseplugin.utils.BankNotice;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,9 +105,9 @@ public class BankListener implements Listener {
         Economy econ = MetaversePlugin.getEcon();
 
         if (BankStore.getRemittance_map().containsKey(e.getPlayer().getUniqueId())){
-            List<List<String>> remittance = BankStore.getRemittance_map().get(e.getPlayer().getUniqueId());
-            for(List<String>i : remittance){
-                e.getPlayer().sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + i.get(0) + "があなたへ" + i.get(1) + "送金しました。");
+            List<BankNotice> remittance = BankStore.getRemittance_map().get(e.getPlayer().getUniqueId());
+            for(BankNotice i : remittance){
+                e.getPlayer().sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + i.getPlayerUID() + "があなたへ" + i.getFormatedMoney() + "送金しました。");
                 e.getPlayer().sendMessage(ChatColor.GREEN + "[メタバースプラグイン] 所持金は" + econ.format(econ.getBalance(e.getPlayer())) + "です。");
             }
         }
