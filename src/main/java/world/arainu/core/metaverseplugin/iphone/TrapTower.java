@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
+import world.arainu.core.metaverseplugin.scheduler.TrapTowerScheduler;
 import world.arainu.core.metaverseplugin.store.TrapTowerStore;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
@@ -79,6 +80,7 @@ public class TrapTower extends iPhoneBase {
                         component = component.append(Component.text("\n\n詳しくはこちら: ").color(NamedTextColor.WHITE));
                         component = component.append(Component.text("https://www.arainu.world/minecraft/survival/public/traptower").decorate(TextDecoration.UNDERLINED).decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN).clickEvent(ClickEvent.openUrl("https://www.arainu.world/minecraft/survival/public/traptower")));
                         player.sendMessage(component);
+                        new TrapTowerScheduler(player).runTaskTimer(MetaversePlugin.getInstance(), 0, 1200);
                     } else {
                         Gui.error(player, "銀行残高が少なすぎるためトラップタワーにいけません！\n必要料金: 200円/分");
                     }
