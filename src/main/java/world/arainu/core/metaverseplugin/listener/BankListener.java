@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
+import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.store.BankStore;
 import world.arainu.core.metaverseplugin.utils.BankNotice;
@@ -72,7 +73,7 @@ public class BankListener implements Listener {
     public void onInventoryClose(InventoryCloseEvent e) {
         Player p = (Player) e.getPlayer();
         if (BankStore.getGui_hashmap().containsKey(p.getUniqueId())) {
-            p.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] お金の入金を取りやめました。");
+            Gui.warning(p,"お金の入金を取りやめました。");
             HashMap<UUID, Integer> gui_hashmap = BankStore.getGui_hashmap();
 
             Inventory oldInv = e.getInventory();
