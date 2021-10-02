@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
+import world.arainu.core.metaverseplugin.iphone.MoveSurvival;
 import world.arainu.core.metaverseplugin.store.TrapTowerStore;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
@@ -26,21 +27,6 @@ public class PublicListener implements Listener {
      */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        Player p = e.getPlayer();
-        UUID uuid = p.getUniqueId();
-        if (p.getWorld().getName().equals(MetaversePlugin.getConfiguration().getString("world.traptower"))){
-            p.teleport(Objects.requireNonNull(sqlUtil.getplayerpos(uuid)));
-            sqlUtil.deleteplayerpos(uuid);
-            if(TrapTowerStore.getUsing_player_list().contains(uuid)){
-                List<UUID> using_player_list = TrapTowerStore.getUsing_player_list();
-                int i = 0;
-                while (!using_player_list.get(i).equals(uuid)) {
-                    i++;
-                }
-                using_player_list.set(i, null);
-                TrapTowerStore.setUsing_player_list(using_player_list);
-            }
-            Gui.warning(p,"公共施設使用時にサーバーから退出したため、サバイバルサーバーへ強制送還しました。");
-        }
+        MoveSurvival.Move(e.getPlayer(),"公共施設使用時にサーバーから退出したため、サバイバルサーバーへ強制送還しました。");
     }
 }
