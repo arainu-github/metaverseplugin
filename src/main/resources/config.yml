@@ -6,3 +6,16 @@ mysql:
   pass: password
 econ:
   login_money: 500
+world:
+  traptower: public
+traptower:
+  money: 200
+  pos:
+    - spawn:
+        x: 24
+        y: 6
+        z: 17
+      init:
+        x: 27
+        y: 5
+        z: 21

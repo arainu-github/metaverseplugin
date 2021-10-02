@@ -68,7 +68,7 @@ public class SittingListener implements Listener {
         Action action = e.getAction();
         Block block = e.getClickedBlock();
         Player player = e.getPlayer();
-        File stairsYml = new File(MetaversePlugin.plugin.getDataFolder() + File.separator + "stairs.yml");
+        File stairsYml = new File(MetaversePlugin.getInstance().getDataFolder() + File.separator + "stairs.yml");
         FileConfiguration stairsConfig = YamlConfiguration.loadConfiguration(stairsYml);
         List<String> list = stairsConfig.getStringList("stairs");
 
