@@ -119,7 +119,6 @@ public class LateScheduler extends BukkitRunnable {
                 } else if (minus2 - minus1 < 0) {
                     p.set(i, p.get(i) + 1);
                 }
-                Bukkit.getLogger().info(type + "_p:" + p.get(i));
             }
             quantity_p.replace(type, p);
 
