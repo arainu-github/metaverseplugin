@@ -92,7 +92,10 @@ public class LateScheduler extends BukkitRunnable {
 
     private void update(String type, List<List<Object>> recipeData) {
         List<Integer> villager_use = new ArrayList<>(Collections.nCopies(recipeData.size(), 0));
-        for (UUID uuid : Objects.requireNonNull(sqlUtil.getuuidsbytype(type))) {
+        final List<UUID> villager_list = new ArrayList<>();
+        villager_list.addAll(Objects.requireNonNull(sqlUtil.getuuidsbytype(type)));
+        villager_list.addAll(Objects.requireNonNull(sqlUtil.getuuidsbytype(type+"-shop")));
+        for (UUID uuid : villager_list) {
             Bukkit.getLogger().info("villager uuid:"+uuid);
             Villager villager = (Villager) Bukkit.getEntity(uuid);
             List<MerchantRecipe> recipes = Objects.requireNonNull(villager).getRecipes();
@@ -121,16 +124,22 @@ public class LateScheduler extends BukkitRunnable {
             quantity_p.replace(type, p);
 
             List<MerchantRecipe> recipes = new ArrayList<>();
+            List<MerchantRecipe> recipes2 = new ArrayList<>();
             for (int i=0;i<recipeData.size();i++) {
                 List<Object> data = recipeData.get(i);
                 recipes.add(CommandSpawn.createRecipe((int) data.get(0), (int) Math.round((int) data.get(1) + ((int) data.get(2) * Math.tanh(p.get(i) / 5f))), new ItemStack((Material) data.get(3))));
+                recipes2.add(CommandSpawn.createRecipe2((int) data.get(0), (int) Math.round((int) data.get(1) + ((int) data.get(2) * Math.tanh(p.get(i) / 5f))), new ItemStack((Material) data.get(3))));
             }
 
             for (UUID uuid : Objects.requireNonNull(sqlUtil.getuuidsbytype(type))) {
                 Villager villager = (Villager) Bukkit.getEntity(uuid);
                 Objects.requireNonNull(villager).setRecipes(recipes);
             }
-            Bukkit.getLogger().info("すべての" + type + "の価格を変更しました。");
+            for (UUID uuid : Objects.requireNonNull(sqlUtil.getuuidsbytype(type+"-shop"))) {
+                Villager villager = (Villager) Bukkit.getEntity(uuid);
+                Objects.requireNonNull(villager).setRecipes(recipes2);
+            }
+            Bukkit.getLogger().info("すべての" + type + "及び"+type+"-shopの価格を変更しました。");
         }
     }
 
