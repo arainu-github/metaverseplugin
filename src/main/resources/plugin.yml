@@ -24,10 +24,16 @@ commands:
     description: プラグイン特有のmobをスポーンさせます。
     usage: /spawn [type]
     permission: metaverse.command.spawn
+  __back:
+    description: サバイバルサーバーへ転送
+    usage: /__back [player]
+    permission: metaverse.command.backend
 permissions:
   metaverse.command.worldtp:
     default: op
   metaverse.command.iphone:
     default: true
   metaverse.command.spawn:
+    default: op
+  metaverse.command.backend:
     default: op

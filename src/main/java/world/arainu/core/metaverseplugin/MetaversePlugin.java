@@ -25,6 +25,7 @@ import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.iphone.Bank;
+import world.arainu.core.metaverseplugin.iphone.MoveSurvival;
 import world.arainu.core.metaverseplugin.iphone.TrapTower;
 import world.arainu.core.metaverseplugin.iphone.Worldteleport;
 import world.arainu.core.metaverseplugin.listener.*;
@@ -112,7 +113,8 @@ public final class MetaversePlugin extends JavaPlugin {
         ItemMeta traptowerMeta = teleportItem.getItemMeta();
         traptowerMeta.lore(Collections.singletonList(Component.text("利用料金 200円/分").color(NamedTextColor.RED)));
         traptowerItem.setItemMeta(traptowerMeta);
-        iPhoneStore.addGuiItem(new MenuItem("トラップタワーに行く", new TrapTower()::executeGui, true, traptowerItem));
+        iPhoneStore.addGuiItem(new MenuItem("トラップタワーに行く", new TrapTower()::executeGui, true, traptowerItem),(p) -> !p.getWorld().getName().equals(configuration.getString("world.traptower")));
+        iPhoneStore.addGuiItem(new MenuItem("サバイバルサーバーに戻る", new MoveSurvival()::executeGui, true, Material.GRASS_BLOCK),(p) -> p.getWorld().getName().equals(configuration.getString("world.traptower")));
     }
 
     /**
