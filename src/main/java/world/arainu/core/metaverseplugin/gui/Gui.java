@@ -1,6 +1,7 @@
 package world.arainu.core.metaverseplugin.gui;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -15,6 +16,10 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.geysermc.cumulus.SimpleForm;
+import org.geysermc.cumulus.response.SimpleFormResponse;
+import org.geysermc.floodgate.api.FloodgateApi;
+import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -60,7 +65,11 @@ public class Gui implements Listener {
      * @param items  メニューのアイテム
      */
     public void openMenu(Player player, String title, Collection<MenuItem> items) {
-        openMenuJavaImpl(player, title, items.toArray(MenuItem[]::new));
+        if (isBedrock(player)) {
+            openMenuBedrockImpl(player, title, items.toArray(MenuItem[]::new));
+        } else {
+            openMenuJavaImpl(player, title, items.toArray(MenuItem[]::new));
+        }
     }
 
     /**
@@ -141,7 +150,7 @@ public class Gui implements Listener {
             }
             final ItemMeta meta = item.getItemMeta();
             assert meta != null;
-            meta.displayName(Component.text(i.getName()));
+            meta.displayName(Component.text(i.getName()).decoration(TextDecoration.ITALIC,false));
             item.setItemMeta(meta);
 
             return item;
@@ -149,6 +158,44 @@ public class Gui implements Listener {
 
         invMap.put(inv, items);
         player.openInventory(inv);
+    }
+
+    private void openMenuBedrockImpl(Player player, String title, MenuItem[] items) {
+        final SimpleForm.Builder builder = SimpleForm.builder()
+                .title(title);
+
+        for (var item : items) {
+            String text = item.getName();
+            if (item.isShiny()) {
+                text = ChatColor.DARK_GREEN + text;
+            }
+            if(item.isClose()) {
+                builder.button(text);
+            } else {
+                builder.content(text);
+            }
+        }
+
+        builder.responseHandler((form, data) -> {
+            final SimpleFormResponse res = form.parseResponse(data);
+            if (!res.isCorrect()) {
+                return;
+            }
+
+            final int id = Math.toIntExact(res.getClickedButtonId() + Arrays.stream(items).filter(value -> !value.isClose()).count());
+            final Consumer<MenuItem> callback = items[id].getOnClick();
+            if (callback != null) {
+                items[id].setClicker(player);
+                callback.accept(items[id]);
+            }
+        });
+
+        final FloodgatePlayer fPlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
+        fPlayer.sendForm(builder);
+    }
+
+    public static boolean isBedrock(Player player) {
+        return FloodgateApi.getInstance().isFloodgateId(player.getUniqueId());
     }
 
     private final HashMap<Inventory, MenuItem[]> invMap = new HashMap<>();
