@@ -197,6 +197,11 @@ public class Gui implements Listener {
         fPlayer.sendForm(builder);
     }
 
+    /**
+     * プレイヤーがBE勢かを調べる
+     * @param player 対象のプレイヤー
+     * @return BEの場合はtrue
+     */
     public static boolean isBedrock(Player player) {
         return FloodgateApi.getInstance().isFloodgateId(player.getUniqueId());
     }

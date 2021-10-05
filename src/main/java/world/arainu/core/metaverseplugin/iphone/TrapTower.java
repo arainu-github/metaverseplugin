@@ -33,24 +33,6 @@ public class TrapTower extends iPhoneBase {
         Run(menuItem.getClicker());
     }
 
-    public static void teleportPlayer(Player p){
-        try {
-            UUID uuid = p.getUniqueId();
-            p.teleport(Objects.requireNonNull(sqlUtil.getplayerpos(uuid)));
-            sqlUtil.deleteplayerpos(uuid);
-            List<UUID> using_player_list = TrapTowerStore.getUsing_player_list();
-            int i = 0;
-            while (!using_player_list.get(i).equals(uuid)) {
-                i++;
-            }
-            using_player_list.set(i, null);
-            TrapTowerStore.setUsing_player_list(using_player_list);
-        } catch(NullPointerException e){
-            p.sendMessage("NullPointerException");
-        }
-    }
-
-
     /**
      * 主要関数
      *

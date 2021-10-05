@@ -134,6 +134,10 @@ public class BankListener implements Listener {
         BankStore.setLogin_money_map(login_money_map);
     }
 
+    /**
+     * プレイヤーがクラフトしたときに発火する関数。通貨でエメラルドブロックを作成できなくする
+     * @param e イベント
+     */
     @EventHandler
     public void onPrepareItemCraft(PrepareItemCraftEvent e){
         CraftingInventory inv = e.getInventory();
