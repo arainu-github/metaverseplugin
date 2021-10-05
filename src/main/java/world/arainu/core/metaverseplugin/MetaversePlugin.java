@@ -28,14 +28,20 @@ import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.iphone.MoveSurvival;
 import world.arainu.core.metaverseplugin.iphone.TrapTower;
 import world.arainu.core.metaverseplugin.iphone.Worldteleport;
-import world.arainu.core.metaverseplugin.listener.*;
+import world.arainu.core.metaverseplugin.listener.BankListener;
+import world.arainu.core.metaverseplugin.listener.BungeeMessageListener;
+import world.arainu.core.metaverseplugin.listener.PublicListener;
+import world.arainu.core.metaverseplugin.listener.ServerListener;
+import world.arainu.core.metaverseplugin.listener.SittingListener;
 import world.arainu.core.metaverseplugin.scheduler.LateScheduler;
 import world.arainu.core.metaverseplugin.scheduler.MoneyScheduler;
+import world.arainu.core.metaverseplugin.store.ServerStore;
 import world.arainu.core.metaverseplugin.store.iPhoneStore;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * メタバースプラグインの基本クラス
@@ -43,10 +49,14 @@ import java.util.HashMap;
  * @author kumitatepazuru
  */
 public final class MetaversePlugin extends JavaPlugin {
-    @Getter private static Economy econ = null;
-    @Getter private static MetaversePlugin Instance;
-    @Getter private static FileConfiguration configuration;
-    @Getter private static MultiverseCore core;
+    @Getter
+    private static Economy econ = null;
+    @Getter
+    private static MetaversePlugin Instance;
+    @Getter
+    private static FileConfiguration configuration;
+    @Getter
+    private static MultiverseCore core;
     private final HashMap<String, CommandBase> commands = new HashMap<>();
 
     @Override
@@ -70,7 +80,7 @@ public final class MetaversePlugin extends JavaPlugin {
 
     private void EnablePlugins() {
         core = (MultiverseCore) Bukkit.getServer().getPluginManager().getPlugin("Multiverse-Core");
-        if(core == null){
+        if (core == null) {
             getLogger().warning(String.format("[%s] - MultiverseCoreが導入されていないので一部機能が無効になりました。", getDescription().getName()));
         }
         if (!setupEconomy()) {
@@ -113,8 +123,8 @@ public final class MetaversePlugin extends JavaPlugin {
         ItemMeta traptowerMeta = teleportItem.getItemMeta();
         traptowerMeta.lore(Collections.singletonList(Component.text("利用料金 200円/分").color(NamedTextColor.RED)));
         traptowerItem.setItemMeta(traptowerMeta);
-        iPhoneStore.addGuiItem(new MenuItem("トラップタワーに行く", new TrapTower()::executeGui, true, traptowerItem),(p) -> !p.getWorld().getName().equals(configuration.getString("world.traptower")));
-        iPhoneStore.addGuiItem(new MenuItem("サバイバルサーバーに戻る", new MoveSurvival()::executeGui, true, Material.GRASS_BLOCK),(p) -> p.getWorld().getName().equals(configuration.getString("world.traptower")));
+        iPhoneStore.addGuiItem(new MenuItem("トラップタワーに行く", new TrapTower()::executeGui, true, traptowerItem), (p) -> !p.getWorld().getName().equals(configuration.getString("world.traptower")) && Objects.equals(ServerStore.getServerName(), "survival"));
+        iPhoneStore.addGuiItem(new MenuItem("サバイバルサーバーに戻る", new MoveSurvival()::executeGui, true, Material.GRASS_BLOCK), (p) -> p.getWorld().getName().equals(configuration.getString("world.traptower")));
     }
 
     /**

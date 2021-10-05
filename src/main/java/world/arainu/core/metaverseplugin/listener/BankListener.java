@@ -9,8 +9,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -24,6 +26,7 @@ import world.arainu.core.metaverseplugin.utils.BankNotice;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -50,16 +53,19 @@ public class BankListener implements Listener {
                         total_money += persistentDataContainer.get(BankStore.getKey(), PersistentDataType.INTEGER) * i.getAmount();
                     }
                 }
-                int required_money = BankStore.getGui_hashmap().get(p.getUniqueId());
-                if (total_money >= required_money) {
-                    final Economy econ = MetaversePlugin.getEcon();
-                    Bank.addMoneyForPlayer(p, total_money - required_money);
-                    econ.depositPlayer(p, required_money);
-                    p.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + econ.format(required_money) + "を正常に入金しました。");
-                    gui_hashmap.remove(p.getUniqueId());
-                    BankStore.setGui_hashmap(gui_hashmap);
-                    inv.clear();
-                    inv.close();
+                try {
+                    int required_money = Objects.requireNonNull(BankStore.getGui_hashmap().get(p.getUniqueId()));
+                    if (total_money >= required_money) {
+                        final Economy econ = MetaversePlugin.getEcon();
+                        Bank.addMoneyForPlayer(p, total_money - required_money);
+                        econ.depositPlayer(p, required_money);
+                        p.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + econ.format(required_money) + "を正常に入金しました。");
+                        gui_hashmap.remove(p.getUniqueId());
+                        BankStore.setGui_hashmap(gui_hashmap);
+                        inv.clear();
+                        inv.close();
+                    }
+                } catch (NullPointerException ignored){
                 }
             }, 1L);
         }
@@ -126,5 +132,20 @@ public class BankListener implements Listener {
         HashMap<UUID,Long> login_money_map = BankStore.getLogin_money_map();
         login_money_map.remove(e.getPlayer().getUniqueId());
         BankStore.setLogin_money_map(login_money_map);
+    }
+
+    /**
+     * プレイヤーがクラフトしたときに発火する関数。通貨でエメラルドブロックを作成できなくする
+     * @param e イベント
+     */
+    @EventHandler
+    public void onPrepareItemCraft(PrepareItemCraftEvent e){
+        CraftingInventory inv = e.getInventory();
+        if(Objects.equals(inv.getResult(), new ItemStack(Material.EMERALD_BLOCK))){
+            for (ItemStack item :inv){
+                if(item.getItemMeta().getPersistentDataContainer().has(BankStore.getKey(), PersistentDataType.INTEGER))
+                    inv.setResult(new ItemStack(Material.AIR));
+            }
+        }
     }
 }
