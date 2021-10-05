@@ -8,6 +8,7 @@ website: https://arainu.world
 depend:
   - Vault
   - floodgate
+  - DiscordSRV
 softdepend:
   - Multiverse-Core
 commands:
