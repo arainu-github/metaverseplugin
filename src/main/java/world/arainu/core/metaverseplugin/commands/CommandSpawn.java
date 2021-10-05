@@ -66,8 +66,8 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
     /**
      * 村人を作成(?)する関数。
      *
-     * @param name ニキの名前
-     * @param type ニキの役職
+     * @param name 店員の名前
+     * @param type 店員の役職
      * @param player プレイヤー（ここの座標に作成する）
      * @return 村人
      */
@@ -87,7 +87,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
         if (args.length == 1) {
             switch (args[0]) {
                 case "mason-villager" -> {
-                    Villager villager = createVillager("鉱石ニキ", Villager.Profession.MASON, player);
+                    Villager villager = createVillager("鉱石店員", Villager.Profession.MASON, player);
                     sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
                     List<MerchantRecipe> recipes = new ArrayList<>();
                     recipes.add(createRecipe(1, 50, new ItemStack(Material.COAL)));
@@ -100,7 +100,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     villager.setRecipes(recipes);
                 }
                 case "mason-villager-shop" -> {
-                    Villager villager = createVillager("お金ニキ(鉱石)", Villager.Profession.MASON, player);
+                    Villager villager = createVillager("お金店員(鉱石)", Villager.Profession.MASON, player);
                     sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
                     List<MerchantRecipe> recipes = new ArrayList<>();
                     recipes.add(createRecipe2(1, 50, new ItemStack(Material.COAL)));
@@ -113,7 +113,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     villager.setRecipes(recipes);
                 }
                 case "stone-villager" -> {
-                    Villager villager = createVillager("石工ニキ", Villager.Profession.MASON, player);
+                    Villager villager = createVillager("石工店員", Villager.Profession.MASON, player);
                     sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
                     List<MerchantRecipe> recipes = new ArrayList<>();
                     recipes.add(createRecipe(1, 3, new ItemStack(Material.COBBLESTONE)));
@@ -175,7 +175,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     villager.setRecipes(recipes);
                 }
                 case "stone-villager-shop" -> {
-                    Villager villager = createVillager("お金ニキ(石系)", Villager.Profession.MASON, player);
+                    Villager villager = createVillager("お金店員(石系)", Villager.Profession.MASON, player);
                     sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
                     List<MerchantRecipe> recipes = new ArrayList<>();
                     recipes.add(createRecipe2(1, 3, new ItemStack(Material.COBBLESTONE)));
@@ -237,7 +237,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     villager.setRecipes(recipes);
                 }
                 case "money-villager" -> {
-                    Villager villager = createVillager("両替ニキ", Villager.Profession.TOOLSMITH, player);
+                    Villager villager = createVillager("両替店員", Villager.Profession.TOOLSMITH, player);
                     sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
                     List<MerchantRecipe> recipes = new ArrayList<>();
                     recipes.add(createRecipe2(1, 5, Bank.getPluginMoneyEmerald(5,1)));
