@@ -1,11 +1,9 @@
 package world.arainu.core.metaverseplugin;
 
-import com.onarandombox.MultiverseCore.MultiverseCore;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -55,8 +53,6 @@ public final class MetaversePlugin extends JavaPlugin {
     private static MetaversePlugin Instance;
     @Getter
     private static FileConfiguration configuration;
-    @Getter
-    private static MultiverseCore core;
     private final HashMap<String, CommandBase> commands = new HashMap<>();
 
     @Override
@@ -79,10 +75,6 @@ public final class MetaversePlugin extends JavaPlugin {
     }
 
     private void EnablePlugins() {
-        core = (MultiverseCore) Bukkit.getServer().getPluginManager().getPlugin("Multiverse-Core");
-        if (core == null) {
-            getLogger().warning(String.format("[%s] - MultiverseCoreが導入されていないので一部機能が無効になりました。", getDescription().getName()));
-        }
         if (!setupEconomy()) {
             getLogger().severe(String.format("[%s] - Vaultが依存する経済プラグインがなかったためメタバースプラグインを無効にしました！！！", getDescription().getName()));
             getServer().getPluginManager().disablePlugin(this);
