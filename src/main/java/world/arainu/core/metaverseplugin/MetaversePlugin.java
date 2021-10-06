@@ -34,6 +34,7 @@ import world.arainu.core.metaverseplugin.scheduler.LateScheduler;
 import world.arainu.core.metaverseplugin.scheduler.MoneyScheduler;
 import world.arainu.core.metaverseplugin.store.ServerStore;
 import world.arainu.core.metaverseplugin.store.iPhoneStore;
+import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.io.File;
 import java.util.Collections;
@@ -66,6 +67,7 @@ public final class MetaversePlugin extends JavaPlugin {
         EnablePlugins();
         setScheduler();
         ServerStore.setServerName(configuration.getString("servername"));
+        sqlUtil.connect();
     }
 
     private void setScheduler() {
@@ -100,6 +102,7 @@ public final class MetaversePlugin extends JavaPlugin {
         getServer().getMessenger().unregisterOutgoingPluginChannel(this);
         getServer().getMessenger().unregisterIncomingPluginChannel(this);
         getLogger().info("メタバースプラグインが無効になりました。");
+        sqlUtil.disconnect();
     }
 
     private void loadGuis() {
