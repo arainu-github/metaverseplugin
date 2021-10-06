@@ -27,7 +27,6 @@ import world.arainu.core.metaverseplugin.iphone.MoveSurvival;
 import world.arainu.core.metaverseplugin.iphone.TrapTower;
 import world.arainu.core.metaverseplugin.iphone.Worldteleport;
 import world.arainu.core.metaverseplugin.listener.BankListener;
-import world.arainu.core.metaverseplugin.listener.BungeeMessageListener;
 import world.arainu.core.metaverseplugin.listener.PublicListener;
 import world.arainu.core.metaverseplugin.listener.ServerListener;
 import world.arainu.core.metaverseplugin.listener.SittingListener;
@@ -66,6 +65,7 @@ public final class MetaversePlugin extends JavaPlugin {
         loadGuis();
         EnablePlugins();
         setScheduler();
+        ServerStore.setServerName(configuration.getString("servername"));
     }
 
     private void setScheduler() {
@@ -132,7 +132,6 @@ public final class MetaversePlugin extends JavaPlugin {
         PM.registerEvents(Gui.getInstance(), this);
         PM.registerEvents(new PublicListener(), this);
         msg.registerOutgoingPluginChannel(this, "BungeeCord");
-        msg.registerIncomingPluginChannel(this, "BungeeCord", new BungeeMessageListener());
     }
 
     /**
