@@ -8,7 +8,6 @@ import me.leoko.advancedban.manager.TimeManager;
 import me.leoko.advancedban.utils.Punishment;
 import me.leoko.advancedban.utils.PunishmentType;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.TextChannel;
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
@@ -30,6 +29,10 @@ public class ServerListener implements Listener {
     private final JDA jda = DiscordUtil.getJda();
     private final TextChannel channel = Objects.requireNonNull(jda.getTextChannelById(MetaversePlugin.getConfiguration().getLong("discord.warn_channel")));
 
+    /**
+     * ホワリス以外の人がログインしてきたときにdiscordにログを流す
+     * @param e イベント
+     */
     @EventHandler
     public void onPlayerLogin(PlayerLoginEvent e) {
         UUID uuid = e.getPlayer().getUniqueId();
@@ -64,6 +67,10 @@ public class ServerListener implements Listener {
         }
     }
 
+    /**
+     * AdvancedBANでのBANはこのイベント以降は動かないみたいなのでここで定義
+     * @param e イベント
+     */
     @EventHandler
     public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent e) {
         UUID uuid = e.getPlayerProfile().getId();

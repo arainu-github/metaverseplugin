@@ -137,6 +137,11 @@ public final class MetaversePlugin extends JavaPlugin {
         DiscordSRV.api.subscribe(this);
     }
 
+    /**
+     * JDAがログインできてReadyになったときにServerListenerを定義する
+     * ぬるぽ対策
+     * @param event イベント
+     */
     @Subscribe
     public void discordReadyEvent(DiscordReadyEvent event) {
         final PluginManager PM = getServer().getPluginManager();

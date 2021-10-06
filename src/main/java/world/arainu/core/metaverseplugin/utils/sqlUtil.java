@@ -21,6 +21,9 @@ import java.util.UUID;
  * @author kumitatepazuru
  */
 public class sqlUtil {
+    /**
+     * SQLに接続する
+     */
     public static void connect(){
         try {
             conn = DriverManager.getConnection(url_connection, user, pass);
@@ -29,6 +32,9 @@ public class sqlUtil {
         }
     }
 
+    /**
+     * SQLから切断する
+     */
     public static void disconnect(){
         try {
             conn.close();
@@ -160,6 +166,10 @@ public class sqlUtil {
         }
     }
 
+    /**
+     * kickcountを増やす関数
+     * @param uuid UUID
+     */
     public static void addkickcount(UUID uuid){
         try {
             create_kickcount_table();
@@ -171,6 +181,11 @@ public class sqlUtil {
         }
     }
 
+    /**
+     * kickcountを取得する関数
+     * @param uuid UUID
+     * @return kick count
+     */
     public static Integer getkickcount(UUID uuid){
         try {
             create_kickcount_table();
