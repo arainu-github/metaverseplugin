@@ -111,13 +111,6 @@
             <version>1.5.3-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.onarandombox.MultiverseCore</groupId>
-            <artifactId>MultiverseCore</artifactId>
-            <version>4.3.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/Multiverse-Core-4.3.0.jar</systemPath>
-        </dependency>
-        <dependency>
             <groupId>org.geysermc.floodgate</groupId>
             <artifactId>api</artifactId>
             <version>2.0-SNAPSHOT</version>
@@ -128,6 +121,13 @@
             <artifactId>discordsrv</artifactId>
             <version>1.22.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.leoko.advancedban.AdvancedBan</groupId>
+            <artifactId>advancedban</artifactId>
+            <version>2.1.7</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/AdvancedBan-Bundle-2.3.0-RELEASE.jar</systemPath>
         </dependency>
     </dependencies>
 </project>

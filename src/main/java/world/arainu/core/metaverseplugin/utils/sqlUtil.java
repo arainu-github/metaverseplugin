@@ -21,7 +21,29 @@ import java.util.UUID;
  * @author kumitatepazuru
  */
 public class sqlUtil {
-    private static void create_uuidtype_table(Connection conn){
+    /**
+     * SQLに接続する
+     */
+    public static void connect(){
+        try {
+            conn = DriverManager.getConnection(url_connection, user, pass);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * SQLから切断する
+     */
+    public static void disconnect(){
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void create_uuidtype_table(){
         try {
             PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `uuidtype` ( `uuid` VARCHAR(36) NOT NULL , `type` VARCHAR(20) NOT NULL , PRIMARY KEY (`uuid`)) ");
             ps.executeUpdate();
@@ -30,9 +52,18 @@ public class sqlUtil {
         }
     }
 
-    private static void create_playerpos_table(Connection conn){
+    private static void create_playerpos_table(){
         try {
             PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `playerpos` ( `uuid` VARCHAR(36) NOT NULL ,  `world` VARCHAR(36) NOT NULL , `x` INT NOT NULL , `y` SMALLINT NOT NULL ,`z` INT NOT NULL ,PRIMARY KEY (`uuid`)) ");
+            ps.executeUpdate();
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    private static void create_kickcount_table(){
+        try {
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `kickcount` ( `uuid` VARCHAR(36) NOT NULL ,  `count` INT NOT NULL ,PRIMARY KEY (`uuid`)) ");
             ps.executeUpdate();
         } catch (SQLException e){
             e.printStackTrace();
@@ -47,12 +78,10 @@ public class sqlUtil {
      */
     public static void setuuidtype(UUID uuid, String type){
         try {
-            Connection conn = DriverManager.getConnection(url_connection, user, pass);
-            create_uuidtype_table(conn);
+            create_uuidtype_table();
             PreparedStatement ps = conn.prepareStatement("INSERT INTO `uuidtype` (`uuid`, `type`) VALUES('" + uuid + "', '" + type + "')");
             ps.executeUpdate();
             ps.close();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -66,8 +95,7 @@ public class sqlUtil {
      */
     public static List<UUID> getuuidsbytype(String type){
         try {
-            Connection conn = DriverManager.getConnection(url_connection, user, pass);
-            create_uuidtype_table(conn);
+            create_uuidtype_table();
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM `uuidtype` WHERE `type` LIKE '"+type+"'");
             List<UUID> uuidList = new ArrayList<>();
@@ -76,7 +104,6 @@ public class sqlUtil {
             }
             rs.close();
             stmt.close();
-            conn.close();
             return uuidList;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -92,12 +119,10 @@ public class sqlUtil {
      */
     public static void setplayerpos(UUID uuid, Location location){
         try {
-            Connection conn = DriverManager.getConnection(url_connection, user, pass);
-            create_playerpos_table(conn);
+            create_playerpos_table();
             PreparedStatement ps = conn.prepareStatement("INSERT INTO `playerpos` (`uuid`, `world`, `x`, `y`, `z`) VALUES('" + uuid + "', '" + location.getWorld().getUID() + "',"+(int) location.getX()+","+(int) location.getY()+","+(int) location.getZ()+")");
             ps.executeUpdate();
             ps.close();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -111,15 +136,13 @@ public class sqlUtil {
      */
     public static Location getplayerpos(UUID uuid){
         try {
-            Connection conn = DriverManager.getConnection(url_connection, user, pass);
-            create_playerpos_table(conn);
+            create_playerpos_table();
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM `playerpos` WHERE `uuid` LIKE '"+uuid+"'");
             rs.next();
             Location loc = new Location(Bukkit.getWorld(UUID.fromString(rs.getString("world"))),rs.getInt("x"),rs.getInt("y"),rs.getInt("z"));
             rs.close();
             stmt.close();
-            conn.close();
             return loc;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -134,14 +157,48 @@ public class sqlUtil {
      */
     public static void deleteplayerpos(UUID uuid){
         try {
-            Connection conn = DriverManager.getConnection(url_connection, user, pass);
-            create_playerpos_table(conn);
+            create_playerpos_table();
             PreparedStatement ps = conn.prepareStatement("DELETE FROM `playerpos` WHERE `uuid` LIKE '"+uuid+"'");
             ps.executeUpdate();
             ps.close();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * kickcountを増やす関数
+     * @param uuid UUID
+     */
+    public static void addkickcount(UUID uuid){
+        try {
+            create_kickcount_table();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO `kickcount` (`uuid`, `count`) VALUES('" + uuid + "', 1) ON DUPLICATE KEY UPDATE count = count+1");
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * kickcountを取得する関数
+     * @param uuid UUID
+     * @return kick count
+     */
+    public static Integer getkickcount(UUID uuid){
+        try {
+            create_kickcount_table();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM `kickcount` WHERE `uuid` LIKE '"+uuid+"'");
+            rs.next();
+            int count = rs.getInt("count");
+            rs.close();
+            stmt.close();
+            return count;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -150,5 +207,6 @@ public class sqlUtil {
     @Getter private final static String pass = MetaversePlugin.getConfiguration().getString("mysql.pass");
     @Getter private final static int port = MetaversePlugin.getConfiguration().getInt("mysql.port");
     @Getter private final static String url = MetaversePlugin.getConfiguration().getString("mysql.url");
-    private final static String url_connection = "jdbc:mysql://"+url+":"+port+"/"+db_name;
+    private final static String url_connection = "jdbc:mysql://"+url+":"+port+"/"+db_name+"?autoReconnect=true";
+    private static Connection conn;
 }

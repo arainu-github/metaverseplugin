@@ -1,7 +1,6 @@
 package world.arainu.core.metaverseplugin.iphone;
 
 import lombok.Getter;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import world.arainu.core.metaverseplugin.commands.CommandPlayerOnlyBase;

@@ -7,13 +7,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.iphone.MoveSurvival;
-import world.arainu.core.metaverseplugin.iphone.TrapTower;
 import world.arainu.core.metaverseplugin.store.TrapTowerStore;
-import world.arainu.core.metaverseplugin.utils.sqlUtil;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 /**
  * 主にトラップタワーの使用料金を徴収する関数

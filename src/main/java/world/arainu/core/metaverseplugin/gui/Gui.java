@@ -56,17 +56,6 @@ public class Gui implements Listener {
      * @param title  メニューのタイトル
      * @param items  メニューのアイテム
      */
-    public void openMenu(Player player, String title, MenuItem... items) {
-        openMenu(player, title, List.of(items));
-    }
-
-    /**
-     * メニューを開きます。
-     *
-     * @param player メニューを開くプレイヤー
-     * @param title  メニューのタイトル
-     * @param items  メニューのアイテム
-     */
     public void openMenu(Player player, String title, Collection<MenuItem> items) {
         if (isBedrock(player)) {
             openMenuBedrockImpl(player, title, items.toArray(MenuItem[]::new));

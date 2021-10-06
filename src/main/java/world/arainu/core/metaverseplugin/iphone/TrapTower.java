@@ -8,6 +8,7 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
@@ -39,15 +40,16 @@ public class TrapTower extends iPhoneBase {
      * @param player プレイヤー
      */
     private void Run(Player player) {
-        if (MetaversePlugin.getCore() != null) {
-            FileConfiguration config = MetaversePlugin.getConfiguration();
-            String traptower_world_name = Objects.requireNonNull(config.getString("world.traptower"));
+        FileConfiguration config = MetaversePlugin.getConfiguration();
+        String traptower_world_name = Objects.requireNonNull(config.getString("world.traptower"));
+        World world = Bukkit.getWorld(traptower_world_name);
+        if (world != null) {
             if (!player.getWorld().getName().equals(traptower_world_name)) {
                 Bukkit.getLogger().info(player.getName() + "がトラップタワーに行こうとしています。");
                 Bukkit.getLogger().info("using_player_list: " + TrapTowerStore.getUsing_player_list());
                 if (TrapTowerStore.getUsing_player_list().contains(null)) {
                     Economy econ = MetaversePlugin.getEcon();
-                    if(econ.has(player, config.getInt("traptower.money"))) {
+                    if (econ.has(player, config.getInt("traptower.money"))) {
                         List<UUID> using_player_list = TrapTowerStore.getUsing_player_list();
                         int i = 0;
                         while (using_player_list.get(i) != null) {
@@ -55,15 +57,15 @@ public class TrapTower extends iPhoneBase {
                         }
                         using_player_list.set(i, player.getUniqueId());
                         TrapTowerStore.setUsing_player_list(using_player_list);
-                        sqlUtil.setplayerpos(player.getUniqueId(),player.getLocation());
+                        sqlUtil.setplayerpos(player.getUniqueId(), player.getLocation());
                         final Map<?, ?> pos = config.getMapList("traptower.pos").get(i);
                         final Map<?, ?> spawn_pos = (Map<?, ?>) pos.get("spawn");
                         final Map<?, ?> init_pos = (Map<?, ?>) pos.get("init");
-                        Location init_loc = new Location(Bukkit.getWorld(traptower_world_name), (int) init_pos.get("x"), (int) init_pos.get("y"), (int) init_pos.get("z"));
+                        Location init_loc = new Location(world, (int) init_pos.get("x"), (int) init_pos.get("y"), (int) init_pos.get("z"));
                         init_loc.getBlock().setType(Material.REDSTONE_BLOCK);
 
                         Bukkit.getScheduler().scheduleSyncDelayedTask(MetaversePlugin.getInstance(), () -> init_loc.getBlock().setType(Material.AIR));
-                        Location loc = new Location(Bukkit.getWorld(traptower_world_name), (int) spawn_pos.get("x"), (int) spawn_pos.get("y"), (int) spawn_pos.get("z"), -90, 0);
+                        Location loc = new Location(world, (int) spawn_pos.get("x"), (int) spawn_pos.get("y"), (int) spawn_pos.get("z"), -90, 0);
                         player.teleport(loc);
                         Component component = Component.empty();
                         component = component.append(Component.text(">> 公共施設").color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD));
@@ -90,7 +92,7 @@ public class TrapTower extends iPhoneBase {
                 Gui.error(player, "公共施設から直接公共施設へ行くことはできません！");
             }
         } else {
-            Bukkit.getLogger().severe("multiverseを導入してください！");
+            Bukkit.getLogger().severe("公共施設のワールドが見当たりません！configを確認してください！");
         }
     }
 }
