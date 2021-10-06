@@ -207,6 +207,6 @@ public class sqlUtil {
     @Getter private final static String pass = MetaversePlugin.getConfiguration().getString("mysql.pass");
     @Getter private final static int port = MetaversePlugin.getConfiguration().getInt("mysql.port");
     @Getter private final static String url = MetaversePlugin.getConfiguration().getString("mysql.url");
-    private final static String url_connection = "jdbc:mysql://"+url+":"+port+"/"+db_name+"?autoReconnect=true";
+    private final static String url_connection = "jdbc:mysql://"+url+":"+port+"/"+db_name+"?autoReconnect=true&maxReconnects=10";
     private static Connection conn;
 }
