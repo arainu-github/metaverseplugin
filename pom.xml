@@ -122,5 +122,12 @@
             <version>1.22.0</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>me.leoko.advancedban.AdvancedBan</groupId>
+            <artifactId>advancedban</artifactId>
+            <version>2.1.7</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/AdvancedBan-Bundle-2.3.0-RELEASE.jar</systemPath>
+        </dependency>
     </dependencies>
 </project>

@@ -9,6 +9,7 @@ depend:
   - Vault
   - floodgate
   - DiscordSRV
+  - AdvancedBan
 softdepend:
   - Multiverse-Core
 commands:

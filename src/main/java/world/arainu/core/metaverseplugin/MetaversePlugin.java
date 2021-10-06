@@ -1,5 +1,8 @@
 package world.arainu.core.metaverseplugin;
 
+import github.scarsz.discordsrv.DiscordSRV;
+import github.scarsz.discordsrv.api.Subscribe;
+import github.scarsz.discordsrv.api.events.DiscordReadyEvent;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -15,7 +18,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.messaging.Messenger;
 import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.commands.CommandBase;
 import world.arainu.core.metaverseplugin.commands.CommandSpawn;
@@ -126,15 +128,20 @@ public final class MetaversePlugin extends JavaPlugin {
      * Listenerを設定する関数
      */
     public void setListener() {
-        PluginManager PM = getServer().getPluginManager();
-        Messenger msg = getServer().getMessenger();
+        final PluginManager PM = getServer().getPluginManager();
 
-        PM.registerEvents(new ServerListener(), this);
         PM.registerEvents(new SittingListener(), this);
         PM.registerEvents(new BankListener(), this);
         PM.registerEvents(Gui.getInstance(), this);
         PM.registerEvents(new PublicListener(), this);
-        msg.registerOutgoingPluginChannel(this, "BungeeCord");
+        DiscordSRV.api.subscribe(this);
+    }
+
+    @Subscribe
+    public void discordReadyEvent(DiscordReadyEvent event) {
+        final PluginManager PM = getServer().getPluginManager();
+
+        PM.registerEvents(new ServerListener(), this);
     }
 
     /**
