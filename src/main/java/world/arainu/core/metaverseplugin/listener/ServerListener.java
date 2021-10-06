@@ -13,6 +13,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
+import java.awt.Color;
 import java.util.Objects;
 
 /**
@@ -32,11 +33,11 @@ public class ServerListener implements Listener {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("GetServer");
         player.sendPluginMessage(MetaversePlugin.getInstance(), "BungeeCord", out.toByteArray());
+        Bukkit.getLogger().info("Bungeecordとの通信中");
     }
 
     @EventHandler
     public void onPlayerLogin(PlayerLoginEvent e) {
-        Bukkit.getLogger().warning(String.valueOf(Bukkit.hasWhitelist()));
         if(Bukkit.hasWhitelist()){
             if(!e.getPlayer().isWhitelisted()){
                 JDA jda = DiscordUtil.getJda();
@@ -46,6 +47,7 @@ public class ServerListener implements Listener {
                             .addField("プレイヤー名",e.getPlayer().getName(),false)
                             .addField("UUID", String.valueOf(e.getPlayer().getUniqueId()),false)
                             .setThumbnail("https://crafatar.com/avatars/"+e.getPlayer().getUniqueId())
+                            .setColor(Color.ORANGE)
                             .build()
                 ).queue();
             }
