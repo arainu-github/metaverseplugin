@@ -102,7 +102,6 @@ public final class MetaversePlugin extends JavaPlugin {
         commands.clear();
         Gui.resetInstance();
         getServer().getMessenger().unregisterOutgoingPluginChannel(this);
-        getServer().getMessenger().unregisterIncomingPluginChannel(this);
         getLogger().info("メタバースプラグインが無効になりました。");
         sqlUtil.disconnect();
     }
@@ -134,6 +133,7 @@ public final class MetaversePlugin extends JavaPlugin {
         PM.registerEvents(new BankListener(), this);
         PM.registerEvents(Gui.getInstance(), this);
         PM.registerEvents(new PublicListener(), this);
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         DiscordSRV.api.subscribe(this);
     }
 
