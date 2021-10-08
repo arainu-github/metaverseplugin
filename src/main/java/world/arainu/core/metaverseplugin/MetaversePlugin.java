@@ -112,9 +112,7 @@ public final class MetaversePlugin extends JavaPlugin {
         teleportMeta.lore(Collections.singletonList(Component.text("━━━Mod Only━━━").color(NamedTextColor.LIGHT_PURPLE)));
         teleportItem.setItemMeta(teleportMeta);
         iPhoneStore.addGuiItem(new MenuItem("ワールドテレポート", new Worldteleport()::executeGui, true, teleportItem, null, true), true);
-
         iPhoneStore.addGuiItem(new MenuItem("ネット銀行", new Bank()::executeGui, true, Material.EMERALD_BLOCK));
-
         ItemStack traptowerItem = new ItemStack(Material.CRACKED_STONE_BRICKS);
         ItemMeta traptowerMeta = teleportItem.getItemMeta();
         traptowerMeta.lore(Collections.singletonList(Component.text("利用料金 200円/分").color(NamedTextColor.RED)));

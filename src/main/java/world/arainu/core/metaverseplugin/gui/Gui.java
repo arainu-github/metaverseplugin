@@ -20,12 +20,11 @@ import org.geysermc.cumulus.SimpleForm;
 import org.geysermc.cumulus.response.SimpleFormResponse;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
+import world.arainu.core.metaverseplugin.utils.PosItemStack;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 /**
  * UI システムのメインクラス。
@@ -133,7 +132,8 @@ public class Gui implements Listener {
     }
 
     private void openMenuJavaImpl(Player player, String title, MenuItem[] items) {
-        final Inventory inv = Bukkit.createInventory(null, (1 + items.length / 9) * 9, Component.text(title));
+        Integer max = Arrays.stream(items).map(MenuItem::getY).max(Comparator.naturalOrder()).orElse(0);
+        final Inventory inv = Bukkit.createInventory(null, Math.max(1 + items.length / 9,max) * 9, Component.text(title));
 
         Arrays.stream(items).map(i -> {
             final ItemStack item = i.getIcon();
@@ -145,8 +145,11 @@ public class Gui implements Listener {
             meta.displayName(Component.text(i.getName()).decoration(TextDecoration.ITALIC,false));
             item.setItemMeta(meta);
 
-            return item;
-        }).forEach(inv::addItem);
+            return new PosItemStack(item,i.getX(),i.getY());
+        }).forEach(i -> {
+            if(i.getX() > -1) inv.setItem(i.getX()+i.getY()*9,i.getItem());
+            else inv.addItem(i.getItem());
+        });
 
         invMap.put(inv, items);
         player.openInventory(inv);
