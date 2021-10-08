@@ -126,8 +126,8 @@ public class Bank extends iPhoneBase {
                             .input("送金するプレイヤーを入力", "プレイヤー名")
                             .responseHandler((form, responseData) -> {
                                 CustomFormResponse response = form.parseResponse(responseData);
-                                if (!response.isCorrect()) return;
-                                remittance_Complete2(player, econ, remittance_yen, response.getInput(0), complete_flag_);
+                                if (!response.isCorrect()) Gui.warning(player, "お金の送金を取りやめました。");
+                                else remittance_Complete2(player, econ, remittance_yen, response.getInput(0), complete_flag_);
                             });
                     final FloodgatePlayer fPlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
                     fPlayer.sendForm(builder);
@@ -198,8 +198,8 @@ public class Bank extends iPhoneBase {
                         .input("引き出す金額を入力", "半角数字で!!!!!")
                         .responseHandler((form, responseData) -> {
                             CustomFormResponse response = form.parseResponse(responseData);
-                            if (!response.isCorrect()) return;
-                            withdraw_Complete(player, response.getInput(0), econ, complete_flag);
+                            if (!response.isCorrect()) Gui.warning(player, "お金の引き出しを取りやめました。");
+                            else withdraw_Complete(player, response.getInput(0), econ, complete_flag);
                         });
                 final FloodgatePlayer fPlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
                 fPlayer.sendForm(builder);
@@ -212,8 +212,8 @@ public class Bank extends iPhoneBase {
                         .input("入金する金額を入力", "半角数字で!!!!!")
                         .responseHandler((form, responseData) -> {
                             CustomFormResponse response = form.parseResponse(responseData);
-                            if (!response.isCorrect()) return;
-                            payment_Complete(player, response.getInput(0), complete_flag);
+                            if (!response.isCorrect()) Gui.warning(player, "お金の入金を取りやめました。");
+                            else payment_Complete(player, response.getInput(0), complete_flag);
                         });
                 final FloodgatePlayer fPlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
                 fPlayer.sendForm(builder);
@@ -226,8 +226,8 @@ public class Bank extends iPhoneBase {
                         .input("送金する金額を入力", "半角数字で!!!!!")
                         .responseHandler((form, responseData) -> {
                             CustomFormResponse response = form.parseResponse(responseData);
-                            if (!response.isCorrect()) return;
-                            remittance_Complete(player, response.getInput(0), econ, complete_flag);
+                            if (!response.isCorrect()) Gui.warning(player, "お金の送金を取りやめました。");
+                            else remittance_Complete(player, response.getInput(0), econ, complete_flag);
                         });
                 final FloodgatePlayer fPlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
                 fPlayer.sendForm(builder);
