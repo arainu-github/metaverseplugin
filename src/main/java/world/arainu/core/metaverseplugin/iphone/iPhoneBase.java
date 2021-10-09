@@ -4,8 +4,8 @@ import lombok.Getter;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import world.arainu.core.metaverseplugin.commands.CommandPlayerOnlyBase;
-import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
+import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
 /**
  * iphoneのGuiのアイテムのベースクラス
@@ -24,7 +24,7 @@ public abstract class iPhoneBase extends CommandPlayerOnlyBase {
 
     @Override
     public boolean execute(Player player, Command command, String label, String[] args) {
-        Gui.error(player, "コマンドは実装されていません");
+        ChatUtil.error(player, "コマンドは実装されていません");
         return false;
     }
 

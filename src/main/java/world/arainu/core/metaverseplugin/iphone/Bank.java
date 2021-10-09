@@ -1,6 +1,7 @@
 package world.arainu.core.metaverseplugin.iphone;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.milkbowl.vault.economy.Economy;
@@ -24,6 +25,7 @@ import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.store.BankStore;
 import world.arainu.core.metaverseplugin.utils.BankNotice;
+import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -83,15 +85,14 @@ public class Bank extends iPhoneBase {
                 throw new NumberFormatException();
             } else if (econ.has(player, withdrawal_yen)) {
                 econ.withdrawPlayer(player, withdrawal_yen);
-                player.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + econ.format(withdrawal_yen) + "を正常に引き出しました。");
+                ChatUtil.success(player,econ.format(withdrawal_yen) + "を正常に引き出しました。");
                 addMoneyForPlayer(player, withdrawal_yen);
                 complete_flag.set(true);
             } else {
-                Gui.error(player, "あなたはそこまでお金を持っていません！");
-                player.sendMessage(ChatColor.RED + "[メタバースプラグイン][エラー] 残高: " + econ.format(econ.getBalance(player)));
+                ChatUtil.error(player, "あなたはそこまでお金を持っていません！\n残高: " + econ.format(econ.getBalance(player)));
             }
         } catch (NumberFormatException err) {
-            Gui.error(player, "数字以外のものが含まれているか無効な数字です！");
+            ChatUtil.error(player, "数字以外のものが含まれているか無効な数字です！");
         }
     }
 
@@ -109,7 +110,7 @@ public class Bank extends iPhoneBase {
                 BankStore.setGui_hashmap(gui_hashmap);
             }
         } catch (NumberFormatException err) {
-            Gui.error(player, "数字以外のものが含まれているか無効な数字です！");
+            ChatUtil.error(player, "数字以外のものが含まれているか無効な数字です！");
         }
     }
 
@@ -127,7 +128,7 @@ public class Bank extends iPhoneBase {
                             .input("送金するプレイヤーを入力", "プレイヤー名")
                             .responseHandler((form, responseData) -> {
                                 CustomFormResponse response = form.parseResponse(responseData);
-                                if (!response.isCorrect()) Gui.warning(player, "お金の送金を取りやめました。");
+                                if (!response.isCorrect()) ChatUtil.warning(player, "お金の送金を取りやめました。");
                                 else remittance_Complete2(player, econ, remittance_yen, response.getInput(0), complete_flag_);
                             });
                     final FloodgatePlayer fPlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
@@ -136,7 +137,7 @@ public class Bank extends iPhoneBase {
                     new AnvilGUI.Builder()
                             .onClose(p -> {
                                 if (!complete_flag_.get())
-                                    Gui.warning(p, "お金の送金を取りやめました。");
+                                    ChatUtil.warning(p, "お金の送金を取りやめました。");
                             })
                             .onComplete((p, t) -> {
                                 remittance_Complete2(player, econ, remittance_yen, t, complete_flag_);
@@ -148,11 +149,10 @@ public class Bank extends iPhoneBase {
                 }
                 complete_flag.set(true);
             } else {
-                Gui.error(player, "あなたはそこまでお金を持っていません！");
-                player.sendMessage(ChatColor.RED + "[メタバースプラグイン][エラー] 残高: " + econ.format(econ.getBalance(player)));
+                ChatUtil.error(player, "あなたはそこまでお金を持っていません！ 残高: " + econ.format(econ.getBalance(player)));
             }
         } catch (NumberFormatException err) {
-            Gui.error(player, "数字以外のものが含まれているか無効な数字です！");
+            ChatUtil.error(player, "数字以外のものが含まれているか無効な数字です！");
         }
     }
 
@@ -161,13 +161,14 @@ public class Bank extends iPhoneBase {
         if (econ.hasAccount(player_)) {
             econ.withdrawPlayer(player, remittance_yen);
             econ.depositPlayer(player_, remittance_yen);
-            player.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + econ.format(remittance_yen) + "を" + player_.getName() + "に送金しました。");
+            ChatUtil.success(player,econ.format(remittance_yen) + "を" + player_.getName() + "に送金しました。");
             if (player_.isOnline()) {
                 final Player player_online = (Player) player_;
-                player_online.sendMessage(Component.text(ChatColor.GREEN + "[メタバースプラグイン] ").append(player.displayName()).append(Component.text("があなたへ" + econ.format(remittance_yen) + "送金しました。")));
-                player_online.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] 所持金は" + econ.format(econ.getBalance(player_)) + "です。");
+                ChatUtil.success(player_online, (TextComponent) player.displayName()
+                        .append(Component.text("があなたへ" + econ.format(remittance_yen) + "送金しました。"))
+                        .append(Component.text("\n所持金は" + econ.format(econ.getBalance(player_)) + "です。")));
             } else {
-                Gui.warning(player, "送金先のプレイヤーはオフラインです。プレイヤーが入室してきたときに送金の趣旨を通知します。");
+                ChatUtil.warning(player, "送金先のプレイヤーはオフラインです。プレイヤーが入室してきたときに送金の趣旨を通知します。");
                 HashMap<UUID, List<BankNotice>> remittance_map = BankStore.getRemittance_map();
                 if (remittance_map.containsKey(player_.getUniqueId())) {
                     List<BankNotice> old_list = new ArrayList<>(remittance_map.get(player_.getUniqueId()));
@@ -180,7 +181,7 @@ public class Bank extends iPhoneBase {
             }
             complete_flag_.set(true);
         } else {
-            Gui.error(player, "そのようなプレイヤーはいません：" + t);
+            ChatUtil.error(player, "そのようなプレイヤーはいません：" + t);
         }
     }
 
@@ -199,7 +200,7 @@ public class Bank extends iPhoneBase {
                         .input("引き出す金額を入力", "半角数字で!!!!!")
                         .responseHandler((form, responseData) -> {
                             CustomFormResponse response = form.parseResponse(responseData);
-                            if (!response.isCorrect()) Gui.warning(player, "お金の引き出しを取りやめました。");
+                            if (!response.isCorrect()) ChatUtil.warning(player, "お金の引き出しを取りやめました。");
                             else withdraw_Complete(player, response.getInput(0), econ, complete_flag);
                         });
                 final FloodgatePlayer fPlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
@@ -213,7 +214,7 @@ public class Bank extends iPhoneBase {
                         .input("入金する金額を入力", "半角数字で!!!!!")
                         .responseHandler((form, responseData) -> {
                             CustomFormResponse response = form.parseResponse(responseData);
-                            if (!response.isCorrect()) Gui.warning(player, "お金の入金を取りやめました。");
+                            if (!response.isCorrect()) ChatUtil.warning(player, "お金の入金を取りやめました。");
                             else payment_Complete(player, response.getInput(0), complete_flag);
                         });
                 final FloodgatePlayer fPlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
@@ -227,7 +228,7 @@ public class Bank extends iPhoneBase {
                         .input("送金する金額を入力", "半角数字で!!!!!")
                         .responseHandler((form, responseData) -> {
                             CustomFormResponse response = form.parseResponse(responseData);
-                            if (!response.isCorrect()) Gui.warning(player, "お金の送金を取りやめました。");
+                            if (!response.isCorrect()) ChatUtil.warning(player, "お金の送金を取りやめました。");
                             else remittance_Complete(player, response.getInput(0), econ, complete_flag);
                         });
                 final FloodgatePlayer fPlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
@@ -236,7 +237,7 @@ public class Bank extends iPhoneBase {
         } else {
             withdrawal = (e) -> new AnvilGUI.Builder()
                     .onClose(player -> {
-                        if (!complete_flag.get()) Gui.warning(player, "お金の引き出しを取りやめました。");
+                        if (!complete_flag.get()) ChatUtil.warning(player, "お金の引き出しを取りやめました。");
                     })
                     .onComplete((player, text) -> {
                         withdraw_Complete(player, text, econ, complete_flag);
@@ -249,7 +250,7 @@ public class Bank extends iPhoneBase {
 
             payment = (e) -> new AnvilGUI.Builder()
                     .onClose(player -> {
-                        if (!complete_flag.get()) Gui.warning(player, "お金の入金を取りやめました。");
+                        if (!complete_flag.get()) ChatUtil.warning(player, "お金の入金を取りやめました。");
                     })
                     .onComplete((player, text) -> {
                         payment_Complete(player, text, complete_flag);
@@ -262,7 +263,7 @@ public class Bank extends iPhoneBase {
 
             remittance = (e) -> new AnvilGUI.Builder()
                     .onClose(player -> {
-                        if (!complete_flag.get()) Gui.warning(player, "お金の送金を取りやめました。");
+                        if (!complete_flag.get()) ChatUtil.warning(player, "お金の送金を取りやめました。");
                     })
                     .onComplete((player, text) -> {
                         remittance_Complete(player, text, econ, complete_flag);

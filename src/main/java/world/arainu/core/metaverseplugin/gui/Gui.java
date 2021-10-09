@@ -1,6 +1,7 @@
 package world.arainu.core.metaverseplugin.gui;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -66,29 +67,6 @@ public class Gui implements Listener {
     }
 
     /**
-     * エラーをプレイヤーに表示します。
-     *
-     * @param p       エラーを表示させるプレイヤー
-     * @param message エラー内容
-     */
-    public static void error(Player p, String message) {
-        Bukkit.getLogger().warning("プレイヤーへのエラーメッセージ>> " + message);
-        p.sendMessage(ChatColor.RED + "[メタバースプラグイン][エラー] " + message);
-        p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1, 0.5f);
-    }
-
-    /**
-     * 警告をプレイヤーに表示します。
-     *
-     * @param p       警告を表示させるプレイヤー
-     * @param message 警告内容
-     */
-    public static void warning(Player p, String message) {
-        Bukkit.getLogger().info("プレイヤーへの警告メッセージ>> " + message);
-        p.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] " + message);
-    }
-
-    /**
      * JavaでインベントリをメニューUIとして使うため、そのハンドリングを行います。
      *
      * @param e ハンドリングに使用するイベント
@@ -106,7 +84,7 @@ public class Gui implements Listener {
         final int id = e.getRawSlot();
 
         if (id < 0) return;
-        else if(!menuItems.containsKey(id)) return;
+        else if (!menuItems.containsKey(id)) return;
         final MenuItem clickedMenuItem = menuItems.get(id);
         if (clickedMenuItem.isClose()) {
             p.closeInventory();
@@ -135,7 +113,7 @@ public class Gui implements Listener {
 
     private void openMenuJavaImpl(Player player, String title, MenuItem[] items) {
         Integer max = Arrays.stream(items).map(MenuItem::getY).max(Comparator.naturalOrder()).orElse(0);
-        final Inventory inv = Bukkit.createInventory(null, Math.max(1 + items.length / 9,max) * 9, Component.text(title));
+        final Inventory inv = Bukkit.createInventory(null, Math.max(1 + items.length / 9, max) * 9, Component.text(title));
         final HashMap<Integer, MenuItem> itemmap = new HashMap<>();
         final int[] count = {0};
 
@@ -146,21 +124,21 @@ public class Gui implements Listener {
             }
             final ItemMeta meta = item.getItemMeta();
             assert meta != null;
-            meta.displayName(Component.text(i.getName()).decoration(TextDecoration.ITALIC,false));
+            meta.displayName(Component.text(i.getName()).decoration(TextDecoration.ITALIC, false));
             item.setItemMeta(meta);
             final int index;
-            if(i.getX() > -1) {
-                index = i.getX()+i.getY()*9;
+            if (i.getX() > -1) {
+                index = i.getX() + i.getY() * 9;
             } else {
-                while(itemmap.containsKey(count[0])){
+                while (itemmap.containsKey(count[0])) {
                     count[0]++;
                 }
                 index = count[0];
             }
-            itemmap.put(index,i);
+            itemmap.put(index, i);
 
-            return new PosItemStack(item,index);
-        }).forEach(i -> inv.setItem(i.getIndex(),i.getItem()));
+            return new PosItemStack(item, index);
+        }).forEach(i -> inv.setItem(i.getIndex(), i.getItem()));
 
         invMap.put(inv, itemmap);
         player.openInventory(inv);
@@ -175,7 +153,7 @@ public class Gui implements Listener {
             if (item.isShiny()) {
                 text = ChatColor.DARK_GREEN + text;
             }
-            if(item.isClose()) {
+            if (item.isClose()) {
                 builder.button(text);
             } else {
                 builder.content(text);
@@ -202,6 +180,7 @@ public class Gui implements Listener {
 
     /**
      * プレイヤーがBE勢かを調べる
+     *
      * @param player 対象のプレイヤー
      * @return BEの場合はtrue
      */

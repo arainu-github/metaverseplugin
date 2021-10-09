@@ -11,6 +11,7 @@ import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.store.ServerStore;
+import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -50,7 +51,7 @@ public class Worldteleport extends iPhoneBase {
                 Objects.requireNonNull(player).sendPluginMessage(MetaversePlugin.getInstance(), "BungeeCord", _out.toByteArray());
                 Bukkit.getServer().getLogger().info(player.getName()+"("+player.getUniqueId()+")を"+m.getName()+"に転送しました");
             } else {
-                Gui.error(player, "既にそのサーバーにいます");
+                ChatUtil.error(player, "既にそのサーバーにいます");
             }
         };
 

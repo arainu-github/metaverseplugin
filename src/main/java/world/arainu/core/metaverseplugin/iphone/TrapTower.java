@@ -12,10 +12,10 @@ import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
-import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.scheduler.TrapTowerScheduler;
 import world.arainu.core.metaverseplugin.store.TrapTowerStore;
+import world.arainu.core.metaverseplugin.utils.ChatUtil;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.util.List;
@@ -83,13 +83,13 @@ public class TrapTower extends iPhoneBase {
                         player.sendMessage(component);
                         new TrapTowerScheduler(player).runTaskTimer(MetaversePlugin.getInstance(), 0, 1200);
                     } else {
-                        Gui.error(player, "銀行残高が少なすぎるためトラップタワーにいけません！\n必要料金: 200円/分");
+                        ChatUtil.error(player, "銀行残高が少なすぎるためトラップタワーにいけません！\n必要料金: 200円/分");
                     }
                 } else {
-                    Gui.error(player, "トラップタワーがすでに使用中です。時間をおいてもう一度お試しください。");
+                    ChatUtil.error(player, "トラップタワーがすでに使用中です。時間をおいてもう一度お試しください。");
                 }
             } else {
-                Gui.error(player, "公共施設から直接公共施設へ行くことはできません！");
+                ChatUtil.error(player, "公共施設から直接公共施設へ行くことはできません！");
             }
         } else {
             Bukkit.getLogger().severe("公共施設のワールドが見当たりません！configを確認してください！");
