@@ -54,11 +54,19 @@ public class Worldteleport extends iPhoneBase {
             }
         };
 
-        Gui.getInstance().openMenu(player, "WorldTeleportGUI/MOD ONLY", Arrays.asList(
-                new MenuItem("ロビー", TeleportPlayer),
-                new MenuItem("サバイバル", TeleportPlayer),
-                new MenuItem("クリエイティブ", TeleportPlayer),
-                new MenuItem("戻る", CommandiPhone::run, true, Material.ARROW, null, 8, 0)
-        ));
+        if(onCommand) {
+            Gui.getInstance().openMenu(player, "WorldTeleportGUI/MOD ONLY", Arrays.asList(
+                    new MenuItem("ロビー", TeleportPlayer),
+                    new MenuItem("サバイバル", TeleportPlayer),
+                    new MenuItem("クリエイティブ", TeleportPlayer)
+            ));
+        } else {
+            Gui.getInstance().openMenu(player, "WorldTeleportGUI/MOD ONLY", Arrays.asList(
+                    new MenuItem("ロビー", TeleportPlayer),
+                    new MenuItem("サバイバル", TeleportPlayer),
+                    new MenuItem("クリエイティブ", TeleportPlayer),
+                    new MenuItem("戻る", CommandiPhone::run, true, Material.ARROW, null, 8, 0)
+            ));
+        }
     }
 }
