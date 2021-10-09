@@ -278,6 +278,7 @@ public class Bank extends iPhoneBase {
                 ChatColor.DARK_GREEN + "銀行",
                 Arrays.asList(
                         new MenuItem(ChatColor.LIGHT_PURPLE + "残高: " + econ.format(econ.getBalance(menuItem.getClicker())), null, false, Material.EMERALD),
+                        new MenuItem("", null, false, Material.LIME_STAINED_GLASS_PANE),
                         new MenuItem("引き出し", withdrawal, true, Material.REDSTONE),
                         new MenuItem("入金", payment, true, Material.GOLD_INGOT),
                         new MenuItem("送金", remittance, true, Material.DIAMOND),
