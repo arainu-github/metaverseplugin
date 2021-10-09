@@ -12,6 +12,7 @@ import world.arainu.core.metaverseplugin.store.iPhoneStore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * プラグインの機能が全て集結しているメニューGuiを表示する魔法のアイテム
@@ -20,6 +21,11 @@ import java.util.List;
 public class CommandiPhone extends CommandPlayerOnlyBase {
     @Override
     public boolean execute(Player player, Command command, String label, String[] args) {
+        run(player);
+        return true;
+    }
+
+    public static void run(Player player){
         final String title = ChatColor.BLUE+"iPhone 13 Pro Max";
         List<MenuItem> guiItem = new ArrayList<>();
         for(condition_item item:iPhoneStore.getGuiItem()){
@@ -28,7 +34,10 @@ public class CommandiPhone extends CommandPlayerOnlyBase {
             }
         }
         Gui.getInstance().openMenu(player, title, guiItem);
-        return true;
+    }
+
+    public static void run(MenuItem menuItem) {
+        run(menuItem.getClicker());
     }
 
     @Override

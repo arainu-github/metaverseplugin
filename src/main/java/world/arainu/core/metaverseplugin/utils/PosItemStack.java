@@ -4,13 +4,11 @@ import lombok.Getter;
 import org.bukkit.inventory.ItemStack;
 
 public class PosItemStack {
-    public PosItemStack(ItemStack item, int x, int y) {
+    public PosItemStack(ItemStack item, int index) {
         this.item = item;
-        this.x = x;
-        this.y = y;
+        this.index = index;
     }
 
     @Getter private final ItemStack item;
-    @Getter private final int x;
-    @Getter private final int y;
+    @Getter private final int index;
 }
