@@ -25,6 +25,10 @@ public class CommandiPhone extends CommandPlayerOnlyBase {
         return true;
     }
 
+    /**
+     * 主要関数
+     * @param player iphoneを表示させるプレイヤー
+     */
     public static void run(Player player){
         final String title = ChatColor.BLUE+"iPhone 13 Pro Max";
         List<MenuItem> guiItem = new ArrayList<>();
@@ -36,6 +40,10 @@ public class CommandiPhone extends CommandPlayerOnlyBase {
         Gui.getInstance().openMenu(player, title, guiItem);
     }
 
+    /**
+     * 主要関数。Guiから呼び出すとき用
+     * @param menuItem menuItem
+     */
     public static void run(MenuItem menuItem) {
         run(menuItem.getClicker());
     }

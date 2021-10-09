@@ -112,6 +112,8 @@ public class MenuItem {
      * @param customData Itemにつける任意のデータ
      * @param count アイテムの個数
      * @param shiny ブロックをキラキラさせるか
+     * @param x アイテムの場所(x軸)。左上が0
+     * @param y アイテムの場所(y軸)。左上が0
      */
     public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, Material icon, Object customData, int count, boolean shiny,int x, int y) {
         this(name, onClick, close, new ItemStack(icon, count), customData, shiny,x,y);
@@ -175,6 +177,8 @@ public class MenuItem {
      * @param icon アイテムのブロック
      * @param customData Itemにつける任意のデータ
      * @param shiny ブロックをキラキラさせるか
+     * @param x アイテムの場所(x軸)。左上が0
+     * @param y アイテムの場所(y軸)。左上が0
      */
     public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, ItemStack icon, Object customData, boolean shiny,int x,int y) {
         this.name = name;
