@@ -2,7 +2,6 @@ package world.arainu.core.metaverseplugin.listener;
 
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,10 +17,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
-import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.store.BankStore;
 import world.arainu.core.metaverseplugin.utils.BankNotice;
+import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,7 +58,7 @@ public class BankListener implements Listener {
                         final Economy econ = MetaversePlugin.getEcon();
                         Bank.addMoneyForPlayer(p, total_money - required_money);
                         econ.depositPlayer(p, required_money);
-                        p.sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + econ.format(required_money) + "を正常に入金しました。");
+                        ChatUtil.success(p,econ.format(required_money) + "を正常に入金しました。");
                         gui_hashmap.remove(p.getUniqueId());
                         BankStore.setGui_hashmap(gui_hashmap);
                         inv.clear();
@@ -79,7 +78,7 @@ public class BankListener implements Listener {
     public void onInventoryClose(InventoryCloseEvent e) {
         Player p = (Player) e.getPlayer();
         if (BankStore.getGui_hashmap().containsKey(p.getUniqueId())) {
-            Gui.warning(p,"お金の入金を取りやめました。");
+            ChatUtil.warning(p,"お金の入金を取りやめました。");
             HashMap<UUID, Integer> gui_hashmap = BankStore.getGui_hashmap();
 
             Inventory oldInv = e.getInventory();
@@ -114,8 +113,7 @@ public class BankListener implements Listener {
         if (BankStore.getRemittance_map().containsKey(e.getPlayer().getUniqueId())){
             List<BankNotice> remittance = BankStore.getRemittance_map().get(e.getPlayer().getUniqueId());
             for(BankNotice i : remittance){
-                e.getPlayer().sendMessage(ChatColor.GREEN + "[メタバースプラグイン] " + i.getPlayerUID() + "があなたへ" + i.getFormatedMoney() + "送金しました。");
-                e.getPlayer().sendMessage(ChatColor.GREEN + "[メタバースプラグイン] 所持金は" + econ.format(econ.getBalance(e.getPlayer())) + "です。");
+                ChatUtil.success(e.getPlayer(),i.getPlayerUID() + "があなたへ" + i.getFormatedMoney() + "送金しました。\n所持金は" + econ.format(econ.getBalance(e.getPlayer())) + "です。");
             }
         }
         HashMap<UUID,Long> login_money_map = BankStore.getLogin_money_map();

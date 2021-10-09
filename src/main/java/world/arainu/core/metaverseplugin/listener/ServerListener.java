@@ -44,7 +44,7 @@ public class ServerListener implements Listener {
                     new EmbedBuilder()
                             .setTitle("ホワイトリストに登録されていないプレイヤーがログインしようとしました")
                             .setDescription("自動BANまで残り" + (10 * (kickcount / 10 + 1) - kickcount) + "回")
-                            .addField("プレイヤー名", name, false)
+                            .addField("プレイヤー名", "`"+name+"`", false)
                             .addField("UUID", String.valueOf(uuid), false)
                             .setThumbnail("https://crafatar.com/avatars/" + uuid)
                             .setFooter("接続元サーバー：" + ServerStore.getServerDisplayName())
@@ -79,7 +79,7 @@ public class ServerListener implements Listener {
             channel.sendMessage(
                     new EmbedBuilder()
                             .setTitle("すでにBANされているプレイヤーがログインしようとしました")
-                            .addField("プレイヤー名", name, false)
+                            .addField("プレイヤー名", "`"+name+"`", false)
                             .addField("UUID", String.valueOf(uuid), false)
                             .setThumbnail("https://crafatar.com/avatars/" +uuid)
                             .setFooter("接続元サーバー：" + ServerStore.getServerDisplayName())

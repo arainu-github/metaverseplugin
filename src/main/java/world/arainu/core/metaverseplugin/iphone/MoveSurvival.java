@@ -2,9 +2,9 @@ package world.arainu.core.metaverseplugin.iphone;
 
 import org.bukkit.entity.Player;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
-import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.store.TrapTowerStore;
+import world.arainu.core.metaverseplugin.utils.ChatUtil;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public class MoveSurvival extends iPhoneBase {
                     using_player_list.set(i, null);
                     TrapTowerStore.setUsing_player_list(using_player_list);
                 }
-                if (msg != null) Gui.warning(p, msg);
+                if (msg != null) ChatUtil.warning(p, msg);
             } catch (NullPointerException err) {
                 p.sendMessage("NullPointerException");
             }

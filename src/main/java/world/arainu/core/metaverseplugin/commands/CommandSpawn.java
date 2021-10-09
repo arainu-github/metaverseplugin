@@ -10,8 +10,8 @@ import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 import org.jetbrains.annotations.NotNull;
-import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.iphone.Bank;
+import world.arainu.core.metaverseplugin.utils.ChatUtil;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.util.ArrayList;
@@ -255,7 +255,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     villager.setRecipes(recipes);
                 }
                 default -> {
-                    Gui.error(player, "そのような独自Mobは存在しません！");
+                    ChatUtil.error(player, "そのような独自Mobは存在しません！");
                     return false;
                 }
             }

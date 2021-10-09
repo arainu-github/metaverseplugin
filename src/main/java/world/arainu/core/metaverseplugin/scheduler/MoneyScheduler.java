@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.store.BankStore;
+import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -27,8 +28,7 @@ public class MoneyScheduler extends BukkitRunnable {
                 Player p = Bukkit.getPlayer(i);
                 int login_money = MetaversePlugin.getConfiguration().getInt("econ.login_money");
                 econ.depositPlayer(p,login_money);
-                Objects.requireNonNull(p).sendMessage(ChatColor.GREEN+"[メタバースプラグイン] ログイン時間ボーナスにより、口座金額が"+econ.format(login_money)+"増えました！");
-                Objects.requireNonNull(p).sendMessage(ChatColor.GREEN+"[メタバースプラグイン] 残高:"+econ.format(econ.getBalance(p)));
+                ChatUtil.success(Objects.requireNonNull(p),"ログイン時間ボーナスにより、口座金額が"+econ.format(login_money)+"増えました！\n残高:"+econ.format(econ.getBalance(p)));
                 login_money_map.replace(p.getUniqueId(),System.currentTimeMillis() / 1000);
             }
         }
