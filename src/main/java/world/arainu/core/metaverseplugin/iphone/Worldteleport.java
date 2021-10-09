@@ -3,9 +3,11 @@ package world.arainu.core.metaverseplugin.iphone;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
+import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.store.ServerStore;
@@ -23,20 +25,20 @@ import java.util.function.Consumer;
 public class Worldteleport extends iPhoneBase {
     @Override
     public boolean execute(Player player, Command command, String label, String[] args) {
-        Run(player);
+        Run(player,true);
         return true;
     }
 
     @Override
     public void executeGui(MenuItem menuItem) {
-        Run(menuItem.getClicker());
+        Run(menuItem.getClicker(),false);
     }
 
     /**
      * 主要関数
      * @param player プレイヤー
      */
-    private void Run(Player player){
+    private void Run(Player player,Boolean onCommand){
         Consumer<MenuItem> TeleportPlayer = (m) -> {
             if (!Objects.equals(ServerStore.getServerDisplayName(), m.getName())) {
                 ByteArrayDataOutput _out = ByteStreams.newDataOutput();
@@ -52,6 +54,19 @@ public class Worldteleport extends iPhoneBase {
             }
         };
 
-        Gui.getInstance().openMenu(player, "WorldTeleportGUI/MOD ONLY", Arrays.asList(new MenuItem("ロビー", TeleportPlayer),new MenuItem("サバイバル", TeleportPlayer),new MenuItem("クリエイティブ", TeleportPlayer)));
+        if(onCommand) {
+            Gui.getInstance().openMenu(player, "WorldTeleportGUI/MOD ONLY", Arrays.asList(
+                    new MenuItem("ロビー", TeleportPlayer),
+                    new MenuItem("サバイバル", TeleportPlayer),
+                    new MenuItem("クリエイティブ", TeleportPlayer)
+            ));
+        } else {
+            Gui.getInstance().openMenu(player, "WorldTeleportGUI/MOD ONLY", Arrays.asList(
+                    new MenuItem("ロビー", TeleportPlayer),
+                    new MenuItem("サバイバル", TeleportPlayer),
+                    new MenuItem("クリエイティブ", TeleportPlayer),
+                    new MenuItem("戻る", CommandiPhone::run, true, Material.ARROW, null, 8, 0)
+            ));
+        }
     }
 }

@@ -19,6 +19,7 @@ import org.geysermc.cumulus.response.CustomFormResponse;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
+import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.store.BankStore;
@@ -277,9 +278,11 @@ public class Bank extends iPhoneBase {
                 ChatColor.DARK_GREEN + "銀行",
                 Arrays.asList(
                         new MenuItem(ChatColor.LIGHT_PURPLE + "残高: " + econ.format(econ.getBalance(menuItem.getClicker())), null, false, Material.EMERALD),
+                        new MenuItem("", null, false, Material.LIME_STAINED_GLASS_PANE),
                         new MenuItem("引き出し", withdrawal, true, Material.REDSTONE),
                         new MenuItem("入金", payment, true, Material.GOLD_INGOT),
-                        new MenuItem("送金", remittance, true, Material.DIAMOND)
+                        new MenuItem("送金", remittance, true, Material.DIAMOND),
+                        new MenuItem("戻る", CommandiPhone::run, true, Material.ARROW, null, 8, 0)
                 )
         );
     }
