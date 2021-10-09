@@ -90,6 +90,7 @@ public class Gui implements Listener {
             p.closeInventory();
         }
         clickedMenuItem.setClicker((Player) p);
+        ((Player) p).playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.PLAYERS, 1, 1f);
         final Consumer<MenuItem> handler = clickedMenuItem.getOnClick();
         if (handler != null) handler.accept(clickedMenuItem);
     }
