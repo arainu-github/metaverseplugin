@@ -2,9 +2,11 @@ package world.arainu.core.metaverseplugin.gui;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.function.Consumer;
 
@@ -116,7 +118,7 @@ public class MenuItem {
      * @param y アイテムの場所(y軸)。左上が0
      */
     public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, Material icon, Object customData, int count, boolean shiny,int x, int y) {
-        this(name, onClick, close, new ItemStack(icon, count), customData, shiny,x,y);
+        this(Component.text(name), onClick, close, new ItemStack(icon, count), customData, shiny,x,y);
     }
 
     /**
@@ -139,7 +141,7 @@ public class MenuItem {
      * @param customData Itemにつける任意のデータ
      */
     public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, ItemStack icon, Object customData) {
-        this(name, onClick, close, icon, customData, false,-1,-1);
+        this(Component.text(name), onClick, close, icon, customData, false,-1,-1);
     }
 
     /**
@@ -152,7 +154,7 @@ public class MenuItem {
      * @param shiny ブロックをキラキラさせるか
      */
     public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, ItemStack icon, Object customData, Boolean shiny) {
-        this(name, onClick, close, icon, customData, shiny,-1,-1);
+        this(Component.text(name), onClick, close, icon, customData, shiny,-1,-1);
     }
 
     /**
@@ -166,7 +168,7 @@ public class MenuItem {
      * @param y アイテムの場所(y軸)。左上が0
      */
     public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, ItemStack icon, Object customData,int x,int y) {
-        this(name, onClick, close, icon, customData, false,x,y);
+        this(Component.text(name), onClick, close, icon, customData, false,x,y);
     }
 
     /**
@@ -180,8 +182,10 @@ public class MenuItem {
      * @param x アイテムの場所(x軸)。左上が0
      * @param y アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, ItemStack icon, Object customData, boolean shiny,int x,int y) {
-        this.name = name;
+    public MenuItem(Component name, Consumer<MenuItem> onClick, Boolean close, ItemStack icon, Object customData, boolean shiny,int x,int y) {
+            ItemMeta meta = icon.getItemMeta();
+            meta.displayName(name);
+            icon.setItemMeta(meta);
         this.onClick = onClick;
         this.icon = icon;
         this.customData = customData;
@@ -191,7 +195,26 @@ public class MenuItem {
         this.y = y;
     }
 
-    @Getter private final String name;
+    /**
+     * メニューのアイテム。
+     * @param onClick クリック時のイベント
+     * @param close クリック時にGUIを閉じるか
+     * @param icon アイテムのブロック
+     * @param customData Itemにつける任意のデータ
+     * @param shiny ブロックをキラキラさせるか
+     * @param x アイテムの場所(x軸)。左上が0
+     * @param y アイテムの場所(y軸)。左上が0
+     */
+    public MenuItem(Consumer<MenuItem> onClick, Boolean close, ItemStack icon, Object customData, boolean shiny,int x,int y){
+        this.onClick = onClick;
+        this.icon = icon;
+        this.customData = customData;
+        this.shiny = shiny;
+        this.close = close;
+        this.x = x;
+        this.y = y;
+    }
+
     @Getter private final ItemStack icon;
     @Getter private final Consumer<MenuItem> onClick;
     @Getter private final Object customData;
