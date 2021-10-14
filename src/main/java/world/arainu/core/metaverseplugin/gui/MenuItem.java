@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -200,7 +201,7 @@ public class MenuItem {
      */
     public MenuItem(TextComponent name, Consumer<MenuItem> onClick, Boolean close, ItemStack icon, Object customData, boolean shiny, int x, int y) {
         ItemMeta meta = icon.getItemMeta();
-        meta.displayName(name);
+        meta.displayName(name.decoration(TextDecoration.ITALIC,false));
         icon.setItemMeta(meta);
         this.onClick = onClick;
         this.icon = icon;
