@@ -60,6 +60,10 @@ public class Bank extends iPhoneBase {
         return moneyStack;
     }
 
+    public static boolean isMoney(ItemStack item){
+        return item.getItemMeta().getPersistentDataContainer().has(BankStore.getKey(), PersistentDataType.INTEGER);
+    }
+
     /**
      * 口座のお金を現金に換金する関数。
      *

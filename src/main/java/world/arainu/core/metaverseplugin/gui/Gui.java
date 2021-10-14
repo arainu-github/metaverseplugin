@@ -1,6 +1,8 @@
 package world.arainu.core.metaverseplugin.gui;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -124,7 +126,7 @@ public class Gui implements Listener {
             }
             final ItemMeta meta = item.getItemMeta();
             assert meta != null;
-            meta.displayName(Component.text(i.getName()).decoration(TextDecoration.ITALIC, false));
+            meta.displayName(item.displayName().decoration(TextDecoration.ITALIC, false));
             item.setItemMeta(meta);
             final int index;
             if (i.getX() > -1) {
@@ -149,14 +151,14 @@ public class Gui implements Listener {
                 .title(title);
 
         for (var item : items) {
-            String text = item.getName();
+            TextComponent text = (TextComponent) item.getIcon().displayName();
             if (item.isShiny()) {
-                text = ChatColor.DARK_GREEN + text;
+                text = text.color(NamedTextColor.GREEN);
             }
             if (item.isClose()) {
-                builder.button(text);
+                builder.button(text.content());
             } else {
-                builder.content(text);
+                builder.content(text.content());
             }
         }
 
