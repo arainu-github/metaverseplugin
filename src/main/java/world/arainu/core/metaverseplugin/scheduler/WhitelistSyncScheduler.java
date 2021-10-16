@@ -40,5 +40,7 @@ public class WhitelistSyncScheduler extends BukkitRunnable {
                 player.setWhitelisted(true);
             }
         }
+
+        Bukkit.reloadWhitelist();
     }
 }

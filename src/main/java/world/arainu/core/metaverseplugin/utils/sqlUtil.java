@@ -206,6 +206,12 @@ public class sqlUtil {
         }
     }
 
+    /**
+     * ホワリスを取得する関数
+     *
+     * @return ホワリスに入っているプレイヤーのUUIDをリストで返します。
+     */
+
     public static List<UUID> getWhitelist() {
         try {
             create_whitelist_table();
