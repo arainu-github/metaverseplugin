@@ -70,6 +70,15 @@ public class sqlUtil {
         }
     }
 
+    private static void create_whitelist_table() {
+        try {
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS whitelist (uuid VARCHAR(36) NOT NULL ,PRIMARY KEY (`uuid`)) ");
+            ps.executeUpdate();
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
     /**
      * 何かしらのタイプとUUIDを紐付ける関数。
      *
@@ -196,6 +205,24 @@ public class sqlUtil {
             rs.close();
             stmt.close();
             return count;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static List<UUID> getWhitelist() {
+        try {
+            create_whitelist_table();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM whitelist");
+            List<UUID> uuidList = new ArrayList<>();
+            while(rs.next()){
+                uuidList.add(UUID.fromString(rs.getString("uuid")));
+            }
+            rs.close();
+            stmt.close();
+            return uuidList;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;

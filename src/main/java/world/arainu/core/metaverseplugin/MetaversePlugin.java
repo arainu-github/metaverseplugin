@@ -31,6 +31,7 @@ import world.arainu.core.metaverseplugin.listener.ServerListener;
 import world.arainu.core.metaverseplugin.listener.SittingListener;
 import world.arainu.core.metaverseplugin.scheduler.LateScheduler;
 import world.arainu.core.metaverseplugin.scheduler.MoneyScheduler;
+import world.arainu.core.metaverseplugin.scheduler.WhitelistSyncScheduler;
 import world.arainu.core.metaverseplugin.store.ServerStore;
 import world.arainu.core.metaverseplugin.store.iPhoneStore;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
@@ -72,6 +73,7 @@ public final class MetaversePlugin extends JavaPlugin {
     private void setScheduler() {
         new MoneyScheduler().runTaskTimer(this, 0, 20);
         new LateScheduler().runTaskTimer(this, 0, 20);
+        new WhitelistSyncScheduler().runTaskTimer(this, 0, 600);
         createStairsYml();
     }
 

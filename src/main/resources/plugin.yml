@@ -2,7 +2,7 @@ name: MetaversePlugin
 version: '${project.version}'
 main: world.arainu.core.metaverseplugin.MetaversePlugin
 api-version: 1.17
-authors: [ kumitatepazuru, kawattii, AreaEffectCloud ]
+authors: [ kumitatepazuru, kawattii, AreaEffectCloud, JolTheGreat ]
 description: あらいぬメタバースプロジェクトマインクラフトサーバーのプラグイン
 website: https://arainu.world
 depend:
