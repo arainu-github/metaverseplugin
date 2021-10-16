@@ -229,6 +229,17 @@ public class sqlUtil {
         }
     }
 
+    public static void addWhiteList(UUID uuid) {
+        try {
+            create_kickcount_table();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO `whitelist` (`uuid`) VALUES('" + uuid + "')");
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Getter private final static String db_name = MetaversePlugin.getConfiguration().getString("mysql.db_name");
     @Getter private final static String user = MetaversePlugin.getConfiguration().getString("mysql.user");
     @Getter private final static String pass = MetaversePlugin.getConfiguration().getString("mysql.pass");
