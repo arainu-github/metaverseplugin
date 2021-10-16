@@ -5,12 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -56,16 +51,25 @@ public class sqlUtil {
         try {
             PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `playerpos` ( `uuid` VARCHAR(36) NOT NULL ,  `world` VARCHAR(36) NOT NULL , `x` INT NOT NULL , `y` SMALLINT NOT NULL ,`z` INT NOT NULL ,PRIMARY KEY (`uuid`)) ");
             ps.executeUpdate();
-        } catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private static void create_kickcount_table(){
+    private static void create_kickcount_table() {
         try {
             PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `kickcount` ( `uuid` VARCHAR(36) NOT NULL ,  `count` INT NOT NULL ,PRIMARY KEY (`uuid`)) ");
             ps.executeUpdate();
-        } catch (SQLException e){
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void create_whitelist_table() {
+        try {
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS whitelist (uuid VARCHAR(36) NOT NULL ,PRIMARY KEY (`uuid`)) ");
+            ps.executeUpdate();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
@@ -202,11 +206,34 @@ public class sqlUtil {
         }
     }
 
-    @Getter private final static String db_name = MetaversePlugin.getConfiguration().getString("mysql.db_name");
-    @Getter private final static String user = MetaversePlugin.getConfiguration().getString("mysql.user");
-    @Getter private final static String pass = MetaversePlugin.getConfiguration().getString("mysql.pass");
-    @Getter private final static int port = MetaversePlugin.getConfiguration().getInt("mysql.port");
-    @Getter private final static String url = MetaversePlugin.getConfiguration().getString("mysql.url");
-    private final static String url_connection = "jdbc:mysql://"+url+":"+port+"/"+db_name+"?autoReconnect=true&maxReconnects=10";
+    public static List<UUID> getWhitelist() {
+        try {
+            create_whitelist_table();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM whitelist");
+            List<UUID> uuidList = new ArrayList<>();
+            while (rs.next()) {
+                uuidList.add(UUID.fromString(rs.getString("uuid")));
+            }
+            rs.close();
+            stmt.close();
+            return uuidList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Getter
+    private final static String db_name = MetaversePlugin.getConfiguration().getString("mysql.db_name");
+    @Getter
+    private final static String user = MetaversePlugin.getConfiguration().getString("mysql.user");
+    @Getter
+    private final static String pass = MetaversePlugin.getConfiguration().getString("mysql.pass");
+    @Getter
+    private final static int port = MetaversePlugin.getConfiguration().getInt("mysql.port");
+    @Getter
+    private final static String url = MetaversePlugin.getConfiguration().getString("mysql.url");
+    private final static String url_connection = "jdbc:mysql://" + url + ":" + port + "/" + db_name + "?autoReconnect=true&maxReconnects=10";
     private static Connection conn;
 }
