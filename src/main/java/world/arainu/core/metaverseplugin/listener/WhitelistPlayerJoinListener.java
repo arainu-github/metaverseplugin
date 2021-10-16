@@ -21,9 +21,6 @@ public class WhitelistPlayerJoinListener implements Listener {
         Player player = e.getPlayer();
         if (!Bukkit.getWhitelistedPlayers().contains(player)) {
             player.kickPlayer("貴方はホワイトリストに入っていません！入りたい場合は、Discordの方でスタッフにメッセージを送ってください。");
-        } else if (!player.hasPlayedBefore()) {
-            player.setWhitelisted(true);
         }
-
     }
 }
