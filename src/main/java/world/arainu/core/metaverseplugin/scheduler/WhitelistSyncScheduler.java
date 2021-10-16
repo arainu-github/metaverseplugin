@@ -27,14 +27,14 @@ public class WhitelistSyncScheduler extends BukkitRunnable {
         for (OfflinePlayer player: originalWhitelist) {
             if (!newWhitelist.contains(player)) {
                 originalWhitelist.remove(player);
-                Bukkit.getServer().dispatchCommand(MetaversePlugin.getPlugin(MetaversePlugin.class).getServer().getConsoleSender(), "whitelist remove " + player.getName());
+                player.setWhitelisted(false);
             }
         }
 
         for (OfflinePlayer player: newWhitelist) {
             if (!originalWhitelist.contains(player)) {
                 originalWhitelist.add(player);
-                Bukkit.getServer().dispatchCommand(MetaversePlugin.getPlugin(MetaversePlugin.class).getServer().getConsoleSender(), "whitelist add " + player.getName());
+                player.setWhitelisted(true);
             }
         }
     }
