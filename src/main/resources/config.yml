@@ -1,5 +1,6 @@
 mysql:
   db_name: metaverse
+  db_name_public: metaverse_public
   port: 3306
   url: mc_mysql
   user: root
