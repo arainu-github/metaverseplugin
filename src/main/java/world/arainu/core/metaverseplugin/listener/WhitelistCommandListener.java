@@ -58,7 +58,6 @@ public class WhitelistCommandListener implements Listener {
                     assert whitelist != null;
                     for (UUID uuid : whitelist) {
                         caller.sendMessage(Component.text(uuid.toString() + ", "));
-
                     }
                 }
             }
