@@ -208,6 +208,34 @@ public class sqlUtil {
     }
 
     /**
+     * データベース上のホワリスにプレイヤーを追加する関数
+     *
+     * @param uuid 文字通りUUID
+     */
+
+    public static void addWhitelist(UUID uuid) {
+        try {
+            create_whitelist_table();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO whitelist (`uuid`) VALUES('" + uuid + "')");
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void removeWhitelist(UUID uuid) {
+        try {
+            create_whitelist_table();
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM whitelist WHERE uuid LIKE '" + uuid + "'");
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * ホワリスを取得する関数
      *
      * @return ホワリスに入っているプレイヤーのUUIDをリストで返します。
