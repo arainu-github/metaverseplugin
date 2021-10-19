@@ -19,7 +19,6 @@ public class WhitelistPlayerJoinListener implements Listener {
 
     /**
      * プレイヤーの参加を待つリスナー
-     *
      * @param e イベント
      */
 
