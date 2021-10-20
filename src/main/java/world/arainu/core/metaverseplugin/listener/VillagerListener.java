@@ -2,6 +2,7 @@ package world.arainu.core.metaverseplugin.listener;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -20,6 +21,7 @@ import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.iphone.Bank;
@@ -65,13 +67,14 @@ public class VillagerListener implements Listener {
     }
 
     private void updatePrice(Inventory inv,ItemStack item){
+        Economy econ = MetaversePlugin.getEcon();
         ItemStack priceItem = Objects.requireNonNull(inv.getItem(6));
         ItemMeta itemMeta = priceItem.getItemMeta();
         final int price = invMap.get(inv).price*item.getAmount();
         if (invMap.get(inv).isPurchase) {
-            itemMeta.displayName(Component.text("入手できる金額:" + price));
+            itemMeta.displayName(Component.text("入手できる金額:" + econ.format(price)));
         } else {
-            itemMeta.displayName(Component.text("必要な金額:" + price));
+            itemMeta.displayName(Component.text("必要な金額:" + econ.format(price)));
         }
         priceItem.setItemMeta(itemMeta);
     }
