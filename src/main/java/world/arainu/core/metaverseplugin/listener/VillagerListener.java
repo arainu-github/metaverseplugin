@@ -18,6 +18,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
@@ -27,7 +28,9 @@ import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -54,6 +57,25 @@ public class VillagerListener implements Listener {
         }
     }
 
+    /*
+    TODO: Util化
+     */
+    private void playClickSound(Player p){
+        p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.PLAYERS, 1, 1f);
+    }
+
+    private void updatePrice(Inventory inv,ItemStack item){
+        ItemStack priceItem = Objects.requireNonNull(inv.getItem(6));
+        ItemMeta itemMeta = priceItem.getItemMeta();
+        final int price = invMap.get(inv).price*item.getAmount();
+        if (invMap.get(inv).isPurchase) {
+            itemMeta.displayName(Component.text("入手できる金額:" + price));
+        } else {
+            itemMeta.displayName(Component.text("必要な金額:" + price));
+        }
+        priceItem.setItemMeta(itemMeta);
+    }
+
     /**
      * JavaでインベントリをメニューUIとして使うため、そのハンドリングを行います。
      *
@@ -65,22 +87,77 @@ public class VillagerListener implements Listener {
         final HumanEntity p = e.getWhoClicked();
 
         // 管理インベントリでなければ無視
-        if (!invList.contains(inv)) return;
+        if (!invMap.containsKey(inv)) return;
         final int id = e.getRawSlot();
         if (id < 18 && id > 0) {
             e.setCancelled(true);
-            ((Player) p).playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.PLAYERS, 1, 1f);
+            final ItemStack item = Objects.requireNonNull(inv.getItem(2));
             switch (id) {
                 case 1 -> {
-                    ItemStack item = Objects.requireNonNull(inv.getItem(2));
+                    playClickSound((Player) p);
                     if (item.getAmount() != 1) {
                         item.setAmount(item.getAmount() - 1);
                     }
+                    updatePrice(inv,item);
                 }
                 case 3 -> {
-                    ItemStack item = Objects.requireNonNull(inv.getItem(2));
+                    playClickSound((Player) p);
                     if (item.getAmount() != 64) {
                         item.setAmount(item.getAmount() + 1);
+                    }
+                    updatePrice(inv,item);
+                }
+                case 6 -> {
+                    playClickSound((Player) p);
+                    GuiData guiData = invMap.get(inv);
+                    if(guiData.isPurchase) {
+                        final HashMap<Integer, ? extends ItemStack> item_list = inv.all(item.getType());
+                        int total = 0;
+                        for(Map.Entry<Integer, ? extends ItemStack> i: item_list.entrySet()){
+                            if(i.getKey() != 2){
+                                total += i.getValue().getAmount();
+                            }
+                        }
+                        final int required_item = item.getAmount();
+                        if (required_item <= total) {
+                            Bank.addMoneyForPlayer((Player) p, guiData.price*item.getAmount());
+
+                            total = 0;
+                            for(Map.Entry<Integer, ? extends ItemStack> i: item_list.entrySet()){
+                                final ItemStack pay_item = i.getValue();
+                                final int index = i.getKey();
+                                if(index != 2){
+                                    if(total+pay_item.getAmount() < required_item) {
+                                        inv.setItem(index,new ItemStack(Material.AIR));
+                                        total += pay_item.getAmount();
+                                    } else {
+                                        pay_item.setAmount(pay_item.getAmount()-(required_item-total));
+                                        inv.setItem(index,pay_item);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        final List<ItemStack> money_list = new ArrayList<>(inv.all(Material.EMERALD).values());
+                        int total_money = 0;
+                        for (ItemStack i : money_list) {
+                            final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
+                            if (persistentDataContainer.has(BankStore.getKey(), PersistentDataType.INTEGER)) {
+                                total_money += persistentDataContainer.get(BankStore.getKey(), PersistentDataType.INTEGER) * i.getAmount();
+                            }
+                        }
+                        final int required_money = guiData.price * Objects.requireNonNull(inv.getItem(2)).getAmount();
+                        if (required_money <= total_money) {
+                            for (ItemStack i : money_list) {
+                                final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
+                                if (persistentDataContainer.has(BankStore.getKey(), PersistentDataType.INTEGER)) {
+                                    inv.remove(i);
+                                }
+                            }
+                            Bank.addMoneyForPlayer((Player) p, total_money - required_money);
+                            p.getInventory().addItem(Objects.requireNonNull(inv.getItem(2)));
+                        }
                     }
                 }
             }
@@ -96,8 +173,8 @@ public class VillagerListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
         final Inventory inv = e.getInventory();
-        if (!invList.contains(inv)) return;
-        invList.remove(inv);
+        if (!invMap.containsKey(inv)) return;
+        invMap.remove(inv);
     }
 
     private void onClick(MenuItem e) {
@@ -105,7 +182,6 @@ public class VillagerListener implements Listener {
         boolean isPurchase = Bank.isMoney(recipe.getResult());
         ItemStack money = Bank.isMoney(recipe.getResult()) ? recipe.getResult() : recipe.getIngredients().get(0);
         int price = money.getAmount() * money.getItemMeta().getPersistentDataContainer().get(BankStore.getKey(), PersistentDataType.INTEGER);
-
         final Inventory inv = Bukkit.createInventory(null, 27, e.getIcon().displayName().append(Component.text(" を購入")));
 
         final ItemStack down_button = new ItemStack(Material.RED_WOOL);
@@ -116,18 +192,27 @@ public class VillagerListener implements Listener {
             itemMeta.displayName(Component.text("購入個数を減らす").color(NamedTextColor.RED));
         }
         down_button.setItemMeta(itemMeta);
+
         final ItemStack Buy_item = e.getIcon();
-        Buy_item.setAmount(1);
+        itemMeta = Buy_item.getItemMeta();
+        if (isPurchase) {
+            itemMeta.lore(Collections.singletonList(Component.text("買い取るもの").color(NamedTextColor.GRAY)));
+        } else {
+            itemMeta.lore(Collections.singletonList(Component.text("購入するもの").color(NamedTextColor.GRAY)));
+        }
+        Buy_item.setItemMeta(itemMeta);
+
         final ItemStack up_button = new ItemStack(Material.LIME_WOOL);
-        itemMeta = down_button.getItemMeta();
+        itemMeta = up_button.getItemMeta();
         if (isPurchase) {
             itemMeta.displayName(Component.text("買取個数を増やす").color(NamedTextColor.GREEN));
         } else {
             itemMeta.displayName(Component.text("購入個数を増やす").color(NamedTextColor.GREEN));
         }
-        down_button.setItemMeta(itemMeta);
+        up_button.setItemMeta(itemMeta);
+
         final ItemStack price_item = new ItemStack(Material.EMERALD);
-        itemMeta = down_button.getItemMeta();
+        itemMeta = price_item.getItemMeta();
         if (isPurchase) {
             itemMeta.displayName(Component.text("入手できる金額:" + price));
         } else {
@@ -135,20 +220,37 @@ public class VillagerListener implements Listener {
         }
         itemMeta.lore(Collections.singletonList(Component.text("クリックして購入").color(NamedTextColor.GREEN)));
         price_item.setItemMeta(itemMeta);
+
         final ItemStack partition = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         itemMeta = partition.getItemMeta();
         itemMeta.displayName(Component.text(""));
         partition.setItemMeta(itemMeta);
 
+        inv.setItem(0, partition);
         inv.setItem(1, down_button);
         inv.setItem(2, Buy_item);
         inv.setItem(3, up_button);
+        inv.setItem(4, partition);
+        inv.setItem(5, partition);
         inv.setItem(6, price_item);
+        inv.setItem(7, partition);
+        inv.setItem(8, partition);
         for (int i = 9; i < 18; i++) {
             inv.setItem(i, partition);
         }
+
+        invMap.put(inv,new GuiData(price,isPurchase));
         e.getClicker().openInventory(inv);
     }
 
-    List<Inventory> invList = new ArrayList<>();
+    private final HashMap<Inventory,GuiData> invMap = new HashMap<>();
+
+    private static class GuiData {
+        GuiData(int price, boolean isPurchase){
+            this.price = price;
+            this.isPurchase = isPurchase;
+        }
+        private final int price;
+        private final boolean isPurchase;
+    }
 }
