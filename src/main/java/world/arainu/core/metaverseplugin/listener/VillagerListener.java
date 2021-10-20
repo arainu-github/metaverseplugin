@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -28,12 +29,7 @@ import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.store.BankStore;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class VillagerListener implements Listener {
@@ -88,13 +84,14 @@ public class VillagerListener implements Listener {
     public void onInventoryClick(InventoryClickEvent e) {
         final Inventory inv = e.getInventory();
         final HumanEntity p = e.getWhoClicked();
+        GuiData guiData = invMap.get(inv);
+        final ItemStack item = Objects.requireNonNull(inv.getItem(2));
 
         // 管理インベントリでなければ無視
         if (!invMap.containsKey(inv)) return;
         final int id = e.getRawSlot();
         if (id < 18 && id > 0) {
             e.setCancelled(true);
-            final ItemStack item = Objects.requireNonNull(inv.getItem(2));
             switch (id) {
                 case 1 -> {
                     playClickSound((Player) p);
@@ -112,7 +109,6 @@ public class VillagerListener implements Listener {
                 }
                 case 6 -> {
                     playClickSound((Player) p);
-                    GuiData guiData = invMap.get(inv);
                     if(guiData.isPurchase) {
                         final HashMap<Integer, ? extends ItemStack> item_list = inv.all(item.getType());
                         int total = 0;
@@ -164,6 +160,55 @@ public class VillagerListener implements Listener {
                     }
                 }
             }
+        } else {
+            int total = 0;
+            final int required;
+            if(guiData.isPurchase) {
+                final HashMap<Integer, ? extends ItemStack> item_list = inv.all(item.getType());
+                for (Map.Entry<Integer, ? extends ItemStack> i : item_list.entrySet()) {
+                    if (i.getKey() != 2) {
+                        total += i.getValue().getAmount();
+                    }
+                }
+                required = item.getAmount();
+            } else {
+                final List<ItemStack> money_list = new ArrayList<>(inv.all(Material.EMERALD).values());
+                for (ItemStack i : money_list) {
+                    final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
+                    if (persistentDataContainer.has(BankStore.getKey(), PersistentDataType.INTEGER)) {
+                        total += persistentDataContainer.get(BankStore.getKey(), PersistentDataType.INTEGER) * i.getAmount();
+                    }
+                }
+                required = guiData.price * Objects.requireNonNull(inv.getItem(2)).getAmount();
+            }
+
+            ItemStack priceItem = Objects.requireNonNull(inv.getItem(6));
+            ItemMeta itemMeta = priceItem.getItemMeta();
+            if(required > total){
+                // TODO: 1tick遅らせる
+                if(guiData.isPurchase) {
+                    itemMeta.lore(Arrays.asList(
+                            Component.text("クリックして買取").color(NamedTextColor.GRAY),
+                            Component.text(required-total+"個不足しています").color(NamedTextColor.RED)
+                    ));
+                } else {
+                    itemMeta.lore(Arrays.asList(
+                            Component.text("クリックして購入").color(NamedTextColor.GRAY),
+                            Component.text(MetaversePlugin.getEcon().format(required-total)+"不足しています").color(NamedTextColor.RED)
+                    ));
+                }
+            } else {
+                if(guiData.isPurchase) {
+                    itemMeta.lore(Arrays.asList(
+                            Component.text("クリックして買取").color(NamedTextColor.GREEN)
+                    ));
+                } else {
+                    itemMeta.lore(Arrays.asList(
+                            Component.text("クリックして購入").color(NamedTextColor.GREEN)
+                    ));
+                }
+            }
+            priceItem.setItemMeta(itemMeta);
         }
     }
 
@@ -218,10 +263,11 @@ public class VillagerListener implements Listener {
         itemMeta = price_item.getItemMeta();
         if (isPurchase) {
             itemMeta.displayName(Component.text("入手できる金額:" + price));
+            itemMeta.lore(Collections.singletonList(Component.text("クリックして買取").color(NamedTextColor.GRAY)));
         } else {
             itemMeta.displayName(Component.text("必要な金額:" + price));
+            itemMeta.lore(Collections.singletonList(Component.text("クリックして購入").color(NamedTextColor.GRAY)));
         }
-        itemMeta.lore(Collections.singletonList(Component.text("クリックして購入").color(NamedTextColor.GREEN)));
         price_item.setItemMeta(itemMeta);
 
         final ItemStack partition = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
