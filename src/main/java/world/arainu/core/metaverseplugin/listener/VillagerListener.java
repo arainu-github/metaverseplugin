@@ -63,15 +63,15 @@ public class VillagerListener implements Listener {
     /*
     TODO: Util化
      */
-    private void playClickSound(Player p){
+    private void playClickSound(Player p) {
         p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.PLAYERS, 1, 1f);
     }
 
-    private void updatePrice(Inventory inv,ItemStack item){
+    private void updatePrice(Inventory inv, ItemStack item) {
         Economy econ = MetaversePlugin.getEcon();
         ItemStack priceItem = Objects.requireNonNull(inv.getItem(6));
         ItemMeta itemMeta = priceItem.getItemMeta();
-        final int price = invMap.get(inv).price*item.getAmount();
+        final int price = invMap.get(inv).price * item.getAmount();
         if (invMap.get(inv).isPurchase) {
             itemMeta.displayName(Component.text("入手できる金額:" + econ.format(price)));
         } else {
@@ -103,70 +103,63 @@ public class VillagerListener implements Listener {
                     if (item.getAmount() != 1) {
                         item.setAmount(item.getAmount() - 1);
                     }
-                    updatePrice(inv,item);
+                    updatePrice(inv, item);
                 }
                 case 3 -> {
                     playClickSound((Player) p);
                     if (item.getAmount() != 64) {
                         item.setAmount(item.getAmount() + 1);
                     }
-                    updatePrice(inv,item);
+                    updatePrice(inv, item);
                 }
                 case 6 -> {
                     playClickSound((Player) p);
-                    if(guiData.isPurchase) {
+                    if (guiData.isPurchase) {
                         final HashMap<Integer, ? extends ItemStack> item_list = inv.all(item.getType());
                         int total = 0;
-                        for(Map.Entry<Integer, ? extends ItemStack> i: item_list.entrySet()){
-                            if(i.getKey() != 2){
+                        for (Map.Entry<Integer, ? extends ItemStack> i : item_list.entrySet()) {
+                            if (i.getKey() != 2) {
                                 total += i.getValue().getAmount();
                             }
                         }
                         final int required_item = item.getAmount();
                         if (required_item <= total) {
-                            Bank.addMoneyForPlayer((Player) p, guiData.price*item.getAmount());
+                            Bank.addMoneyForPlayer((Player) p, guiData.price * item.getAmount());
 
                             total = 0;
-                            for(Map.Entry<Integer, ? extends ItemStack> i: item_list.entrySet()){
+                            for (Map.Entry<Integer, ? extends ItemStack> i : item_list.entrySet()) {
                                 final ItemStack pay_item = i.getValue();
                                 final int index = i.getKey();
-                                if(index != 2){
-                                    if(total+pay_item.getAmount() < required_item) {
-                                        inv.setItem(index,new ItemStack(Material.AIR));
+                                if (index != 2) {
+                                    if (total + pay_item.getAmount() < required_item) {
+                                        inv.setItem(index, new ItemStack(Material.AIR));
                                         total += pay_item.getAmount();
                                     } else {
-                                        pay_item.setAmount(pay_item.getAmount()-(required_item-total));
-                                        inv.setItem(index,pay_item);
+                                        pay_item.setAmount(pay_item.getAmount() - (required_item - total));
+                                        inv.setItem(index, pay_item);
                                         break;
                                     }
                                 }
                             }
                         }
                     } else {
-                        final List<ItemStack> money_list = new ArrayList<>(inv.all(Material.EMERALD).values());
-                        int total_money = 0;
-                        for (ItemStack i : money_list) {
-                            final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
-                            if (persistentDataContainer.has(BankStore.getKey(), PersistentDataType.INTEGER)) {
-                                total_money += persistentDataContainer.get(BankStore.getKey(), PersistentDataType.INTEGER) * i.getAmount();
-                            }
-                        }
+                        final ReturnMoney returnMoney = getTotalmoney(inv);
                         final int required_money = guiData.price * Objects.requireNonNull(inv.getItem(2)).getAmount();
-                        if (required_money <= total_money) {
-                            for (ItemStack i : money_list) {
+                        if (required_money <= returnMoney.total_money) {
+                            for (ItemStack i : returnMoney.money_list) {
                                 final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
                                 if (persistentDataContainer.has(BankStore.getKey(), PersistentDataType.INTEGER)) {
                                     inv.remove(i);
                                 }
                             }
-                            Bank.addMoneyForPlayer((Player) p, total_money - required_money);
+                            Bank.addMoneyForPlayer((Player) p, returnMoney.total_money - required_money);
                             p.getInventory().addItem(Objects.requireNonNull(inv.getItem(2)));
                         }
                     }
                 }
             }
         } else {
-            Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> {
+            Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
                 int total = 0;
                 final int required;
                 if (guiData.isPurchase) {
@@ -210,10 +203,31 @@ public class VillagerListener implements Listener {
                     }
                 }
                 priceItem.setItemMeta(itemMeta);
-            },1);
+            }, 1);
         }
     }
 
+    public ReturnMoney getTotalmoney(Inventory inv) {
+        final List<ItemStack> money_list = new ArrayList<>(inv.all(Material.EMERALD).values());
+        int total_money = 0;
+        for (ItemStack i : money_list) {
+            final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
+            if (persistentDataContainer.has(BankStore.getKey(), PersistentDataType.INTEGER)) {
+                total_money += persistentDataContainer.get(BankStore.getKey(), PersistentDataType.INTEGER) * i.getAmount();
+            }
+        }
+        return new ReturnMoney(money_list, total_money);
+    }
+
+    static class ReturnMoney {
+        ReturnMoney(List<ItemStack> money_list, int total_money) {
+            this.money_list = money_list;
+            this.total_money = total_money;
+        }
+
+        private final List<ItemStack> money_list;
+        private final int total_money;
+    }
 
     /**
      * JavaでインベントリをメニューUIとして使うため、そのハンドリングを行います。
@@ -224,6 +238,11 @@ public class VillagerListener implements Listener {
     public void onInventoryClose(InventoryCloseEvent e) {
         final Inventory inv = e.getInventory();
         if (!invMap.containsKey(inv)) return;
+        for (int i = 18; i < inv.getSize(); i++) {
+            ItemStack item = inv.getItem(i);
+            if (item == null) continue;
+            e.getPlayer().getInventory().addItem(item);
+        }
         invMap.remove(inv);
     }
 
@@ -290,17 +309,18 @@ public class VillagerListener implements Listener {
             inv.setItem(i, partition);
         }
 
-        invMap.put(inv,new GuiData(price,isPurchase));
+        invMap.put(inv, new GuiData(price, isPurchase));
         e.getClicker().openInventory(inv);
     }
 
-    private final HashMap<Inventory,GuiData> invMap = new HashMap<>();
+    private final HashMap<Inventory, GuiData> invMap = new HashMap<>();
 
     private static class GuiData {
-        GuiData(int price, boolean isPurchase){
+        GuiData(int price, boolean isPurchase) {
             this.price = price;
             this.isPurchase = isPurchase;
         }
+
         private final int price;
         private final boolean isPurchase;
     }
