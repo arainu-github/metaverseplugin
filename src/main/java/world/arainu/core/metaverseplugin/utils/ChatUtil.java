@@ -17,8 +17,10 @@ public class ChatUtil {
      * @param message エラー内容
      */
     public static void error(Player p, String message) {
-        Bukkit.getLogger().warning("プレイヤーへのエラーメッセージ>> " + message);
-        for (String msg : message.split("\n")) p.sendMessage(ChatColor.RED + "[メタバースプラグイン][エラー] " + msg);
+        Bukkit.getLogger().warning(
+                Component.text("[").append(p.displayName()).append(Component.text("] エラー>> " + message)).content());
+        for (String msg : message.split("\n"))
+            p.sendMessage(ChatColor.RED + "[メタバースプラグイン][エラー] " + msg);
         p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1, 0.5f);
     }
 
@@ -29,7 +31,8 @@ public class ChatUtil {
      * @param message 警告内容
      */
     public static void warning(Player p, String message) {
-        Bukkit.getLogger().info("プレイヤーへの警告メッセージ>> " + message);
+        Bukkit.getLogger().info(
+                Component.text("[").append(p.displayName()).append(Component.text("] 警告>> " + message)).content());
         p.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] " + message);
     }
 
@@ -40,7 +43,7 @@ public class ChatUtil {
      * @param message 成功内容
      */
     public static void success(Player p, String message) {
-        success(p, Component.text(message),true);
+        success(p, Component.text(message), true);
     }
 
     /**
@@ -61,7 +64,7 @@ public class ChatUtil {
      * @param playsound 音を再生するか
      */
     public static void success(Player p, String message, Boolean playsound) {
-        success(p, Component.text(message),playsound);
+        success(p, Component.text(message), playsound);
     }
 
     /**
@@ -72,9 +75,10 @@ public class ChatUtil {
      * @param playsound 音を再生するか
      */
     public static void success(Player p, TextComponent message, Boolean playsound) {
-        Bukkit.getLogger().info("プレイヤーへの成功メッセージ>> " + message.content());
+        Bukkit.getLogger().info(
+                Component.text("[").append(p.displayName()).append(Component.text("] 成功>> " + message)).content());
         p.sendMessage(Component.text("[メタバースプラグイン] ").append(message).color(NamedTextColor.GREEN));
-        if(playsound){
+        if (playsound) {
             p.playSound(p.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 1, 1f);
         }
     }

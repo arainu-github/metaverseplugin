@@ -5,12 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -27,6 +22,7 @@ public class sqlUtil {
     public static void connect(){
         try {
             conn = DriverManager.getConnection(url_connection, user, pass);
+            p_conn = DriverManager.getConnection(url_connection_public, user, pass);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -56,16 +52,25 @@ public class sqlUtil {
         try {
             PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `playerpos` ( `uuid` VARCHAR(36) NOT NULL ,  `world` VARCHAR(36) NOT NULL , `x` INT NOT NULL , `y` SMALLINT NOT NULL ,`z` INT NOT NULL ,PRIMARY KEY (`uuid`)) ");
             ps.executeUpdate();
-        } catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private static void create_kickcount_table(){
+    private static void create_kickcount_table() {
         try {
             PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `kickcount` ( `uuid` VARCHAR(36) NOT NULL ,  `count` INT NOT NULL ,PRIMARY KEY (`uuid`)) ");
             ps.executeUpdate();
-        } catch (SQLException e){
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void create_whitelist_table() {
+        try {
+            PreparedStatement ps = p_conn.prepareStatement("CREATE TABLE IF NOT EXISTS whitelist (uuid VARCHAR(36) NOT NULL ,PRIMARY KEY (`uuid`)) ");
+            ps.executeUpdate();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
@@ -224,11 +229,72 @@ public class sqlUtil {
         }
     }
 
-    @Getter private final static String db_name = MetaversePlugin.getConfiguration().getString("mysql.db_name");
-    @Getter private final static String user = MetaversePlugin.getConfiguration().getString("mysql.user");
-    @Getter private final static String pass = MetaversePlugin.getConfiguration().getString("mysql.pass");
-    @Getter private final static int port = MetaversePlugin.getConfiguration().getInt("mysql.port");
-    @Getter private final static String url = MetaversePlugin.getConfiguration().getString("mysql.url");
-    private final static String url_connection = "jdbc:mysql://"+url+":"+port+"/"+db_name+"?autoReconnect=true&maxReconnects=10";
+    /**
+     * データベース上のホワリスにプレイヤーを追加する関数
+     *
+     * @param uuid 文字通りUUID
+     */
+
+    public static void addWhitelist(UUID uuid) {
+        try {
+            create_whitelist_table();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO whitelist (`uuid`) VALUES('" + uuid + "')");
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void removeWhitelist(UUID uuid) {
+        try {
+            create_whitelist_table();
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM whitelist WHERE uuid LIKE '" + uuid + "'");
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * ホワリスを取得する関数
+     *
+     * @return ホワリスに入っているプレイヤーのUUIDをリストで返します。
+     */
+
+    public static List<UUID> getWhitelist() {
+        try {
+            create_whitelist_table();
+            Statement stmt = p_conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM whitelist");
+            List<UUID> uuidList = new ArrayList<>();
+            while (rs.next()) {
+                uuidList.add(UUID.fromString(rs.getString("uuid")));
+            }
+            rs.close();
+            stmt.close();
+            return uuidList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Getter
+    private final static String db_name = MetaversePlugin.getConfiguration().getString("mysql.db_name");
+    @Getter
+    private final static String db_public = MetaversePlugin.getConfiguration().getString("mysql.db_public");
+    @Getter
+    private final static String user = MetaversePlugin.getConfiguration().getString("mysql.user");
+    @Getter
+    private final static String pass = MetaversePlugin.getConfiguration().getString("mysql.pass");
+    @Getter
+    private final static int port = MetaversePlugin.getConfiguration().getInt("mysql.port");
+    @Getter
+    private final static String url = MetaversePlugin.getConfiguration().getString("mysql.url");
+    private final static String url_connection = "jdbc:mysql://" + url + ":" + port + "/" + db_name + "?autoReconnect=true&maxReconnects=10";
+    private final static String url_connection_public = "jdbc:mysql://" + url + ":" + port + "/" + db_public + "?autoReconnect=true&maxReconnects=10";
     private static Connection conn;
+    private static Connection p_conn;
 }
