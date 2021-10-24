@@ -1,13 +1,14 @@
 package world.arainu.core.metaverseplugin.iphone;
 
 import org.bukkit.World;
+import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Player;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
 import java.util.Objects;
 
-public class EnderDragon extends iPhoneBase {
+public class iPhoneEnderDragon extends iPhoneBase {
 
     public static boolean ALIVE;
 
@@ -15,7 +16,7 @@ public class EnderDragon extends iPhoneBase {
         World world = player.getWorld();
         if (world.getEnvironment() == World.Environment.THE_END) {
             world.getLivingEntities().forEach((livingEntity -> {
-                ALIVE = livingEntity instanceof org.bukkit.entity.EnderDragon;
+                ALIVE = livingEntity instanceof EnderDragon;
             }));
 
             if (ALIVE) {
