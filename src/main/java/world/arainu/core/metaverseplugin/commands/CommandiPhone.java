@@ -36,7 +36,6 @@ public class CommandiPhone extends CommandPlayerOnlyBase {
                 guiItem.add(item.getMenuItem());
             }
         }
-
         Gui.getInstance().openMenu(player, title, guiItem);
     }
 
