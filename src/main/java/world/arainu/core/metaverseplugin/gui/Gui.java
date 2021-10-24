@@ -2,6 +2,7 @@ package world.arainu.core.metaverseplugin.gui;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -25,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -144,14 +146,16 @@ public class Gui implements Listener {
                 .title(title);
 
         for (var item : items) {
-            TextComponent text = (TextComponent) item.getIcon().displayName();
+            Component text = item.getIcon().displayName();
             if (item.isShiny()) {
                 text = text.color(NamedTextColor.GREEN);
             }
             if (item.isClose()) {
-                builder.button(text.content());
+                if(text instanceof TextComponent) builder.button(((TextComponent) text).content());
+                else builder.button(Objects.requireNonNull(item.getIcon().getI18NDisplayName()));
             } else {
-                builder.content(text.content());
+                if(text instanceof TextComponent) builder.content(((TextComponent) text).content());
+                else builder.content(Objects.requireNonNull(item.getIcon().getI18NDisplayName()));
             }
         }
 
