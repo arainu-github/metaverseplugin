@@ -158,53 +158,52 @@ public class VillagerListener implements Listener {
                     }
                 }
             }
-        } else {
-            Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
-                int total = 0;
-                final int required;
-                if (guiData.isPurchase) {
-                    final HashMap<Integer, ? extends ItemStack> item_list = inv.all(item.getType());
-                    for (Map.Entry<Integer, ? extends ItemStack> i : item_list.entrySet()) {
-                        if (i.getKey() != 2) {
-                            total += i.getValue().getAmount();
-                        }
-                    }
-                    required = item.getAmount();
-                } else {
-                    final List<ItemStack> money_list = new ArrayList<>(inv.all(Material.EMERALD).values());
-                    for (ItemStack i : money_list) {
-                        final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
-                        if (persistentDataContainer.has(BankStore.getKey(), PersistentDataType.INTEGER)) {
-                            total += persistentDataContainer.get(BankStore.getKey(), PersistentDataType.INTEGER) * i.getAmount();
-                        }
-                    }
-                    required = guiData.price * Objects.requireNonNull(inv.getItem(2)).getAmount();
-                }
-
-                ItemStack priceItem = Objects.requireNonNull(inv.getItem(6));
-                ItemMeta itemMeta = priceItem.getItemMeta();
-                if (required > total) {
-                    if (guiData.isPurchase) {
-                        itemMeta.lore(Arrays.asList(
-                                Component.text("クリックして買取").color(NamedTextColor.GRAY),
-                                Component.text(required - total + "個不足しています").color(NamedTextColor.RED)
-                        ));
-                    } else {
-                        itemMeta.lore(Arrays.asList(
-                                Component.text("クリックして購入").color(NamedTextColor.GRAY),
-                                Component.text(MetaversePlugin.getEcon().format(required - total) + "不足しています").color(NamedTextColor.RED)
-                        ));
-                    }
-                } else {
-                    if (guiData.isPurchase) {
-                        itemMeta.lore(List.of(Component.text("クリックして買取").color(NamedTextColor.GREEN)));
-                    } else {
-                        itemMeta.lore(List.of(Component.text("クリックして購入").color(NamedTextColor.GREEN)));
-                    }
-                }
-                priceItem.setItemMeta(itemMeta);
-            }, 1);
         }
+        Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
+            int total = 0;
+            final int required;
+            if (guiData.isPurchase) {
+                final HashMap<Integer, ? extends ItemStack> item_list = inv.all(item.getType());
+                for (Map.Entry<Integer, ? extends ItemStack> i : item_list.entrySet()) {
+                    if (i.getKey() != 2) {
+                        total += i.getValue().getAmount();
+                    }
+                }
+                required = item.getAmount();
+            } else {
+                final List<ItemStack> money_list = new ArrayList<>(inv.all(Material.EMERALD).values());
+                for (ItemStack i : money_list) {
+                    final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
+                    if (persistentDataContainer.has(BankStore.getKey(), PersistentDataType.INTEGER)) {
+                        total += persistentDataContainer.get(BankStore.getKey(), PersistentDataType.INTEGER) * i.getAmount();
+                    }
+                }
+                required = guiData.price * Objects.requireNonNull(inv.getItem(2)).getAmount();
+            }
+
+            ItemStack priceItem = Objects.requireNonNull(inv.getItem(6));
+            ItemMeta itemMeta = priceItem.getItemMeta();
+            if (required > total) {
+                if (guiData.isPurchase) {
+                    itemMeta.lore(Arrays.asList(
+                            Component.text("クリックして買取").color(NamedTextColor.GRAY),
+                            Component.text(required - total + "個不足しています").color(NamedTextColor.RED)
+                    ));
+                } else {
+                    itemMeta.lore(Arrays.asList(
+                            Component.text("クリックして購入").color(NamedTextColor.GRAY),
+                            Component.text(MetaversePlugin.getEcon().format(required - total) + "不足しています").color(NamedTextColor.RED)
+                    ));
+                }
+            } else {
+                if (guiData.isPurchase) {
+                    itemMeta.lore(List.of(Component.text("クリックして買取").color(NamedTextColor.GREEN)));
+                } else {
+                    itemMeta.lore(List.of(Component.text("クリックして購入").color(NamedTextColor.GREEN)));
+                }
+            }
+            priceItem.setItemMeta(itemMeta);
+        }, 1);
     }
 
     public ReturnMoney getTotalmoney(Inventory inv) {
