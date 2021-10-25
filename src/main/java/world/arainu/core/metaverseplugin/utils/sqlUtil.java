@@ -5,7 +5,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,7 +27,6 @@ public class sqlUtil {
     public static void connect(){
         try {
             conn = DriverManager.getConnection(url_connection, user, pass);
-            p_conn = DriverManager.getConnection(url_connection_public, user, pass);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -34,6 +38,15 @@ public class sqlUtil {
     public static void disconnect(){
         try {
             conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void ping(){
+        try {
+            PreparedStatement ps = conn.prepareStatement("/* ping */ SELECT 1");
+            ps.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -68,7 +81,7 @@ public class sqlUtil {
 
     private static void create_whitelist_table() {
         try {
-            PreparedStatement ps = p_conn.prepareStatement("CREATE TABLE IF NOT EXISTS whitelist (uuid VARCHAR(36) NOT NULL ,PRIMARY KEY (`uuid`)) ");
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS whitelist (uuid VARCHAR(36) NOT NULL ,PRIMARY KEY (`uuid`)) ");
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -266,7 +279,7 @@ public class sqlUtil {
     public static List<UUID> getWhitelist() {
         try {
             create_whitelist_table();
-            Statement stmt = p_conn.createStatement();
+            Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM whitelist");
             List<UUID> uuidList = new ArrayList<>();
             while (rs.next()) {
@@ -293,8 +306,6 @@ public class sqlUtil {
     private final static int port = MetaversePlugin.getConfiguration().getInt("mysql.port");
     @Getter
     private final static String url = MetaversePlugin.getConfiguration().getString("mysql.url");
-    private final static String url_connection = "jdbc:mysql://" + url + ":" + port + "/" + db_name + "?autoReconnect=true&maxReconnects=10";
-    private final static String url_connection_public = "jdbc:mysql://" + url + ":" + port + "/" + db_public + "?autoReconnect=true&maxReconnects=10";
+    private final static String url_connection = "jdbc:mysql://" + url + ":" + port + "/" + db_name + "?autoReconnect=true&maxReconnects=3";
     private static Connection conn;
-    private static Connection p_conn;
 }
