@@ -187,9 +187,22 @@ public class Gui implements Listener {
         return FloodgateApi.getInstance().isFloodgateId(player.getUniqueId());
     }
 
+    /**
+     * プレイヤーがエンドにいるか調べる
+     *
+     * @param player プレイヤー
+     * @return エンドにいる場合はtrue
+     */
     public static boolean isPlayerInEnd(Player player) {
         return player.getWorld().getEnvironment() == World.Environment.THE_END;
     }
+
+    /**
+     * エンドラが死んでいるかどうか調べる
+     *
+     * @param player 　プレイヤー
+     * @return エンドラが死んでる場合はtrue
+     */
 
     public static boolean isEnderDragonDead(Player player) {
         if (isPlayerInEnd(player)) {

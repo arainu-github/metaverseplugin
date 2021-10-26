@@ -9,10 +9,20 @@ import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
 import java.util.Objects;
 
+/**
+ * iPhoneでエンドラを復活するクラス
+ *
+ * @author JolTheGreat
+ */
+
 public class iPhoneEnderDragon extends iPhoneBase {
 
     public static boolean ALIVE = false;
 
+    /**
+     * エンドラを復活させる関数
+     * @param player プレイヤー
+     */
     public static void reviveDragon(Player player) {
         World world = player.getWorld();
         if (world.getEnvironment() == World.Environment.THE_END) {
