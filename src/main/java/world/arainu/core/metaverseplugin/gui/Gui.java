@@ -2,11 +2,9 @@ package world.arainu.core.metaverseplugin.gui;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
+import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
@@ -186,6 +185,22 @@ public class Gui implements Listener {
      */
     public static boolean isBedrock(Player player) {
         return FloodgateApi.getInstance().isFloodgateId(player.getUniqueId());
+    }
+
+    public static boolean isPlayerInEnd(Player player) {
+        return player.getWorld().getEnvironment() == World.Environment.THE_END;
+    }
+
+    public static boolean isEnderDragonDead(Player player) {
+        if (isPlayerInEnd(player)) {
+            AtomicBoolean alive = new AtomicBoolean(false);
+            player.getWorld().getLivingEntities().forEach((livingEntity -> {
+                alive.set(livingEntity instanceof EnderDragon);
+            }));
+            return alive.get();
+        } else {
+            return false;
+        }
     }
 
     private final HashMap<Inventory, HashMap<Integer, MenuItem>> invMap = new HashMap<>();
