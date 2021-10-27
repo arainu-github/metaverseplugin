@@ -117,6 +117,28 @@ public class sqlUtil {
     }
 
     /**
+     * UUIDタイプが存在するか確認する関数
+     *
+     * @param uuid UUID
+     * @return 存在するか
+     */
+    public static Boolean hasuuid(UUID uuid){
+        try {
+            create_uuidtype_table();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT count(*) AS cnt FROM `uuidtype` WHERE `uuid` LIKE '"+uuid+"'");
+            rs.next();
+            final Boolean ret = rs.getInt("cnt") != 0;
+            rs.close();
+            stmt.close();
+            return ret;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
      * プレイヤーの座標をSQLに保存する関数
      *
      * @param uuid UUID

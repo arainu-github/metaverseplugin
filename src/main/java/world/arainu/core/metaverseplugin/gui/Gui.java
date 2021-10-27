@@ -3,6 +3,12 @@ package world.arainu.core.metaverseplugin.gui;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.HumanEntity;
@@ -13,7 +19,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.geysermc.cumulus.SimpleForm;
 import org.geysermc.cumulus.response.SimpleFormResponse;
 import org.geysermc.floodgate.api.FloodgateApi;
@@ -25,6 +30,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -121,10 +127,6 @@ public class Gui implements Listener {
             if (i.isShiny()) {
                 item.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
             }
-            final ItemMeta meta = item.getItemMeta();
-            assert meta != null;
-            meta.displayName(Component.text(i.getName()).decoration(TextDecoration.ITALIC, false));
-            item.setItemMeta(meta);
             final int index;
             if (i.getX() > -1) {
                 index = i.getX() + i.getY() * 9;
@@ -148,14 +150,16 @@ public class Gui implements Listener {
                 .title(title);
 
         for (var item : items) {
-            String text = item.getName();
+            Component text = item.getIcon().displayName();
             if (item.isShiny()) {
-                text = ChatColor.DARK_GREEN + text;
+                text = text.color(NamedTextColor.GREEN);
             }
             if (item.isClose()) {
-                builder.button(text);
+                if(text instanceof TextComponent) builder.button(((TextComponent) text).content());
+                else builder.button(Objects.requireNonNull(item.getIcon().getI18NDisplayName()));
             } else {
-                builder.content(text);
+                if(text instanceof TextComponent) builder.content(((TextComponent) text).content());
+                else builder.content(Objects.requireNonNull(item.getIcon().getI18NDisplayName()));
             }
         }
 

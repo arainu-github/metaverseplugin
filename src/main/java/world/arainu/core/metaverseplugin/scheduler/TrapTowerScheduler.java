@@ -1,7 +1,6 @@
 package world.arainu.core.metaverseplugin.scheduler;
 
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
