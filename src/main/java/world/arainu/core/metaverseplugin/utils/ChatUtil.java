@@ -10,6 +10,11 @@ import org.bukkit.SoundCategory;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+/**
+ * プレイヤーとのやり取りに使用する機会が多いものを集めて便利にした関数群のクラス
+ *
+ * @author kumitatepazuru
+ */
 public class ChatUtil {
     /**
      * エラーをプレイヤーに表示します。

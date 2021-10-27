@@ -37,7 +37,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * 村人取引時の独自UIのリスナー
+ *
+ * @author kumitatepazuru
+ */
 public class VillagerListener implements Listener {
+    /**
+     * プレイヤーが右クリックしたときに特定の村人の場合は独自UIを表示させるリスナー
+     *
+     * @param e イベント
+     */
     @EventHandler
     public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
         if (e.getRightClicked() instanceof Villager) {
@@ -147,8 +157,7 @@ public class VillagerListener implements Listener {
                         final int required_money = guiData.price * Objects.requireNonNull(inv.getItem(2)).getAmount();
                         if (required_money <= returnMoney.total_money) {
                             for (ItemStack i : returnMoney.money_list) {
-                                final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
-                                if (persistentDataContainer.has(BankStore.getKey(), PersistentDataType.INTEGER)) {
+                                if (Bank.isMoney(i)) {
                                     inv.remove(i);
                                 }
                             }
@@ -173,8 +182,8 @@ public class VillagerListener implements Listener {
             } else {
                 final List<ItemStack> money_list = new ArrayList<>(inv.all(Material.EMERALD).values());
                 for (ItemStack i : money_list) {
-                    final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
-                    if (persistentDataContainer.has(BankStore.getKey(), PersistentDataType.INTEGER)) {
+                    if (Bank.isMoney(i)) {
+                        final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
                         total += persistentDataContainer.get(BankStore.getKey(), PersistentDataType.INTEGER) * i.getAmount();
                     }
                 }
@@ -206,19 +215,32 @@ public class VillagerListener implements Listener {
         }, 1);
     }
 
+    /**
+     * インベントリ内のお金を取得する関数
+     * @param inv 対象のインベントリ
+     * @return お金の情報
+     */
     public ReturnMoney getTotalmoney(Inventory inv) {
         final List<ItemStack> money_list = new ArrayList<>(inv.all(Material.EMERALD).values());
         int total_money = 0;
         for (ItemStack i : money_list) {
-            final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
-            if (persistentDataContainer.has(BankStore.getKey(), PersistentDataType.INTEGER)) {
+            if (Bank.isMoney(i)) {
+                final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
                 total_money += persistentDataContainer.get(BankStore.getKey(), PersistentDataType.INTEGER) * i.getAmount();
             }
         }
         return new ReturnMoney(money_list, total_money);
     }
 
+    /**
+     * お金に関するクラス
+     */
     static class ReturnMoney {
+        /**
+         * 初期化
+         * @param money_list インベントリ内のエメラルドのリスト
+         * @param total_money 現金の合計
+         */
         ReturnMoney(List<ItemStack> money_list, int total_money) {
             this.money_list = money_list;
             this.total_money = total_money;

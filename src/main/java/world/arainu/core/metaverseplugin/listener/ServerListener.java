@@ -103,7 +103,15 @@ public class ServerListener implements Listener {
 
     private final HashMap<UUID, TimeAndMsg> last_log_map = new HashMap<>();
 
+    /**
+     * 時間とメッセージのクラス。そのままでわかりやすいね★
+     */
     static class TimeAndMsg {
+        /**
+         * 初期化
+         * @param time 時間
+         * @param msg メッセージ
+         */
         TimeAndMsg(long time, Message msg) {
             this.time = time;
             this.msg = msg;

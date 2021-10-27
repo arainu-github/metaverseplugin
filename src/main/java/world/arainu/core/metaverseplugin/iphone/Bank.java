@@ -60,6 +60,11 @@ public class Bank extends iPhoneBase {
         return moneyStack;
     }
 
+    /**
+     * アイテムがお金かどうか確認する関数
+     * @param item 対象のアイテム
+     * @return お金かどうか
+     */
     public static boolean isMoney(ItemStack item){
         return item.getItemMeta().getPersistentDataContainer().has(BankStore.getKey(), PersistentDataType.INTEGER);
     }

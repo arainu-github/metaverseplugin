@@ -43,6 +43,9 @@ public class sqlUtil {
         }
     }
 
+    /**
+     * SQLからconnectionを切断されないようにpingを送る関数
+     */
     public static void ping(){
         try {
             PreparedStatement ps = conn.prepareStatement("/* ping */ SELECT 1");
@@ -259,6 +262,10 @@ public class sqlUtil {
         }
     }
 
+    /**
+     * ホワイトリストをSQLから削除する
+     * @param uuid UUID
+     */
     public static void removeWhitelist(UUID uuid) {
         try {
             create_whitelist_table();

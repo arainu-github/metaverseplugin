@@ -24,8 +24,6 @@ import world.arainu.core.metaverseplugin.commands.CommandSpawn;
 import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
-import world.arainu.core.metaverseplugin.iphone.BEAdvancements;
-import world.arainu.core.metaverseplugin.iphone.BEStatistics;
 import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.iphone.MoveSurvival;
 import world.arainu.core.metaverseplugin.iphone.TrapTower;
@@ -125,8 +123,6 @@ public final class MetaversePlugin extends JavaPlugin {
         traptowerItem.setItemMeta(traptowerMeta);
         iPhoneStore.addGuiItem(new MenuItem("トラップタワーに行く", new TrapTower()::executeGui, true, traptowerItem), (p) -> !p.getWorld().getName().equals(configuration.getString("world.traptower")) && Objects.equals(ServerStore.getServerName(), "survival"));
         iPhoneStore.addGuiItem(new MenuItem("サバイバルサーバーに戻る", new MoveSurvival()::executeGui, true, Material.GRASS_BLOCK), (p) -> p.getWorld().getName().equals(configuration.getString("world.traptower")));
-        iPhoneStore.addGuiItem(new MenuItem("進捗(java版の機能)を表示する", new BEAdvancements()::executeGui), Gui::isBedrock);
-        iPhoneStore.addGuiItem(new MenuItem("統計(java版の機能)を表示する", new BEStatistics()::executeGui), Gui::isBedrock);
     }
 
     /**
