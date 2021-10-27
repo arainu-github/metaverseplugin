@@ -6,7 +6,7 @@
 
     <groupId>world.arainu.core</groupId>
     <artifactId>MetaversePlugin</artifactId>
-    <version>0.3</version>
+    <version>0.4</version>
     <packaging>jar</packaging>
 
     <name>MetaversePlugin</name>
@@ -99,13 +99,13 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>RELEASE</version>
+            <version>1.18.22</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
-            <version>4.2</version>
+            <version>4.4</version>
         </dependency>
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
