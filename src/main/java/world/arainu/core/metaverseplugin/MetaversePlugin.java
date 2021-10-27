@@ -30,6 +30,7 @@ import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.iphone.MoveSurvival;
 import world.arainu.core.metaverseplugin.iphone.TrapTower;
 import world.arainu.core.metaverseplugin.iphone.Worldteleport;
+import world.arainu.core.metaverseplugin.iphone.iPhoneEnderDragon;
 import world.arainu.core.metaverseplugin.listener.BankListener;
 import world.arainu.core.metaverseplugin.listener.PublicListener;
 import world.arainu.core.metaverseplugin.listener.ServerListener;
