@@ -104,9 +104,11 @@ public class LateScheduler extends BukkitRunnable {
         for (UUID uuid : villager_list) {
             Bukkit.getLogger().info("villager uuid:"+uuid);
             Villager villager = (Villager) Bukkit.getEntity(uuid);
-            List<MerchantRecipe> recipes = Objects.requireNonNull(villager).getRecipes();
-            for (int i = 0; i < recipes.size(); i++) {
-                villager_use.set(i, villager_use.get(i) + recipes.get(i).getUses());
+            if(villager != null) {
+                List<MerchantRecipe> recipes = villager.getRecipes();
+                for (int i = 0; i < recipes.size(); i++) {
+                    villager_use.set(i, villager_use.get(i) + recipes.get(i).getUses());
+                }
             }
         }
 

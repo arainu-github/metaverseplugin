@@ -43,6 +43,18 @@ public class sqlUtil {
         }
     }
 
+    /**
+     * SQLからconnectionを切断されないようにpingを送る関数
+     */
+    public static void ping(){
+        try {
+            PreparedStatement ps = conn.prepareStatement("/* ping */ SELECT 1");
+            ps.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static void create_uuidtype_table(){
         try {
             PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `uuidtype` ( `uuid` VARCHAR(36) NOT NULL , `type` VARCHAR(20) NOT NULL , PRIMARY KEY (`uuid`)) ");
@@ -56,16 +68,25 @@ public class sqlUtil {
         try {
             PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `playerpos` ( `uuid` VARCHAR(36) NOT NULL ,  `world` VARCHAR(36) NOT NULL , `x` INT NOT NULL , `y` SMALLINT NOT NULL ,`z` INT NOT NULL ,PRIMARY KEY (`uuid`)) ");
             ps.executeUpdate();
-        } catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private static void create_kickcount_table(){
+    private static void create_kickcount_table() {
         try {
             PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `kickcount` ( `uuid` VARCHAR(36) NOT NULL ,  `count` INT NOT NULL ,PRIMARY KEY (`uuid`)) ");
             ps.executeUpdate();
-        } catch (SQLException e){
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void create_whitelist_table() {
+        try {
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS whitelist (uuid VARCHAR(36) NOT NULL ,PRIMARY KEY (`uuid`)) ");
+            ps.executeUpdate();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
@@ -105,6 +126,28 @@ public class sqlUtil {
             rs.close();
             stmt.close();
             return uuidList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * UUIDタイプが存在するか確認する関数
+     *
+     * @param uuid UUID
+     * @return 存在するか
+     */
+    public static Boolean hasuuid(UUID uuid){
+        try {
+            create_uuidtype_table();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT count(*) AS cnt FROM `uuidtype` WHERE `uuid` LIKE '"+uuid+"'");
+            rs.next();
+            final Boolean ret = rs.getInt("cnt") != 0;
+            rs.close();
+            stmt.close();
+            return ret;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -202,11 +245,74 @@ public class sqlUtil {
         }
     }
 
-    @Getter private final static String db_name = MetaversePlugin.getConfiguration().getString("mysql.db_name");
-    @Getter private final static String user = MetaversePlugin.getConfiguration().getString("mysql.user");
-    @Getter private final static String pass = MetaversePlugin.getConfiguration().getString("mysql.pass");
-    @Getter private final static int port = MetaversePlugin.getConfiguration().getInt("mysql.port");
-    @Getter private final static String url = MetaversePlugin.getConfiguration().getString("mysql.url");
-    private final static String url_connection = "jdbc:mysql://"+url+":"+port+"/"+db_name+"?autoReconnect=true&maxReconnects=10";
+    /**
+     * データベース上のホワリスにプレイヤーを追加する関数
+     *
+     * @param uuid 文字通りUUID
+     */
+
+    public static void addWhitelist(UUID uuid) {
+        try {
+            create_whitelist_table();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO whitelist (`uuid`) VALUES('" + uuid + "')");
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * ホワイトリストをSQLから削除する
+     * @param uuid UUID
+     */
+    public static void removeWhitelist(UUID uuid) {
+        try {
+            create_whitelist_table();
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM whitelist WHERE uuid LIKE '" + uuid + "'");
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * ホワリスを取得する関数
+     *
+     * @return ホワリスに入っているプレイヤーのUUIDをリストで返します。
+     */
+
+    public static List<UUID> getWhitelist() {
+        try {
+            create_whitelist_table();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM whitelist");
+            List<UUID> uuidList = new ArrayList<>();
+            while (rs.next()) {
+                uuidList.add(UUID.fromString(rs.getString("uuid")));
+            }
+            rs.close();
+            stmt.close();
+            return uuidList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Getter
+    private final static String db_name = MetaversePlugin.getConfiguration().getString("mysql.db_name");
+    @Getter
+    private final static String db_public = MetaversePlugin.getConfiguration().getString("mysql.db_public");
+    @Getter
+    private final static String user = MetaversePlugin.getConfiguration().getString("mysql.user");
+    @Getter
+    private final static String pass = MetaversePlugin.getConfiguration().getString("mysql.pass");
+    @Getter
+    private final static int port = MetaversePlugin.getConfiguration().getInt("mysql.port");
+    @Getter
+    private final static String url = MetaversePlugin.getConfiguration().getString("mysql.url");
+    private final static String url_connection = "jdbc:mysql://" + url + ":" + port + "/" + db_name + "?autoReconnect=true&maxReconnects=3";
     private static Connection conn;
 }

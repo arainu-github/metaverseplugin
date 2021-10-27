@@ -47,8 +47,8 @@ public class BankListener implements Listener {
                 List<ItemStack> money_list = new ArrayList<>(inv.all(Material.EMERALD).values());
                 int total_money = 0;
                 for (ItemStack i : money_list) {
-                    PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
-                    if (persistentDataContainer.has(BankStore.getKey(), PersistentDataType.INTEGER)) {
+                    if (Bank.isMoney(i)) {
+                        final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
                         total_money += persistentDataContainer.get(BankStore.getKey(), PersistentDataType.INTEGER) * i.getAmount();
                     }
                 }
@@ -141,7 +141,7 @@ public class BankListener implements Listener {
         CraftingInventory inv = e.getInventory();
         if(Objects.equals(inv.getResult(), new ItemStack(Material.EMERALD_BLOCK))){
             for (ItemStack item :inv){
-                if(item.getItemMeta().getPersistentDataContainer().has(BankStore.getKey(), PersistentDataType.INTEGER))
+                if(Bank.isMoney(item))
                     inv.setResult(new ItemStack(Material.AIR));
             }
         }

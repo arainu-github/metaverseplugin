@@ -7,12 +7,11 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
-import world.arainu.core.metaverseplugin.utils.condition_item;
 import world.arainu.core.metaverseplugin.store.iPhoneStore;
+import world.arainu.core.metaverseplugin.utils.condition_item;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * プラグインの機能が全て集結しているメニューGuiを表示する魔法のアイテム

@@ -31,6 +31,10 @@ commands:
     description: サバイバルサーバーへ転送
     usage: /__back [player]
     permission: metaverse.command.backend
+  whitelist:
+    description: ホワイトリストの設定
+    usage: /whitelist [on|off|add|remove|list]
+    permission: metaverse.command.whitelist
 permissions:
   metaverse.command.worldtp:
     default: op
@@ -39,4 +43,6 @@ permissions:
   metaverse.command.spawn:
     default: op
   metaverse.command.backend:
+    default: op
+  metaverse.command.whitelist:
     default: op
