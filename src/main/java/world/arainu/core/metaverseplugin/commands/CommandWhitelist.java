@@ -1,6 +1,7 @@
 package world.arainu.core.metaverseplugin.commands;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
+import me.leoko.advancedban.manager.PunishmentManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -106,22 +107,6 @@ public class CommandWhitelist extends CommandBase implements Listener {
             }
         }
         return false;
-    }
-
-    /**
-     * プレイヤーの参加を待つリスナー
-     *
-     * @param e イベント
-     */
-    @EventHandler
-    public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent e) {
-        if (Bukkit.hasWhitelist()) {
-            PlayerProfile player = e.getPlayerProfile();
-            if (!Objects.requireNonNull(sqlUtil.getWhitelist()).contains(player.getId())) {
-                e.kickMessage(Component.text("貴方はホワイトリストに入っていません！\nメンテナンス中またはサーバーが公開されていない可能性があります。\nお知らせをご確認ください。").color(NamedTextColor.RED));
-                e.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST);
-            }
-        }
     }
 
     @Override
