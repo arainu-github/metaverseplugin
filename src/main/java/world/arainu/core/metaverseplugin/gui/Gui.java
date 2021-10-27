@@ -1,6 +1,8 @@
 package world.arainu.core.metaverseplugin.gui;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.*;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -8,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -185,6 +189,35 @@ public class Gui implements Listener {
      */
     public static boolean isBedrock(Player player) {
         return FloodgateApi.getInstance().isFloodgateId(player.getUniqueId());
+    }
+
+    /**
+     * プレイヤーがエンドにいるか調べる
+     *
+     * @param player プレイヤー
+     * @return エンドにいる場合はtrue
+     */
+    public static boolean isPlayerInEnd(Player player) {
+        return player.getWorld().getEnvironment() == World.Environment.THE_END;
+    }
+
+    /**
+     * エンドラが死んでいるかどうか調べる
+     *
+     * @param player 　プレイヤー
+     * @return エンドラが死んでる場合はtrue
+     */
+
+    public static boolean isEnderDragonDead(Player player) {
+        if (isPlayerInEnd(player)) {
+            AtomicBoolean alive = new AtomicBoolean(false);
+            player.getWorld().getLivingEntities().forEach((livingEntity -> {
+                alive.set(livingEntity instanceof EnderDragon);
+            }));
+            return alive.get();
+        } else {
+            return false;
+        }
     }
 
     private final HashMap<Inventory, HashMap<Integer, MenuItem>> invMap = new HashMap<>();
