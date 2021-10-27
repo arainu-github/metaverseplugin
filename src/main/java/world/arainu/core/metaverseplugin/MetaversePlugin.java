@@ -35,6 +35,7 @@ import world.arainu.core.metaverseplugin.listener.PublicListener;
 import world.arainu.core.metaverseplugin.listener.ServerListener;
 import world.arainu.core.metaverseplugin.listener.SittingListener;
 import world.arainu.core.metaverseplugin.listener.VillagerListener;
+import world.arainu.core.metaverseplugin.commands.CommandWhitelist;
 import world.arainu.core.metaverseplugin.scheduler.LateScheduler;
 import world.arainu.core.metaverseplugin.scheduler.MoneyScheduler;
 import world.arainu.core.metaverseplugin.scheduler.SqlScheduler;
@@ -139,6 +140,7 @@ public final class MetaversePlugin extends JavaPlugin {
         PM.registerEvents(Gui.getInstance(), this);
         PM.registerEvents(new PublicListener(), this);
         PM.registerEvents(new VillagerListener(), this);
+        PM.registerEvents(new CommandWhitelist(), this);
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         DiscordSRV.api.subscribe(this);
     }
@@ -181,6 +183,7 @@ public final class MetaversePlugin extends JavaPlugin {
         addCommand("worldtp", new Worldteleport());
         addCommand("iphone", new CommandiPhone());
         addCommand("spawn", new CommandSpawn());
+        addCommand("whitelist", new CommandWhitelist());
     }
 
     @Override
