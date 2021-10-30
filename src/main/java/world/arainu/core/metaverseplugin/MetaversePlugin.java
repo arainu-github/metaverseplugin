@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.commands.CommandBase;
 import world.arainu.core.metaverseplugin.commands.CommandSpawn;
 import world.arainu.core.metaverseplugin.commands.CommandiPhone;
+import world.arainu.core.metaverseplugin.commands.CommandWhitelist;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.iphone.Bank;
@@ -177,6 +178,7 @@ public final class MetaversePlugin extends JavaPlugin {
         addCommand("worldtp", new Worldteleport());
         addCommand("iphone", new CommandiPhone());
         addCommand("spawn", new CommandSpawn());
+        addCommand("whitelist",new CommandWhitelist());
     }
 
     @Override
