@@ -1,26 +1,40 @@
 package world.arainu.core.metaverseplugin.iphone;
 
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.*;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
 import java.util.Arrays;
-import java.util.function.Consumer;
 
-public class MobPurchase extends iPhoneBase{
+/**
+ * モブの購入を管理するクラス
+ *
+ * @author jolthegreat
+ */
+
+public class MobPurchase extends iPhoneBase {
     @Override
     public void executeGui(MenuItem menuItem) {
         Player player = menuItem.getClicker();
         if (MetaversePlugin.getEcon().has(player, MetaversePlugin.getConfiguration().getInt("mob.money"))) {
             Gui.getInstance().openMenu(menuItem.getClicker(), ChatColor.AQUA + "召喚するモブを選んでください。", Arrays.asList(
-                    new MenuItem("ウーパールーパー", (item) -> {Player clicker = item.getClicker(); clicker.getWorld().spawnEntity(clicker.getLocation(), EntityType.AXOLOTL);}, true, Material.AXOLOTL_SPAWN_EGG),
-                    new MenuItem("コウモリ", (item) -> {Player clicker = item.getClicker(); clicker.getWorld().spawnEntity(clicker.getLocation(), EntityType.BAT);}, true, Material.BAT_SPAWN_EGG),
-                    new MenuItem("ミツバチ", (item) -> {Player clicker = item.getClicker(); clicker.getWorld().spawnEntity(clicker.getLocation(), EntityType.BEE);}, true, Material.BEE_SPAWN_EGG),
+                    new MenuItem("ウーパールーパー", (item) -> {
+                        Player clicker = item.getClicker();
+                        clicker.getWorld().spawnEntity(clicker.getLocation(), EntityType.AXOLOTL);
+                    }, true, Material.AXOLOTL_SPAWN_EGG),
+                    new MenuItem("コウモリ", (item) -> {
+                        Player clicker = item.getClicker();
+                        clicker.getWorld().spawnEntity(clicker.getLocation(), EntityType.BAT);
+                    }, true, Material.BAT_SPAWN_EGG),
+                    new MenuItem("ミツバチ", (item) -> {
+                        Player clicker = item.getClicker();
+                        clicker.getWorld().spawnEntity(clicker.getLocation(), EntityType.BEE);
+                    }, true, Material.BEE_SPAWN_EGG),
                     new MenuItem("猫", (item) -> {Player clicker = item.getClicker(); clicker.getWorld().spawnEntity(clicker.getLocation(), EntityType.CAT);}, true, Material.CAT_SPAWN_EGG),
                     new MenuItem("鶏", (item) -> {Player clicker = item.getClicker(); clicker.getWorld().spawnEntity(clicker.getLocation(), EntityType.CHICKEN);}, true, Material.CHICKEN_SPAWN_EGG),
                     new MenuItem("タラ", (item) -> {Player clicker = item.getClicker(); clicker.getWorld().spawnEntity(clicker.getLocation(), EntityType.COD);}, true, Material.COD_SPAWN_EGG),
