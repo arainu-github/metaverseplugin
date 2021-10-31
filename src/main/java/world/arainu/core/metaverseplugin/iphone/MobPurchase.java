@@ -65,7 +65,7 @@ public class MobPurchase extends iPhoneBase {
                     new MenuItem("ゾンビホース", (item) -> {Player clicker = item.getClicker(); clicker.getWorld().spawnEntity(clicker.getLocation(), EntityType.ZOMBIE_HORSE);}, true, Material.ZOMBIE_HORSE_SPAWN_EGG)
             ));
         } else {
-            ChatUtil.warning(player, "銀行残高が少なすぎるためトラップタワーにいけません！\n必要料金: 200円");
+            ChatUtil.warning(player, "銀行残高が少なすぎるためモブの購入ができません！\n必要料金: 200円");
         }
 
     }
