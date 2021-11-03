@@ -9,9 +9,6 @@ econ:
   login_money: 500
 world:
   traptower: public
-mob:
-  #とりあえず500
-  money: 500
 traptower:
   money: 200
   pos:

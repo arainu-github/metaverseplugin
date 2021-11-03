@@ -25,11 +25,7 @@ import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.iphone.*;
-import world.arainu.core.metaverseplugin.listener.BankListener;
-import world.arainu.core.metaverseplugin.listener.PublicListener;
-import world.arainu.core.metaverseplugin.listener.ServerListener;
-import world.arainu.core.metaverseplugin.listener.SittingListener;
-import world.arainu.core.metaverseplugin.listener.VillagerListener;
+import world.arainu.core.metaverseplugin.listener.*;
 import world.arainu.core.metaverseplugin.scheduler.LateScheduler;
 import world.arainu.core.metaverseplugin.scheduler.MoneyScheduler;
 import world.arainu.core.metaverseplugin.store.ServerStore;
@@ -118,7 +114,6 @@ public final class MetaversePlugin extends JavaPlugin {
         iPhoneStore.addGuiItem(new MenuItem("トラップタワーに行く", new TrapTower()::executeGui, true, traptowerItem), (p) -> !p.getWorld().getName().equals(configuration.getString("world.traptower")) && Objects.equals(ServerStore.getServerName(), "survival"));
         iPhoneStore.addGuiItem(new MenuItem("サバイバルサーバーに戻る", new MoveSurvival()::executeGui, true, Material.GRASS_BLOCK), (p) -> p.getWorld().getName().equals(configuration.getString("world.traptower")));
         iPhoneStore.addGuiItem(new MenuItem("エンドラを復活させる", new iPhoneEnderDragon()::executeGui, true, Material.END_STONE), (p) -> Gui.isEnderDragonDead(p) && Gui.isPlayerInEnd(p));
-        iPhoneStore.addGuiItem(new MenuItem("モブを召喚する", new MobPurchase()::executeGui, true, Material.AXOLOTL_SPAWN_EGG));
     }
 
     /**
