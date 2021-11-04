@@ -5,12 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -91,13 +86,22 @@ public class sqlUtil {
         }
     }
 
+    private static void create_config_table() throws SQLException {
+        try {
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS config (`content` VARCHAR(72) NOT NULL ,PRIMARY KEY (`content`))");
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * 何かしらのタイプとUUIDを紐付ける関数。
      *
      * @param uuid UUID
      * @param type type
      */
-    public static void setuuidtype(UUID uuid, String type){
+    public static void setuuidtype(UUID uuid, String type) {
         try {
             create_uuidtype_table();
             PreparedStatement ps = conn.prepareStatement("INSERT INTO `uuidtype` (`uuid`, `type`) VALUES('" + uuid + "', '" + type + "')");
@@ -295,6 +299,18 @@ public class sqlUtil {
             rs.close();
             stmt.close();
             return uuidList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String getConfig() {
+        try {
+            create_config_table();
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery("SELECT * FROM config");
+            return rs.getString("content");
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
