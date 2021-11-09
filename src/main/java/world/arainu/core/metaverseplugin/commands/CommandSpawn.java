@@ -244,15 +244,53 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     recipes.add(createRecipe2(5, 2, Bank.getPluginMoneyEmerald(10,1)));
                     recipes.add(createRecipe2(10, 5, Bank.getPluginMoneyEmerald(50,1)));
                     recipes.add(createRecipe2(50, 2, Bank.getPluginMoneyEmerald(100,1)));
-                    recipes.add(createRecipe2(100, 5, Bank.getPluginMoneyEmerald(500,1)));
-                    recipes.add(createRecipe2(500,2 , Bank.getPluginMoneyEmerald(1000,1)));
-                    recipes.add(createRecipe(1, 5, Bank.getPluginMoneyEmerald(5,1)));
-                    recipes.add(createRecipe(5, 2, Bank.getPluginMoneyEmerald(10,1)));
-                    recipes.add(createRecipe(10, 5, Bank.getPluginMoneyEmerald(50,1)));
-                    recipes.add(createRecipe(50, 2, Bank.getPluginMoneyEmerald(100,1)));
-                    recipes.add(createRecipe(100, 5, Bank.getPluginMoneyEmerald(500,1)));
-                    recipes.add(createRecipe(500,2 , Bank.getPluginMoneyEmerald(1000,1)));
+                    recipes.add(createRecipe2(100, 5, Bank.getPluginMoneyEmerald(500, 1)));
+                    recipes.add(createRecipe2(500, 2, Bank.getPluginMoneyEmerald(1000, 1)));
+                    recipes.add(createRecipe(1, 5, Bank.getPluginMoneyEmerald(5, 1)));
+                    recipes.add(createRecipe(5, 2, Bank.getPluginMoneyEmerald(10, 1)));
+                    recipes.add(createRecipe(10, 5, Bank.getPluginMoneyEmerald(50, 1)));
+                    recipes.add(createRecipe(50, 2, Bank.getPluginMoneyEmerald(100, 1)));
+                    recipes.add(createRecipe(100, 5, Bank.getPluginMoneyEmerald(500, 1)));
+                    recipes.add(createRecipe(500, 2, Bank.getPluginMoneyEmerald(1000, 1)));
                     villager.setRecipes(recipes);
+                }
+                case "mob-villager" -> {
+                    Villager villager = createVillager("モブ店員", Villager.Profession.FARMER, player);
+                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
+                    List<MerchantRecipe> recipes = new ArrayList<>();
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.AXOLOTL_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.BAT_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.BEE_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.CAT_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.CHICKEN_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.COD_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.COW_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.DOLPHIN_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.DONKEY_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.FOX_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.HORSE_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.LLAMA_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.OCELOT_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.PARROT_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.PANDA_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.PIG_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.POLAR_BEAR_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.PUFFERFISH_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.RABBIT_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.SALMON_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.SHEEP_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.SKELETON_HORSE_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.SQUID_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.STRIDER_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.TRADER_LLAMA_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.TROPICAL_FISH_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.TURTLE_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.VILLAGER_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.WANDERING_TRADER_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.WOLF_SPAWN_EGG)));
+                    recipes.add(createRecipe(1000, 2, new ItemStack(Material.ZOMBIE_HORSE_SPAWN_EGG)));
+                    villager.setRecipes(recipes);
+
                 }
                 default -> {
                     ChatUtil.error(player, "そのような独自Mobは存在しません！");
@@ -267,6 +305,6 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
                                       String[] args) {
-        return List.of("mason-villager", "stone-villager", "mason-villager-shop", "stone-villager-shop", "money-villager");
+        return List.of("mason-villager", "stone-villager", "mason-villager-shop", "stone-villager-shop", "money-villager", "mob-villager");
     }
 }
