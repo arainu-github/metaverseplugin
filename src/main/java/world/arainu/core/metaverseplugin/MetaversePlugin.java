@@ -21,6 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.commands.CommandBase;
 import world.arainu.core.metaverseplugin.commands.CommandSpawn;
+import world.arainu.core.metaverseplugin.commands.CommandWhitelist;
 import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
@@ -29,6 +30,7 @@ import world.arainu.core.metaverseplugin.iphone.MoveSurvival;
 import world.arainu.core.metaverseplugin.iphone.TrapTower;
 import world.arainu.core.metaverseplugin.iphone.Worldteleport;
 import world.arainu.core.metaverseplugin.iphone.iPhoneEnderDragon;
+import world.arainu.core.metaverseplugin.listener.AnalyticsListener;
 import world.arainu.core.metaverseplugin.listener.BankListener;
 import world.arainu.core.metaverseplugin.listener.PublicListener;
 import world.arainu.core.metaverseplugin.listener.ServerListener;
@@ -135,7 +137,7 @@ public final class MetaversePlugin extends JavaPlugin {
         PM.registerEvents(Gui.getInstance(), this);
         PM.registerEvents(new PublicListener(), this);
         PM.registerEvents(new VillagerListener(), this);
-        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        PM.registerEvents(new AnalyticsListener(), this);
         DiscordSRV.api.subscribe(this);
     }
 
@@ -177,6 +179,7 @@ public final class MetaversePlugin extends JavaPlugin {
         addCommand("worldtp", new Worldteleport());
         addCommand("iphone", new CommandiPhone());
         addCommand("spawn", new CommandSpawn());
+        addCommand("whitelist", new CommandWhitelist());
     }
 
     @Override

@@ -1,9 +1,11 @@
 package world.arainu.core.metaverseplugin.utils;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
+import world.arainu.core.metaverseplugin.store.ServerStore;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -89,6 +91,16 @@ public class sqlUtil {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void create_data_table() {
+        try {
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `data` ( `type` VARCHAR(32) NOT NULL , `server` VARCHAR(8) NOT NULL, `timestamp` DATETIME NOT NULL, `data` JSON NOT NULL )");
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -301,6 +313,17 @@ public class sqlUtil {
         }
     }
 
+    public static void adddata(String type, JsonNode data) {
+        try {
+            create_data_table();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO `data` (`type`, `server`, `timestamp`, `data`) VALUES('" + type + "', '" + ServerStore.getServerName() + "', NOW(), '" + data.toString() + "')");
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException r) {
+            r.printStackTrace();
+        }
+    }
+
     @Getter
     private final static String db_name = MetaversePlugin.getConfiguration().getString("mysql.db_name");
     @Getter
@@ -315,4 +338,9 @@ public class sqlUtil {
     private final static String url = MetaversePlugin.getConfiguration().getString("mysql.url");
     private final static String url_connection = "jdbc:mysql://" + url + ":" + port + "/" + db_name + "?autoReconnect=true&maxReconnects=3";
     private static Connection conn;
+
+    public static class DataType {
+        public static final String PLAYER_JOIN = "player_join";
+        public static final String PLAYER_QUIT = "player_quit";
+    }
 }
