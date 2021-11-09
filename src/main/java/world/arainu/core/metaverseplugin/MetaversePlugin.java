@@ -21,8 +21,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.commands.CommandBase;
 import world.arainu.core.metaverseplugin.commands.CommandSpawn;
-import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.commands.CommandWhitelist;
+import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.iphone.Bank;
@@ -136,7 +136,7 @@ public final class MetaversePlugin extends JavaPlugin {
         PM.registerEvents(Gui.getInstance(), this);
         PM.registerEvents(new PublicListener(), this);
         PM.registerEvents(new VillagerListener(), this);
-        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        PM.registerEvents(new CommandWhitelist(), this);
         DiscordSRV.api.subscribe(this);
     }
 
