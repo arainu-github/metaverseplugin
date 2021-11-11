@@ -1,6 +1,6 @@
 package world.arainu.core.metaverseplugin.scheduler;
 
-import lombok.SneakyThrows;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.scheduler.BukkitRunnable;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
@@ -13,17 +13,20 @@ import world.arainu.core.metaverseplugin.utils.sqlUtil;
  */
 
 public class DatabaseScheduler extends BukkitRunnable {
-    @SneakyThrows
     @Override
     public void run() {
-        FileConfiguration config = MetaversePlugin.getConfiguration();
-        config.loadFromString("mysql:\n" +
-                "  db_name: metaverse\n" +
-                "  db_name_public: metaverse_public\n" +
-                "  port: 3306\n" +
-                "  url: mc_mysql\n" +
-                "  user: root\n" +
-                "  pass: password\n" +
-                sqlUtil.getConfig());
+        try {
+            FileConfiguration config = MetaversePlugin.getConfiguration();
+            config.loadFromString("mysql:\n" +
+                    "  db_name: metaverse\n" +
+                    "  db_name_public: metaverse_public\n" +
+                    "  port: 3306\n" +
+                    "  url: mc_mysql\n" +
+                    "  user: root\n" +
+                    "  pass: password\n" +
+                    sqlUtil.getConfig());
+        } catch (InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
     }
 }
