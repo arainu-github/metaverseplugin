@@ -1,14 +1,12 @@
 package world.arainu.core.metaverseplugin.gui;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.*;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
+import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.HumanEntity;
@@ -211,9 +209,7 @@ public class Gui implements Listener {
     public static boolean isEnderDragonDead(Player player) {
         if (isPlayerInEnd(player)) {
             AtomicBoolean alive = new AtomicBoolean(false);
-            player.getWorld().getLivingEntities().forEach((livingEntity -> {
-                alive.set(livingEntity instanceof EnderDragon);
-            }));
+            player.getWorld().getLivingEntities().forEach((livingEntity -> alive.set(livingEntity instanceof EnderDragon)));
             return alive.get();
         } else {
             return false;
