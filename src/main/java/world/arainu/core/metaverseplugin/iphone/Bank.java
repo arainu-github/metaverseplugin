@@ -62,10 +62,11 @@ public class Bank extends iPhoneBase {
 
     /**
      * アイテムがお金かどうか確認する関数
+     *
      * @param item 対象のアイテム
      * @return お金かどうか
      */
-    public static boolean isMoney(ItemStack item){
+    public static boolean isMoney(ItemStack item) {
         return item.getItemMeta().getPersistentDataContainer().has(BankStore.getKey(), PersistentDataType.INTEGER);
     }
 
@@ -76,14 +77,14 @@ public class Bank extends iPhoneBase {
      * @param yen    換金する額
      */
     public static void addMoneyForPlayer(Player player, int yen) {
-        addMoneyForInventory(player.getInventory(),yen);
+        addMoneyForInventory(player.getInventory(), yen);
     }
 
     /**
      * 口座のお金を現金に換金する関数。
      *
      * @param inv 対象のインベントリ
-     * @param yen    換金する額
+     * @param yen 換金する額
      */
     public static void addMoneyForInventory(Inventory inv, int yen) {
         int log_money = (int) Math.log(yen);
@@ -104,7 +105,7 @@ public class Bank extends iPhoneBase {
                 throw new NumberFormatException();
             } else if (econ.has(player, withdrawal_yen)) {
                 econ.withdrawPlayer(player, withdrawal_yen);
-                ChatUtil.success(player,econ.format(withdrawal_yen) + "を正常に引き出しました。");
+                ChatUtil.success(player, econ.format(withdrawal_yen) + "を正常に引き出しました。");
                 addMoneyForPlayer(player, withdrawal_yen);
                 complete_flag.set(true);
             } else {
@@ -127,20 +128,20 @@ public class Bank extends iPhoneBase {
                 ItemMeta itemMeta = partition.getItemMeta();
                 itemMeta.displayName(Component.text(""));
                 partition.setItemMeta(itemMeta);
-                for(int i=0;i<9;i++){
-                    inv.setItem(i,partition);
+                for (int i = 0; i < 9; i++) {
+                    inv.setItem(i, partition);
                 }
                 final ItemStack price_item = new ItemStack(Material.EMERALD);
                 itemMeta = price_item.getItemMeta();
-                itemMeta.displayName(Component.text("必要な金額:"+payment_yen));
+                itemMeta.displayName(Component.text("必要な金額:" + payment_yen));
                 itemMeta.lore(Collections.singletonList(Component.text("クリックして入金").color(NamedTextColor.GRAY)));
                 price_item.setItemMeta(itemMeta);
-                inv.setItem(4,price_item);
+                inv.setItem(4, price_item);
                 final ItemStack move_all_item = new ItemStack(Material.GOLD_INGOT);
                 itemMeta = move_all_item.getItemMeta();
                 itemMeta.displayName(Component.text("全額入金ボックスに移動させる").color(NamedTextColor.GOLD));
                 move_all_item.setItemMeta(itemMeta);
-                inv.setItem(8,move_all_item);
+                inv.setItem(8, move_all_item);
                 player.openInventory(inv);
                 HashMap<UUID, Integer> gui_hashmap = BankStore.getGui_hashmap();
                 gui_hashmap.put(player.getUniqueId(), payment_yen);
@@ -166,7 +167,8 @@ public class Bank extends iPhoneBase {
                             .responseHandler((form, responseData) -> {
                                 CustomFormResponse response = form.parseResponse(responseData);
                                 if (!response.isCorrect()) ChatUtil.warning(player, "お金の送金を取りやめました。");
-                                else remittance_Complete2(player, econ, remittance_yen, response.getInput(0), complete_flag_);
+                                else
+                                    remittance_Complete2(player, econ, remittance_yen, response.getInput(0), complete_flag_);
                             });
                     final FloodgatePlayer fPlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
                     fPlayer.sendForm(builder);
@@ -198,7 +200,7 @@ public class Bank extends iPhoneBase {
         if (econ.hasAccount(player_)) {
             econ.withdrawPlayer(player, remittance_yen);
             econ.depositPlayer(player_, remittance_yen);
-            ChatUtil.success(player,econ.format(remittance_yen) + "を" + player_.getName() + "に送金しました。");
+            ChatUtil.success(player, econ.format(remittance_yen) + "を" + player_.getName() + "に送金しました。");
             if (player_.isOnline()) {
                 final Player player_online = (Player) player_;
                 ChatUtil.success(player_online, (TextComponent) player.displayName()

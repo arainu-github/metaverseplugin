@@ -32,11 +32,13 @@ import java.util.UUID;
 
 /**
  * 銀行に関するイベントをハンドリングしているクラス
+ *
  * @author kumitatepazuru
  */
 public class BankListener implements Listener {
     /**
      * インベントリをクリックしたときに発火する関数
+     *
      * @param e イベント
      */
     @EventHandler
@@ -74,13 +76,13 @@ public class BankListener implements Listener {
                             player_inv.remove(i);
                         }
                     }
-                    Bank.addMoneyForInventory(inv,returnMoney.getTotal_money());
+                    Bank.addMoneyForInventory(inv, returnMoney.getTotal_money());
                 }
                 default -> {
-                    if(id<9) e.setCancelled(true);
+                    if (id < 9) e.setCancelled(true);
                 }
             }
-            if(id != 4) {
+            if (id != 4) {
                 Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
                     VillagerListener.ReturnMoney money = VillagerListener.getTotalmoney(inv);
                     int total = money.getTotal_money();
@@ -103,13 +105,14 @@ public class BankListener implements Listener {
 
     /**
      * GUIを閉じたときに発火する関数
+     *
      * @param e イベント
      */
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
         Player p = (Player) e.getPlayer();
         if (BankStore.getGui_hashmap().containsKey(p.getUniqueId())) {
-            ChatUtil.warning(p,"お金の入金を取りやめました。");
+            ChatUtil.warning(p, "お金の入金を取りやめました。");
             HashMap<UUID, Integer> gui_hashmap = BankStore.getGui_hashmap();
 
             Inventory oldInv = e.getInventory();
@@ -135,44 +138,47 @@ public class BankListener implements Listener {
 
     /**
      * プレイヤーがログインしてきたとき発火する関数
+     *
      * @param e イベント
      */
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent e){
+    public void onPlayerJoin(PlayerJoinEvent e) {
         Economy econ = MetaversePlugin.getEcon();
 
-        if (BankStore.getRemittance_map().containsKey(e.getPlayer().getUniqueId())){
+        if (BankStore.getRemittance_map().containsKey(e.getPlayer().getUniqueId())) {
             List<BankNotice> remittance = BankStore.getRemittance_map().get(e.getPlayer().getUniqueId());
-            for(BankNotice i : remittance){
-                ChatUtil.success(e.getPlayer(),i.getPlayerUID() + "があなたへ" + i.getFormatedMoney() + "送金しました。\n所持金は" + econ.format(econ.getBalance(e.getPlayer())) + "です。");
+            for (BankNotice i : remittance) {
+                ChatUtil.success(e.getPlayer(), i.getPlayerUID() + "があなたへ" + i.getFormatedMoney() + "送金しました。\n所持金は" + econ.format(econ.getBalance(e.getPlayer())) + "です。");
             }
         }
-        HashMap<UUID,Long> login_money_map = BankStore.getLogin_money_map();
-        login_money_map.put(e.getPlayer().getUniqueId(),System.currentTimeMillis() / 1000);
+        HashMap<UUID, Long> login_money_map = BankStore.getLogin_money_map();
+        login_money_map.put(e.getPlayer().getUniqueId(), System.currentTimeMillis() / 1000);
         BankStore.setLogin_money_map(login_money_map);
     }
 
     /**
      * プレイヤーが退出したときに発火する関数
+     *
      * @param e イベント
      */
     @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent e){
-        HashMap<UUID,Long> login_money_map = BankStore.getLogin_money_map();
+    public void onPlayerQuit(PlayerQuitEvent e) {
+        HashMap<UUID, Long> login_money_map = BankStore.getLogin_money_map();
         login_money_map.remove(e.getPlayer().getUniqueId());
         BankStore.setLogin_money_map(login_money_map);
     }
 
     /**
      * プレイヤーがクラフトしたときに発火する関数。通貨でエメラルドブロックを作成できなくする
+     *
      * @param e イベント
      */
     @EventHandler
-    public void onPrepareItemCraft(PrepareItemCraftEvent e){
+    public void onPrepareItemCraft(PrepareItemCraftEvent e) {
         CraftingInventory inv = e.getInventory();
-        if(Objects.equals(inv.getResult(), new ItemStack(Material.EMERALD_BLOCK))){
-            for (ItemStack item :inv){
-                if(Bank.isMoney(item))
+        if (Objects.equals(inv.getResult(), new ItemStack(Material.EMERALD_BLOCK))) {
+            for (ItemStack item : inv) {
+                if (Bank.isMoney(item))
                     inv.setResult(new ItemStack(Material.AIR));
             }
         }
