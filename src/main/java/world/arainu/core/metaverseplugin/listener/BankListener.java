@@ -1,5 +1,7 @@
 package world.arainu.core.metaverseplugin.listener;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -14,8 +16,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.inventory.meta.ItemMeta;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.store.BankStore;
@@ -23,6 +24,7 @@ import world.arainu.core.metaverseplugin.utils.BankNotice;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -42,31 +44,60 @@ public class BankListener implements Listener {
         Player p = (Player) e.getWhoClicked();
         HashMap<UUID, Integer> gui_hashmap = BankStore.getGui_hashmap();
         if (BankStore.getGui_hashmap().containsKey(p.getUniqueId())) {
-            Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
-                Inventory inv = e.getInventory();
-                List<ItemStack> money_list = new ArrayList<>(inv.all(Material.EMERALD).values());
-                int total_money = 0;
-                for (ItemStack i : money_list) {
-                    if (Bank.isMoney(i)) {
-                        final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
-                        total_money += persistentDataContainer.get(BankStore.getKey(), PersistentDataType.INTEGER) * i.getAmount();
-                    }
+            final int id = e.getRawSlot();
+            Inventory inv = e.getInventory();
+            switch (id) {
+                case 4 -> {
+                    e.setCancelled(true);
+                    Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
+                        final VillagerListener.ReturnMoney money = VillagerListener.getTotalmoney(inv);
+                        final int total_money = money.getTotal_money();
+                        int required_money = Objects.requireNonNull(BankStore.getGui_hashmap().get(p.getUniqueId()));
+                        if (total_money >= required_money) {
+                            final Economy econ = MetaversePlugin.getEcon();
+                            Bank.addMoneyForPlayer(p, total_money - required_money);
+                            econ.depositPlayer(p, required_money);
+                            ChatUtil.success(p, econ.format(required_money) + "を正常に入金しました。");
+                            gui_hashmap.remove(p.getUniqueId());
+                            BankStore.setGui_hashmap(gui_hashmap);
+                            inv.clear();
+                            inv.close();
+                        }
+                    }, 1L);
                 }
-                try {
+                case 8 -> {
+                    e.setCancelled(true);
+                    final Inventory player_inv = e.getWhoClicked().getInventory();
+                    final VillagerListener.ReturnMoney returnMoney = VillagerListener.getTotalmoney(player_inv);
+                    for (ItemStack i : returnMoney.getMoney_list()) {
+                        if (Bank.isMoney(i)) {
+                            player_inv.remove(i);
+                        }
+                    }
+                    Bank.addMoneyForInventory(inv,returnMoney.getTotal_money());
+                }
+                default -> {
+                    if(id<9) e.setCancelled(true);
+                }
+            }
+            if(id != 4) {
+                Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
+                    VillagerListener.ReturnMoney money = VillagerListener.getTotalmoney(inv);
+                    int total = money.getTotal_money();
                     int required_money = Objects.requireNonNull(BankStore.getGui_hashmap().get(p.getUniqueId()));
-                    if (total_money >= required_money) {
-                        final Economy econ = MetaversePlugin.getEcon();
-                        Bank.addMoneyForPlayer(p, total_money - required_money);
-                        econ.depositPlayer(p, required_money);
-                        ChatUtil.success(p,econ.format(required_money) + "を正常に入金しました。");
-                        gui_hashmap.remove(p.getUniqueId());
-                        BankStore.setGui_hashmap(gui_hashmap);
-                        inv.clear();
-                        inv.close();
+                    final ItemStack priceItem = Objects.requireNonNull(inv.getItem(4));
+                    final ItemMeta itemMeta = priceItem.getItemMeta();
+                    if (required_money > total) {
+                        itemMeta.lore(Arrays.asList(
+                                Component.text("クリックして入金").color(NamedTextColor.GRAY),
+                                Component.text(MetaversePlugin.getEcon().format(required_money - total) + "不足しています").color(NamedTextColor.RED)
+                        ));
+                    } else {
+                        itemMeta.lore(List.of(Component.text("クリックして入金").color(NamedTextColor.GREEN)));
                     }
-                } catch (NullPointerException ignored){
-                }
-            }, 1L);
+                    priceItem.setItemMeta(itemMeta);
+                }, 1);
+            }
         }
     }
 
@@ -83,7 +114,7 @@ public class BankListener implements Listener {
 
             Inventory oldInv = e.getInventory();
             List<ItemStack> items = new ArrayList<>();
-            for (int i = 0, size = oldInv.getSize(); i < size; i++) {
+            for (int i = 9, size = oldInv.getSize(); i < size; i++) {
                 ItemStack item = oldInv.getItem(i);
                 if (item == null) {
                     continue;

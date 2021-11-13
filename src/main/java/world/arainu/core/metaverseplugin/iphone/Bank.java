@@ -76,13 +76,23 @@ public class Bank extends iPhoneBase {
      * @param yen    換金する額
      */
     public static void addMoneyForPlayer(Player player, int yen) {
+        addMoneyForInventory(player.getInventory(),yen);
+    }
+
+    /**
+     * 口座のお金を現金に換金する関数。
+     *
+     * @param inv 対象のインベントリ
+     * @param yen    換金する額
+     */
+    public static void addMoneyForInventory(Inventory inv, int yen) {
         int log_money = (int) Math.log(yen);
         if (log_money > 5) {
             log_money = 5;
         }
         for (int i = log_money; i >= 0; i--) {
             ItemStack moneyStack = getPluginMoneyEmerald((int) Math.pow(10, i), (int) (yen / Math.pow(10, i)));
-            player.getInventory().addItem(moneyStack);
+            inv.addItem(moneyStack);
             yen %= (int) Math.pow(10, i);
         }
     }
@@ -112,7 +122,25 @@ public class Bank extends iPhoneBase {
                 throw new NumberFormatException();
             } else {
                 complete_flag.set(true);
-                Inventory inv = Bukkit.createInventory(null, 9, Component.text("入金したいお金を入れてください。"));
+                Inventory inv = Bukkit.createInventory(null, 27, Component.text("入金したいお金を入れてください。"));
+                final ItemStack partition = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+                ItemMeta itemMeta = partition.getItemMeta();
+                itemMeta.displayName(Component.text(""));
+                partition.setItemMeta(itemMeta);
+                for(int i=0;i<9;i++){
+                    inv.setItem(i,partition);
+                }
+                final ItemStack price_item = new ItemStack(Material.EMERALD);
+                itemMeta = price_item.getItemMeta();
+                itemMeta.displayName(Component.text("必要な金額:"+payment_yen));
+                itemMeta.lore(Collections.singletonList(Component.text("クリックして入金").color(NamedTextColor.GRAY)));
+                price_item.setItemMeta(itemMeta);
+                inv.setItem(4,price_item);
+                final ItemStack move_all_item = new ItemStack(Material.GOLD_INGOT);
+                itemMeta = move_all_item.getItemMeta();
+                itemMeta.displayName(Component.text("全額入金ボックスに移動させる").color(NamedTextColor.GOLD));
+                move_all_item.setItemMeta(itemMeta);
+                inv.setItem(8,move_all_item);
                 player.openInventory(inv);
                 HashMap<UUID, Integer> gui_hashmap = BankStore.getGui_hashmap();
                 gui_hashmap.put(player.getUniqueId(), payment_yen);
