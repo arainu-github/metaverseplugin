@@ -1,5 +1,7 @@
 package world.arainu.core.metaverseplugin.listener;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.milkbowl.vault.economy.Economy;
@@ -38,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -57,11 +60,15 @@ public class VillagerListener implements Listener {
             if (Boolean.TRUE.equals(sqlUtil.hasuuid(e.getRightClicked().getUniqueId()))) {
                 e.setCancelled(true);
                 Villager villager = (Villager) e.getRightClicked();
-                List<MenuItem> tradeitems = villager.getRecipes().stream()
+                AtomicInteger i = new AtomicInteger(-1);
+                List<MenuItem> tradeitems = villager.getRecipes().stream().map((recipe) -> {
+                    i.getAndIncrement();
+                    return new Mapdata(recipe,i.get(),villager);
+                        })
                         .map((recipe) -> new MenuItem(
                                 this::onClick,
                                 true,
-                                Bank.isMoney(recipe.getResult()) ? recipe.getIngredients().get(0) : recipe.getResult(),
+                                Bank.isMoney(recipe.recipe.getResult()) ? recipe.recipe.getIngredients().get(0) : recipe.recipe.getResult(),
                                 recipe,
                                 false,
                                 -1,
@@ -71,6 +78,13 @@ public class VillagerListener implements Listener {
                 Gui.getInstance().openMenu(e.getPlayer(), villager.getName(), tradeitems);
             }
         }
+    }
+
+    @RequiredArgsConstructor
+    static class Mapdata {
+        private final MerchantRecipe recipe;
+        private final int index;
+        private final Villager villager;
     }
 
     /*
@@ -128,6 +142,7 @@ public class VillagerListener implements Listener {
                     }
                     case 6 -> {
                         playClickSound((Player) p);
+                        boolean okay = false;
                         if (guiData.isPurchase) {
                             final HashMap<Integer, ? extends ItemStack> item_list = inv.all(item.getType());
                             int total = 0;
@@ -141,6 +156,7 @@ public class VillagerListener implements Listener {
                                 Bank.addMoneyForPlayer((Player) p, guiData.price * item.getAmount());
 
                                 total = 0;
+                                okay = true;
                                 for (Map.Entry<Integer, ? extends ItemStack> i : item_list.entrySet()) {
                                     final ItemStack pay_item = i.getValue();
                                     final int index = i.getKey();
@@ -159,15 +175,21 @@ public class VillagerListener implements Listener {
                         } else {
                             final ReturnMoney returnMoney = getTotalmoney(inv);
                             final int required_money = guiData.price * Objects.requireNonNull(inv.getItem(2)).getAmount();
-                            if (required_money <= returnMoney.total_money) {
-                                for (ItemStack i : returnMoney.money_list) {
+                            if (required_money <= returnMoney.getTotal_money()) {
+                                okay = true;
+                                for (ItemStack i : returnMoney.getMoney_list()) {
                                     if (Bank.isMoney(i)) {
                                         inv.remove(i);
                                     }
                                 }
-                                Bank.addMoneyForPlayer((Player) p, returnMoney.total_money - required_money);
+                                Bank.addMoneyForPlayer((Player) p, returnMoney.getTotal_money() - required_money);
                                 p.getInventory().addItem(Objects.requireNonNull(inv.getItem(2)));
                             }
+                        }
+                        if(okay){
+                            MerchantRecipe recipe = guiData.villager.getRecipe(guiData.index);
+                            recipe.setUses(recipe.getUses()+1);
+                            guiData.villager.setRecipe(guiData.index,recipe);
                         }
                     }
                 }
@@ -184,13 +206,8 @@ public class VillagerListener implements Listener {
                     }
                     required = item.getAmount();
                 } else {
-                    final List<ItemStack> money_list = new ArrayList<>(inv.all(Material.EMERALD).values());
-                    for (ItemStack i : money_list) {
-                        if (Bank.isMoney(i)) {
-                            final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
-                            total += persistentDataContainer.get(BankStore.getKey(), PersistentDataType.INTEGER) * i.getAmount();
-                        }
-                    }
+                    ReturnMoney money = getTotalmoney(inv);
+                    total = money.getTotal_money();
                     required = guiData.price * Objects.requireNonNull(inv.getItem(2)).getAmount();
                 }
 
@@ -239,7 +256,7 @@ public class VillagerListener implements Listener {
      * @param inv 対象のインベントリ
      * @return お金の情報
      */
-    public ReturnMoney getTotalmoney(Inventory inv) {
+    public static ReturnMoney getTotalmoney(Inventory inv) {
         final List<ItemStack> money_list = new ArrayList<>(inv.all(Material.EMERALD).values());
         int total_money = 0;
         for (ItemStack i : money_list) {
@@ -266,8 +283,8 @@ public class VillagerListener implements Listener {
             this.total_money = total_money;
         }
 
-        private final List<ItemStack> money_list;
-        private final int total_money;
+        @Getter private final List<ItemStack> money_list;
+        @Getter private final int total_money;
     }
 
     /**
@@ -288,7 +305,9 @@ public class VillagerListener implements Listener {
     }
 
     private void onClick(MenuItem e) {
-        MerchantRecipe recipe = (MerchantRecipe) e.getCustomData();
+        MerchantRecipe recipe = ((Mapdata) e.getCustomData()).recipe;
+        int index = ((Mapdata) e.getCustomData()).index;
+        Villager villager = ((Mapdata) e.getCustomData()).villager;
         boolean isPurchase = Bank.isMoney(recipe.getResult());
         ItemStack money = Bank.isMoney(recipe.getResult()) ? recipe.getResult() : recipe.getIngredients().get(0);
         int price = money.getAmount() * money.getItemMeta().getPersistentDataContainer().get(BankStore.getKey(), PersistentDataType.INTEGER);
@@ -350,19 +369,17 @@ public class VillagerListener implements Listener {
             inv.setItem(i, partition);
         }
 
-        invMap.put(inv, new GuiData(price, isPurchase));
+        invMap.put(inv, new GuiData(price, index, isPurchase,villager));
         e.getClicker().openInventory(inv);
     }
 
     private final HashMap<Inventory, GuiData> invMap = new HashMap<>();
 
+    @RequiredArgsConstructor
     private static class GuiData {
-        GuiData(int price, boolean isPurchase) {
-            this.price = price;
-            this.isPurchase = isPurchase;
-        }
-
         private final int price;
+        private final int index;
         private final boolean isPurchase;
+        private final Villager villager;
     }
 }
