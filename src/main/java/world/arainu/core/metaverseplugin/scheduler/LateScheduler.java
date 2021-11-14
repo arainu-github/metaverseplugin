@@ -169,11 +169,15 @@ public class LateScheduler extends BukkitRunnable {
 
             for (UUID uuid : Objects.requireNonNull(sqlUtil.getuuidsbytype(type))) {
                 Villager villager = (Villager) Bukkit.getEntity(uuid);
-                Objects.requireNonNull(villager).setRecipes(recipes);
+                if(villager != null) {
+                    villager.setRecipes(recipes);
+                }
             }
             for (UUID uuid : Objects.requireNonNull(sqlUtil.getuuidsbytype(type + "-shop"))) {
                 Villager villager = (Villager) Bukkit.getEntity(uuid);
-                Objects.requireNonNull(villager).setRecipes(recipes2);
+                if(villager != null) {
+                    villager.setRecipes(recipes2);
+                }
             }
             Bukkit.getLogger().info("すべての" + type + "及び" + type + "-shopの価格を変更しました。");
         }
