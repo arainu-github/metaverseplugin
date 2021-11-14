@@ -17,7 +17,7 @@ import java.util.Objects;
 
 public class iPhoneEnderDragon extends iPhoneBase {
 
-    public static boolean ALIVE = false;
+    private static boolean ALIVE = false;
 
     /**
      * エンドラを復活させる関数

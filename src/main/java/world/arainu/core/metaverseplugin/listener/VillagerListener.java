@@ -80,6 +80,9 @@ public class VillagerListener implements Listener {
         }
     }
 
+    /**
+     * Mapのreturnに使うやつ
+     */
     @RequiredArgsConstructor
     static class Mapdata {
         private final MerchantRecipe recipe;
