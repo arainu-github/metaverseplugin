@@ -116,7 +116,8 @@ public class Gui implements Listener {
 
     private void openMenuJavaImpl(Player player, String title, MenuItem[] items) {
         Integer max = Arrays.stream(items).map(MenuItem::getY).max(Comparator.naturalOrder()).orElse(0);
-        final Inventory inv = Bukkit.createInventory(null, Math.max(1 + items.length / 9, max) * 9, Component.text(title));
+        final int size = Math.max(1 + (items.length-1) / 9, max) * 9;
+        final Inventory inv = Bukkit.createInventory(null, size, Component.text(title));
         final HashMap<Integer, MenuItem> itemmap = new HashMap<>();
         final int[] count = {0};
 

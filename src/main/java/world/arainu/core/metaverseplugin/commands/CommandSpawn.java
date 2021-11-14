@@ -123,21 +123,12 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     recipes.add(createRecipe(1, 5, new ItemStack(Material.STONE_BRICKS)));
                     recipes.add(createRecipe(1, 5, new ItemStack(Material.CRACKED_STONE_BRICKS)));
                     recipes.add(createRecipe(1, 5, new ItemStack(Material.CHISELED_STONE_BRICKS)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.GRAVEL)));
                     recipes.add(createRecipe(1, 10, new ItemStack(Material.GRANITE)));
                     recipes.add(createRecipe(1, 10, new ItemStack(Material.POLISHED_GRANITE)));
                     recipes.add(createRecipe(1, 10, new ItemStack(Material.DIORITE)));
                     recipes.add(createRecipe(1, 10, new ItemStack(Material.POLISHED_DIORITE)));
                     recipes.add(createRecipe(1, 10, new ItemStack(Material.ANDESITE)));
                     recipes.add(createRecipe(1, 10, new ItemStack(Material.POLISHED_ANDESITE)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.SANDSTONE)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.CUT_SANDSTONE)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.CHISELED_SANDSTONE)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.SMOOTH_SANDSTONE)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.RED_SANDSTONE)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.CUT_RED_SANDSTONE)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.CHISELED_RED_SANDSTONE)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.SMOOTH_RED_SANDSTONE)));
                     recipes.add(createRecipe(1, 40, new ItemStack(Material.END_STONE)));
                     recipes.add(createRecipe(1, 40, new ItemStack(Material.END_STONE_BRICKS)));
                     recipes.add(createRecipe(1, 50, new ItemStack(Material.OBSIDIAN)));
@@ -185,21 +176,12 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     recipes.add(createRecipe2(1, 5, new ItemStack(Material.STONE_BRICKS)));
                     recipes.add(createRecipe2(1, 5, new ItemStack(Material.CRACKED_STONE_BRICKS)));
                     recipes.add(createRecipe2(1, 5, new ItemStack(Material.CHISELED_STONE_BRICKS)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.GRAVEL)));
                     recipes.add(createRecipe2(1, 10, new ItemStack(Material.GRANITE)));
                     recipes.add(createRecipe2(1, 10, new ItemStack(Material.POLISHED_GRANITE)));
                     recipes.add(createRecipe2(1, 10, new ItemStack(Material.DIORITE)));
                     recipes.add(createRecipe2(1, 10, new ItemStack(Material.POLISHED_DIORITE)));
                     recipes.add(createRecipe2(1, 10, new ItemStack(Material.ANDESITE)));
                     recipes.add(createRecipe2(1, 10, new ItemStack(Material.POLISHED_ANDESITE)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.SANDSTONE)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.CUT_SANDSTONE)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.CHISELED_SANDSTONE)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.SMOOTH_SANDSTONE)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.RED_SANDSTONE)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.CUT_RED_SANDSTONE)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.CHISELED_RED_SANDSTONE)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.SMOOTH_RED_SANDSTONE)));
                     recipes.add(createRecipe2(1, 40, new ItemStack(Material.END_STONE)));
                     recipes.add(createRecipe2(1, 40, new ItemStack(Material.END_STONE_BRICKS)));
                     recipes.add(createRecipe2(1, 50, new ItemStack(Material.OBSIDIAN)));
@@ -234,24 +216,6 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     recipes.add(createRecipe2(1, 30, new ItemStack(Material.CALCITE)));
                     recipes.add(createRecipe2(1, 15, new ItemStack(Material.DRIPSTONE_BLOCK)));
                     recipes.add(createRecipe2(1, 5, new ItemStack(Material.POINTED_DRIPSTONE)));
-                    villager.setRecipes(recipes);
-                }
-                case "money-villager" -> {
-                    Villager villager = createVillager("両替店員", Villager.Profession.TOOLSMITH, player);
-                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
-                    List<MerchantRecipe> recipes = new ArrayList<>();
-                    recipes.add(createRecipe2(1, 5, Bank.getPluginMoneyEmerald(5,1)));
-                    recipes.add(createRecipe2(5, 2, Bank.getPluginMoneyEmerald(10,1)));
-                    recipes.add(createRecipe2(10, 5, Bank.getPluginMoneyEmerald(50,1)));
-                    recipes.add(createRecipe2(50, 2, Bank.getPluginMoneyEmerald(100,1)));
-                    recipes.add(createRecipe2(100, 5, Bank.getPluginMoneyEmerald(500, 1)));
-                    recipes.add(createRecipe2(500, 2, Bank.getPluginMoneyEmerald(1000, 1)));
-                    recipes.add(createRecipe(1, 5, Bank.getPluginMoneyEmerald(5, 1)));
-                    recipes.add(createRecipe(5, 2, Bank.getPluginMoneyEmerald(10, 1)));
-                    recipes.add(createRecipe(10, 5, Bank.getPluginMoneyEmerald(50, 1)));
-                    recipes.add(createRecipe(50, 2, Bank.getPluginMoneyEmerald(100, 1)));
-                    recipes.add(createRecipe(100, 5, Bank.getPluginMoneyEmerald(500, 1)));
-                    recipes.add(createRecipe(500, 2, Bank.getPluginMoneyEmerald(1000, 1)));
                     villager.setRecipes(recipes);
                 }
                 case "mob-villager" -> {
@@ -301,6 +265,6 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
                                       String[] args) {
-        return List.of("mason-villager", "stone-villager", "mason-villager-shop", "stone-villager-shop", "money-villager", "mob-villager");
+        return List.of("mason-villager", "stone-villager", "mason-villager-shop", "stone-villager-shop", "mob-villager");
     }
 }

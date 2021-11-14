@@ -42,21 +42,12 @@ public class LateScheduler extends BukkitRunnable {
                     Arrays.asList(1, 5, 2, Material.STONE_BRICKS),
                     Arrays.asList(1, 5, 2, Material.CRACKED_STONE_BRICKS),
                     Arrays.asList(1, 5, 2, Material.CHISELED_STONE_BRICKS),
-                    Arrays.asList(1, 5, 2, Material.GRAVEL),
                     Arrays.asList(1, 10, 5, Material.GRANITE),
                     Arrays.asList(1, 10, 5, Material.POLISHED_GRANITE),
                     Arrays.asList(1, 10, 5, Material.DIORITE),
                     Arrays.asList(1, 10, 5, Material.POLISHED_DIORITE),
                     Arrays.asList(1, 10, 5, Material.ANDESITE),
                     Arrays.asList(1, 10, 5, Material.POLISHED_ANDESITE),
-                    Arrays.asList(1, 5, 2, Material.SANDSTONE),
-                    Arrays.asList(1, 5, 2, Material.CUT_SANDSTONE),
-                    Arrays.asList(1, 5, 2, Material.CHISELED_SANDSTONE),
-                    Arrays.asList(1, 5, 2, Material.SMOOTH_SANDSTONE),
-                    Arrays.asList(1, 5, 2, Material.RED_SANDSTONE),
-                    Arrays.asList(1, 5, 2, Material.CUT_RED_SANDSTONE),
-                    Arrays.asList(1, 5, 2, Material.CHISELED_RED_SANDSTONE),
-                    Arrays.asList(1, 5, 2, Material.SMOOTH_RED_SANDSTONE),
                     Arrays.asList(1, 40, 5, Material.END_STONE),
                     Arrays.asList(1, 40, 5, Material.END_STONE_BRICKS),
                     Arrays.asList(1, 50, 5, Material.OBSIDIAN),
@@ -187,7 +178,8 @@ public class LateScheduler extends BukkitRunnable {
     private static final HashMap<String, List<Integer>> quantity_p = new HashMap<>() {
         {
             put("mason-villager", new ArrayList<>(Collections.nCopies(7, 0)));
-            put("stone-villager", new ArrayList<>(Collections.nCopies(56, 0)));
+            put("stone-villager", new ArrayList<>(Collections.nCopies(47, 0)));
+            put("mob-villager", new ArrayList<>(Collections.nCopies(27, 0)));
         }
     };
     private long old_time;
