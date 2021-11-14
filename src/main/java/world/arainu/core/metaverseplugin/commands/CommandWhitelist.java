@@ -64,7 +64,11 @@ public class CommandWhitelist extends CommandBase implements Listener {
                         assert whitelist != null;
                         for (UUID uuid : whitelist) {
                             //プレイヤーを表示する際にうるさくならないようにplaysoundをfalseに
-                            ChatUtil.success(sender, Bukkit.getOfflinePlayer(uuid).getName(), false);
+                            String name = Bukkit.getOfflinePlayer(uuid).getName();
+                            if(name == null){
+                                name = uuid.toString();
+                            }
+                            ChatUtil.success(sender, name, false);
                         }
                         ChatUtil.success(sender, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", false);
                     } else {
