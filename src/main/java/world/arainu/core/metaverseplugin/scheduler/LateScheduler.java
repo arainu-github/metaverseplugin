@@ -92,6 +92,35 @@ public class LateScheduler extends BukkitRunnable {
                     Arrays.asList(1, 15, 5, Material.DRIPSTONE_BLOCK),
                     Arrays.asList(1, 5, 2, Material.POINTED_DRIPSTONE)
             ));
+            update("mob-villager", Arrays.asList(
+                    Arrays.asList(1000, 5, 3, Material.AXOLOTL_SPAWN_EGG),
+                    Arrays.asList(500, 5, 3, Material.BEE_SPAWN_EGG),
+                    Arrays.asList(500, 5, 3, Material.CAT_SPAWN_EGG),
+                    Arrays.asList(150, 5, 3, Material.CHICKEN_SPAWN_EGG),
+                    Arrays.asList(150, 5, 3, Material.COD_SPAWN_EGG),
+                    Arrays.asList(150, 5, 3, Material.COW_SPAWN_EGG),
+                    Arrays.asList(1000, 5, 3, Material.DOLPHIN_SPAWN_EGG),
+                    Arrays.asList(1000, 5, 3, Material.DONKEY_SPAWN_EGG),
+                    Arrays.asList(500, 5, 3, Material.FOX_SPAWN_EGG),
+                    Arrays.asList(1000, 5, 3, Material.HORSE_SPAWN_EGG),
+                    Arrays.asList(1000, 5, 3, Material.LLAMA_SPAWN_EGG),
+                    Arrays.asList(500, 5, 3, Material.OCELOT_SPAWN_EGG),
+                    Arrays.asList(1000, 5, 3, Material.PARROT_SPAWN_EGG),
+                    Arrays.asList(500, 5, 3, Material.PANDA_SPAWN_EGG),
+                    Arrays.asList(150, 5, 3, Material.PIG_SPAWN_EGG),
+                    Arrays.asList(500, 5, 3, Material.POLAR_BEAR_SPAWN_EGG),
+                    Arrays.asList(200, 5, 3, Material.PUFFERFISH_SPAWN_EGG),
+                    Arrays.asList(500, 5, 3, Material.RABBIT_SPAWN_EGG),
+                    Arrays.asList(150, 5, 3, Material.SALMON_SPAWN_EGG),
+                    Arrays.asList(150, 5, 3, Material.SHEEP_SPAWN_EGG),
+                    Arrays.asList(1000, 5, 3, Material.SKELETON_HORSE_SPAWN_EGG),
+                    Arrays.asList(150, 5, 3, Material.SQUID_SPAWN_EGG),
+                    Arrays.asList(1000, 5, 3, Material.STRIDER_SPAWN_EGG),
+                    Arrays.asList(200, 5, 3, Material.TROPICAL_FISH_SPAWN_EGG),
+                    Arrays.asList(300, 5, 3, Material.TURTLE_SPAWN_EGG),
+                    Arrays.asList(500, 5, 3, Material.WOLF_SPAWN_EGG),
+                    Arrays.asList(1000, 5, 3, Material.ZOMBIE_HORSE_SPAWN_EGG)
+            ));
         }
         old_time = Bukkit.getWorlds().get(0).getTime();
     }
@@ -100,11 +129,11 @@ public class LateScheduler extends BukkitRunnable {
         List<Integer> villager_use = new ArrayList<>(Collections.nCopies(recipeData.size(), 0));
         final List<UUID> villager_list = new ArrayList<>();
         villager_list.addAll(Objects.requireNonNull(sqlUtil.getuuidsbytype(type)));
-        villager_list.addAll(Objects.requireNonNull(sqlUtil.getuuidsbytype(type+"-shop")));
+        villager_list.addAll(Objects.requireNonNull(sqlUtil.getuuidsbytype(type + "-shop")));
         for (UUID uuid : villager_list) {
-            Bukkit.getLogger().info("villager uuid:"+uuid);
+            Bukkit.getLogger().info("villager uuid:" + uuid);
             Villager villager = (Villager) Bukkit.getEntity(uuid);
-            if(villager != null) {
+            if (villager != null) {
                 List<MerchantRecipe> recipes = villager.getRecipes();
                 for (int i = 0; i < recipes.size(); i++) {
                     villager_use.set(i, villager_use.get(i) + recipes.get(i).getUses());
@@ -132,7 +161,7 @@ public class LateScheduler extends BukkitRunnable {
 
             List<MerchantRecipe> recipes = new ArrayList<>();
             List<MerchantRecipe> recipes2 = new ArrayList<>();
-            for (int i=0;i<recipeData.size();i++) {
+            for (int i = 0; i < recipeData.size(); i++) {
                 List<Object> data = recipeData.get(i);
                 recipes.add(CommandSpawn.createRecipe((int) data.get(0), (int) Math.round((int) data.get(1) + ((int) data.get(2) * Math.tanh(p.get(i) / 5f))), new ItemStack((Material) data.get(3))));
                 recipes2.add(CommandSpawn.createRecipe2((int) data.get(0), (int) Math.round((int) data.get(1) + ((int) data.get(2) * Math.tanh(p.get(i) / 5f))), new ItemStack((Material) data.get(3))));
@@ -142,11 +171,11 @@ public class LateScheduler extends BukkitRunnable {
                 Villager villager = (Villager) Bukkit.getEntity(uuid);
                 Objects.requireNonNull(villager).setRecipes(recipes);
             }
-            for (UUID uuid : Objects.requireNonNull(sqlUtil.getuuidsbytype(type+"-shop"))) {
+            for (UUID uuid : Objects.requireNonNull(sqlUtil.getuuidsbytype(type + "-shop"))) {
                 Villager villager = (Villager) Bukkit.getEntity(uuid);
                 Objects.requireNonNull(villager).setRecipes(recipes2);
             }
-            Bukkit.getLogger().info("すべての" + type + "及び"+type+"-shopの価格を変更しました。");
+            Bukkit.getLogger().info("すべての" + type + "及び" + type + "-shopの価格を変更しました。");
         }
     }
 
