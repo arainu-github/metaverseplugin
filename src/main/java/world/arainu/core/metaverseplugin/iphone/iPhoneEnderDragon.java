@@ -1,7 +1,12 @@
 package world.arainu.core.metaverseplugin.iphone;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.boss.DragonBattle;
 import org.bukkit.entity.EnderDragon;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
@@ -16,34 +21,21 @@ import java.util.Objects;
  */
 
 public class iPhoneEnderDragon extends iPhoneBase {
-
-    private static boolean ALIVE = false;
-
     /**
      * エンドラを復活させる関数
      * @param player プレイヤー
      */
     public static void reviveDragon(Player player) {
         World world = player.getWorld();
-        if (world.getEnvironment() == World.Environment.THE_END) {
-
-            for (LivingEntity entity : world.getLivingEntities()) {
-                if (entity instanceof EnderDragon) {
-                    ALIVE = true;
-                    break;
-                }
-            }
-
-            if (ALIVE) {
-                Objects.requireNonNull(world.getEnderDragonBattle()).initiateRespawn();
-                ChatUtil.success(player, "エンダードラゴンを復活させました！");
-            } else {
-                ChatUtil.warning(player, "まだエンドラは生きています");
-            }
-
-        } else {
-            ChatUtil.warning(player, "あなたはエンドにいません！");
-        }
+        DragonBattle db = Objects.requireNonNull(world.getEnderDragonBattle());
+        final Location portalLocation = Objects.requireNonNull(db.getEndPortalLocation());
+        Bukkit.getLogger().info(String.valueOf(portalLocation));
+        world.spawnEntity(new Location(world, 0.5,portalLocation.getBlockY()+1,3.5), EntityType.ENDER_CRYSTAL);
+        world.spawnEntity(new Location(world, 0.5,portalLocation.getBlockY()+1,-2.5), EntityType.ENDER_CRYSTAL);
+        world.spawnEntity(new Location(world, 3.5,portalLocation.getBlockY()+1,0.5), EntityType.ENDER_CRYSTAL);
+        world.spawnEntity(new Location(world, -2.5,portalLocation.getBlockY()+1,0.5), EntityType.ENDER_CRYSTAL);
+        db.initiateRespawn();
+        ChatUtil.success(player, "エンダードラゴンを復活させました！");
     }
 
     @Override

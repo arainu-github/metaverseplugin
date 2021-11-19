@@ -18,6 +18,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+//import org.dynmap.DynmapAPI;
 import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.commands.CommandBase;
 import world.arainu.core.metaverseplugin.commands.CommandSpawn;
@@ -59,6 +60,7 @@ public final class MetaversePlugin extends JavaPlugin {
     private static MetaversePlugin Instance;
     @Getter
     private static FileConfiguration configuration;
+    //    @Getter private static DynmapAPI dynmap;
     private final HashMap<String, CommandBase> commands = new HashMap<>();
 
     @Override
@@ -79,11 +81,12 @@ public final class MetaversePlugin extends JavaPlugin {
     private void setScheduler() {
         new MoneyScheduler().runTaskTimer(this, 0, 20);
         new LateScheduler().runTaskTimer(this, 0, 20);
-        new SqlScheduler().runTaskTimer(this, 0, 20*60*60);
+        new SqlScheduler().runTaskTimer(this, 0, 20 * 60 * 60);
         createStairsYml();
     }
 
     private void EnablePlugins() {
+//        dynmap = (DynmapAPI) getServer().getPluginManager().getPlugin("Dynmap");
         if (!setupEconomy()) {
             getLogger().severe(String.format("[%s] - Vaultが依存する経済プラグインがなかったためメタバースプラグインを無効にしました！！！", getDescription().getName()));
             getServer().getPluginManager().disablePlugin(this);
@@ -124,7 +127,7 @@ public final class MetaversePlugin extends JavaPlugin {
         traptowerItem.setItemMeta(traptowerMeta);
         iPhoneStore.addGuiItem(new MenuItem("トラップタワーに行く", new TrapTower()::executeGui, true, traptowerItem), (p) -> !p.getWorld().getName().equals(configuration.getString("world.traptower")) && Objects.equals(ServerStore.getServerName(), "survival"));
         iPhoneStore.addGuiItem(new MenuItem("サバイバルサーバーに戻る", new MoveSurvival()::executeGui, true, Material.GRASS_BLOCK), (p) -> p.getWorld().getName().equals(configuration.getString("world.traptower")));
-        iPhoneStore.addGuiItem(new MenuItem("エンドラを復活させる", new iPhoneEnderDragon()::executeGui, true, Material.END_STONE), (p) -> Gui.isEnderDragonDead(p) && Gui.isPlayerInEnd(p));
+        iPhoneStore.addGuiItem(new MenuItem("エンドラを復活させる", new iPhoneEnderDragon()::executeGui, true, Material.END_STONE), (p) -> !Gui.isEnderDragonLiving(p) && Gui.isPlayerInEnd(p));
     }
 
     /**
@@ -145,6 +148,7 @@ public final class MetaversePlugin extends JavaPlugin {
     /**
      * JDAがログインできてReadyになったときにServerListenerを定義する
      * ぬるぽ対策
+     *
      * @param event イベント
      */
     @Subscribe
@@ -179,7 +183,7 @@ public final class MetaversePlugin extends JavaPlugin {
         addCommand("worldtp", new Worldteleport());
         addCommand("iphone", new CommandiPhone());
         addCommand("spawn", new CommandSpawn());
-        addCommand("whitelist",new CommandWhitelist());
+        addCommand("whitelist", new CommandWhitelist());
     }
 
     @Override

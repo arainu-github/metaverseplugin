@@ -10,6 +10,7 @@ import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,7 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -207,14 +208,11 @@ public class Gui implements Listener {
      * @return エンドラが死んでる場合はtrue
      */
 
-    public static boolean isEnderDragonDead(Player player) {
-        if (isPlayerInEnd(player)) {
-            AtomicBoolean alive = new AtomicBoolean(false);
-            player.getWorld().getLivingEntities().forEach((livingEntity -> alive.set(livingEntity instanceof EnderDragon)));
-            return alive.get();
-        } else {
-            return false;
-        }
+    public static boolean isEnderDragonLiving(Player player) {
+            List<LivingEntity> entity = player.getWorld().getLivingEntities();
+            for (LivingEntity i : entity) {
+                if (i instanceof EnderDragon) return true;
+            } return false;
     }
 
     private final HashMap<Inventory, HashMap<Integer, MenuItem>> invMap = new HashMap<>();
