@@ -20,6 +20,7 @@ import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.store.MarkerStore;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
+import world.arainu.core.metaverseplugin.utils.SoundUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,7 +52,9 @@ public class Commandcreatemunicipal extends CommandPlayerOnlyBase {
             } else {
                 ChatUtil.error(player,"自治体の始点と同じワールド内で頂点を決めてください。");
             }
+            SoundUtil.playClickSound(player);
         } else if(Objects.equals(args[0],"end")){
+            SoundUtil.playClickSound(player);
             if(Gui.isBedrock(player)){
                 CustomForm.Builder builder = CustomForm.builder()
                         .title("自治体を作成")
