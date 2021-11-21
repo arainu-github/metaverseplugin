@@ -1,7 +1,5 @@
 package world.arainu.core.metaverseplugin.listener;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.milkbowl.vault.economy.Economy;
@@ -82,7 +80,6 @@ public class VillagerListener implements Listener {
     /**
      * Mapのreturnに使うやつ
      */
-    @RequiredArgsConstructor
     record Mapdata(MerchantRecipe recipe, int index, Villager villager) {
     }
 
@@ -167,14 +164,14 @@ public class VillagerListener implements Listener {
                         } else {
                             final ReturnMoney returnMoney = getTotalmoney(inv);
                             final int required_money = guiData.price * Objects.requireNonNull(inv.getItem(2)).getAmount();
-                            if (required_money <= returnMoney.getTotal_money()) {
+                            if (required_money <= returnMoney.total_money()) {
                                 okay = true;
-                                for (ItemStack i : returnMoney.getMoney_list()) {
+                                for (ItemStack i : returnMoney.money_list()) {
                                     if (Bank.isMoney(i)) {
                                         inv.remove(i);
                                     }
                                 }
-                                Bank.addMoneyForPlayer((Player) p, returnMoney.getTotal_money() - required_money);
+                                Bank.addMoneyForPlayer((Player) p, returnMoney.total_money() - required_money);
                                 p.getInventory().addItem(Objects.requireNonNull(inv.getItem(2)));
                             }
                         }
@@ -199,7 +196,7 @@ public class VillagerListener implements Listener {
                     required = item.getAmount();
                 } else {
                     ReturnMoney money = getTotalmoney(inv);
-                    total = money.getTotal_money();
+                    total = money.total_money();
                     required = guiData.price * Objects.requireNonNull(inv.getItem(2)).getAmount();
                 }
 
@@ -263,20 +260,9 @@ public class VillagerListener implements Listener {
     /**
      * お金に関するクラス
      */
-    static class ReturnMoney {
-        /**
-         * 初期化
-         *
-         * @param money_list  インベントリ内のエメラルドのリスト
-         * @param total_money 現金の合計
-         */
-        ReturnMoney(List<ItemStack> money_list, int total_money) {
-            this.money_list = money_list;
-            this.total_money = total_money;
-        }
+    record ReturnMoney(List<ItemStack> money_list, int total_money) {
 
-        @Getter private final List<ItemStack> money_list;
-        @Getter private final int total_money;
+
     }
 
     /**
@@ -367,11 +353,6 @@ public class VillagerListener implements Listener {
 
     private final HashMap<Inventory, GuiData> invMap = new HashMap<>();
 
-    @RequiredArgsConstructor
-    private static class GuiData {
-        private final int price;
-        private final int index;
-        private final boolean isPurchase;
-        private final Villager villager;
+    private record GuiData(int price, int index, boolean isPurchase, Villager villager) {
     }
 }
