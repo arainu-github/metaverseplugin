@@ -16,7 +16,7 @@ public class ItemUtil {
      * @param player インベントリが満杯かどうかをチェックするプレイヤー
      * @return 満杯であった場合、戻り値が返される(満杯でなかった場合はスルーされる)
      */
-    public boolean isInventoryFull(Player player) {
+    private boolean isInventoryFull(Player player) {
         return player.getInventory().firstEmpty() == -1;
     }
 }

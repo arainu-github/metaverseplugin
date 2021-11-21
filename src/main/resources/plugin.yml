@@ -10,6 +10,7 @@ depend:
   - floodgate
   - DiscordSRV
   - AdvancedBan
+  - dynmap
 softdepend:
   - Multiverse-Core
 commands:
@@ -27,9 +28,7 @@ commands:
     description: プラグイン特有のmobをスポーンさせます。
     usage: /spawn [type]
     permission: metaverse.command.spawn
-  __back:
-    description: サバイバルサーバーへ転送
-    usage: /__back [player]
+  __createmunicipal:
     permission: metaverse.command.backend
   whitelist:
     description: ホワイトリストの設定

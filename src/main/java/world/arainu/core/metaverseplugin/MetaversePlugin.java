@@ -18,16 +18,18 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-//import org.dynmap.DynmapAPI;
+import org.dynmap.DynmapAPI;
 import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.commands.CommandBase;
 import world.arainu.core.metaverseplugin.commands.CommandSpawn;
 import world.arainu.core.metaverseplugin.commands.CommandWhitelist;
+import world.arainu.core.metaverseplugin.commands.Commandcreatemunicipal;
 import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.iphone.MoveSurvival;
+import world.arainu.core.metaverseplugin.iphone.Municipal;
 import world.arainu.core.metaverseplugin.iphone.TrapTower;
 import world.arainu.core.metaverseplugin.iphone.Worldteleport;
 import world.arainu.core.metaverseplugin.iphone.iPhoneEnderDragon;
@@ -60,7 +62,7 @@ public final class MetaversePlugin extends JavaPlugin {
     private static MetaversePlugin Instance;
     @Getter
     private static FileConfiguration configuration;
-    //    @Getter private static DynmapAPI dynmap;
+    @Getter private static DynmapAPI dynmap;
     private final HashMap<String, CommandBase> commands = new HashMap<>();
 
     @Override
@@ -86,7 +88,7 @@ public final class MetaversePlugin extends JavaPlugin {
     }
 
     private void EnablePlugins() {
-//        dynmap = (DynmapAPI) getServer().getPluginManager().getPlugin("Dynmap");
+        dynmap = (DynmapAPI) getServer().getPluginManager().getPlugin("Dynmap");
         if (!setupEconomy()) {
             getLogger().severe(String.format("[%s] - Vaultが依存する経済プラグインがなかったためメタバースプラグインを無効にしました！！！", getDescription().getName()));
             getServer().getPluginManager().disablePlugin(this);
@@ -128,6 +130,7 @@ public final class MetaversePlugin extends JavaPlugin {
         iPhoneStore.addGuiItem(new MenuItem("トラップタワーに行く", new TrapTower()::executeGui, true, traptowerItem), (p) -> !p.getWorld().getName().equals(configuration.getString("world.traptower")) && Objects.equals(ServerStore.getServerName(), "survival"));
         iPhoneStore.addGuiItem(new MenuItem("サバイバルサーバーに戻る", new MoveSurvival()::executeGui, true, Material.GRASS_BLOCK), (p) -> p.getWorld().getName().equals(configuration.getString("world.traptower")));
         iPhoneStore.addGuiItem(new MenuItem("エンドラを復活させる", new iPhoneEnderDragon()::executeGui, true, Material.END_STONE), (p) -> !Gui.isEnderDragonLiving(p) && Gui.isPlayerInEnd(p));
+        iPhoneStore.addGuiItem(new MenuItem("自治体", new Municipal()::executeGui, true, Material.END_STONE), (p) -> Objects.equals(ServerStore.getServerName(), "survival"));
     }
 
     /**
@@ -184,6 +187,7 @@ public final class MetaversePlugin extends JavaPlugin {
         addCommand("iphone", new CommandiPhone());
         addCommand("spawn", new CommandSpawn());
         addCommand("whitelist", new CommandWhitelist());
+        addCommand("__createmunicipal", new Commandcreatemunicipal());
     }
 
     @Override

@@ -13,14 +13,19 @@ import me.leoko.advancedban.utils.PunishmentType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
+import world.arainu.core.metaverseplugin.store.MarkerStore;
 import world.arainu.core.metaverseplugin.store.ServerStore;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
@@ -98,6 +103,16 @@ public class ServerListener implements Listener {
                         .setAuthor(name, null, "https://crafatar.com/avatars/" + uuid + ".png").setColor(Color.RED)
                         .build()).queue();
             }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent e){
+        // GC
+        if(MarkerStore.getMarkerData().containsKey(e.getPlayer())){
+            HashMap<Player, ArrayList<Location>> markerData = MarkerStore.getMarkerData();
+            markerData.remove(e.getPlayer());
+            MarkerStore.setMarkerData(markerData);
         }
     }
 
