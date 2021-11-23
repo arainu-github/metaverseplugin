@@ -18,11 +18,14 @@ import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
+import world.arainu.core.metaverseplugin.scheduler.ParticleScheduler;
 import world.arainu.core.metaverseplugin.store.MarkerStore;
+import world.arainu.core.metaverseplugin.utils.ParticleUtil;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
 import world.arainu.core.metaverseplugin.utils.SoundUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -43,16 +46,35 @@ public class Commandcreatemunicipal extends CommandPlayerOnlyBase {
                     .append(Component.text("すると終了して区域を設定します。"))
             );
         } else if(Objects.equals(args[0],"add")){
+            SoundUtil.playClickSound(player);
             final ArrayList<Location> data = markerData.get(player);
+            data.add(player.getLocation());
+            markerData.replace(player,data);
+            MarkerStore.setMarkerData(markerData);
             if(data.get(0).getWorld().getUID() == player.getWorld().getUID()){
-                data.add(player.getLocation());
-                markerData.replace(player,data);
-                MarkerStore.setMarkerData(markerData);
+                if(playerParticle.containsKey(player)) {
+                    ParticleScheduler.removeQueue(playerParticle.get(player));
+                    playerParticle.remove(player);
+                }
+                ParticleUtil particle = new ParticleUtil();
+                for(int i=0;i<data.size();i++){
+                    final Location data1 = data.get(i);
+                    final Location data2;
+                    if(i+1 == data.size()){
+                        data2 = data.get(0);
+                    } else {
+                        data2 = data.get(i+1);
+                    }
+                    Bukkit.getLogger().info(String.valueOf(data1));
+                    Bukkit.getLogger().info(String.valueOf(data2));
+                    particle.addLine(new ParticleUtil.Vector(data1.getX(),data1.getZ(),data2.getX(),data2.getZ(),player.getWorld(), Collections.singletonList(player)));
+                }
+                ParticleScheduler.addQueue(particle);
+                playerParticle.put(player,particle);
                 player.sendMessage(Component.text("頂点を追加しました。"));
             } else {
                 ChatUtil.error(player,"自治体の始点と同じワールド内で頂点を決めてください。");
             }
-            SoundUtil.playClickSound(player);
         } else if(Objects.equals(args[0],"end")){
             SoundUtil.playClickSound(player);
             if(Gui.isBedrock(player)){
@@ -60,6 +82,8 @@ public class Commandcreatemunicipal extends CommandPlayerOnlyBase {
                         .title("自治体を作成")
                         .input("自治体名を入力")
                         .responseHandler((form, responseData) -> {
+                            ParticleScheduler.removeQueue(playerParticle.get(player));
+                            playerParticle.remove(player);
                             CustomFormResponse response = form.parseResponse(responseData);
                             if (!response.isCorrect()) {
                                 ChatUtil.warning(player, "自治体の作成を中断しました。");
@@ -74,6 +98,8 @@ public class Commandcreatemunicipal extends CommandPlayerOnlyBase {
                 AtomicBoolean complete = new AtomicBoolean(false);
                 new AnvilGUI.Builder()
                         .onClose(p -> {
+                            ParticleScheduler.removeQueue(playerParticle.get(p));
+                            playerParticle.remove(p);
                             if (!complete.get()) {
                                 ChatUtil.warning(p, "自治体の作成を中断しました。");
                                 markerData.remove(p);
@@ -105,8 +131,9 @@ public class Commandcreatemunicipal extends CommandPlayerOnlyBase {
         final HashMap<Player, ArrayList<Location>> markerData = MarkerStore.getMarkerData();
         double[] X_list = markerData.get(p).stream().map(Location::getX).mapToDouble(b -> b).toArray();
         double[] Z_list = markerData.get(p).stream().map(Location::getZ).mapToDouble(b -> b).toArray();
-//        Bukkit.getLogger().info(String.valueOf(markerSet.getAreaMarkers().size()));
         markerSet.createAreaMarker("m"+markerSet.getAreaMarkers().size(),title,false,markerData.get(p).get(0).getWorld().getName(),X_list,Z_list,true);
         ChatUtil.success(p, "自治体を正常に作成しました。");
     }
+
+    private final static HashMap<Player,ParticleUtil> playerParticle = new HashMap<>();
 }

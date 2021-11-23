@@ -7,6 +7,7 @@ import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -40,9 +41,11 @@ import world.arainu.core.metaverseplugin.listener.SittingListener;
 import world.arainu.core.metaverseplugin.listener.VillagerListener;
 import world.arainu.core.metaverseplugin.scheduler.LateScheduler;
 import world.arainu.core.metaverseplugin.scheduler.MoneyScheduler;
+import world.arainu.core.metaverseplugin.scheduler.ParticleScheduler;
 import world.arainu.core.metaverseplugin.scheduler.SqlScheduler;
 import world.arainu.core.metaverseplugin.store.ServerStore;
 import world.arainu.core.metaverseplugin.store.iPhoneStore;
+import world.arainu.core.metaverseplugin.utils.ParticleUtil;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.io.File;
@@ -84,6 +87,7 @@ public final class MetaversePlugin extends JavaPlugin {
         new MoneyScheduler().runTaskTimer(this, 0, 20);
         new LateScheduler().runTaskTimer(this, 0, 20);
         new SqlScheduler().runTaskTimer(this, 0, 20 * 60 * 60);
+        new ParticleScheduler().runTaskTimer(this, 0, 10);
         createStairsYml();
     }
 

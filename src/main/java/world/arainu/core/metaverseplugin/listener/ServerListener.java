@@ -121,18 +121,6 @@ public class ServerListener implements Listener {
     /**
      * 時間とメッセージのクラス。そのままでわかりやすいね★
      */
-    static class TimeAndMsg {
-        /**
-         * 初期化
-         * @param time 時間
-         * @param msg メッセージ
-         */
-        TimeAndMsg(long time, Message msg) {
-            this.time = time;
-            this.msg = msg;
-        }
-
-        private final long time;
-        private final Message msg;
+    record TimeAndMsg(long time, Message msg) {
     }
 }

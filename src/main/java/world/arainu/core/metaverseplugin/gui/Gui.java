@@ -22,7 +22,6 @@ import org.geysermc.cumulus.SimpleForm;
 import org.geysermc.cumulus.response.SimpleFormResponse;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
-import world.arainu.core.metaverseplugin.utils.PosItemStack;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,6 +37,12 @@ import java.util.function.Consumer;
  * @author kumitatepazuru
  */
 public class Gui implements Listener {
+    /**
+     * Guiで主に使用するItemStackと場所(index)を紐付けるクラス
+     */
+    public record PosItemStack(ItemStack item, int index) {
+    }
+
     /**
      * インスタンスを取得します。
      *
@@ -139,7 +144,7 @@ public class Gui implements Listener {
             itemmap.put(index, i);
 
             return new PosItemStack(item, index);
-        }).forEach(i -> inv.setItem(i.getIndex(), i.getItem()));
+        }).forEach(i -> inv.setItem(i.index(), i.item()));
 
         invMap.put(inv, itemmap);
         player.openInventory(inv);
