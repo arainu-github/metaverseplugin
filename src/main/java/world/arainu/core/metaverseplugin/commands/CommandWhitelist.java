@@ -1,22 +1,15 @@
 package world.arainu.core.metaverseplugin.commands;
 
-import com.destroystokyo.paper.profile.PlayerProfile;
-import me.leoko.advancedban.manager.PunishmentManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 
@@ -71,7 +64,11 @@ public class CommandWhitelist extends CommandBase implements Listener {
                         assert whitelist != null;
                         for (UUID uuid : whitelist) {
                             //プレイヤーを表示する際にうるさくならないようにplaysoundをfalseに
-                            ChatUtil.success(sender, Bukkit.getOfflinePlayer(uuid).getName(), false);
+                            String name = Bukkit.getOfflinePlayer(uuid).getName();
+                            if(name == null){
+                                name = uuid.toString();
+                            }
+                            ChatUtil.success(sender, name, false);
                         }
                         ChatUtil.success(sender, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", false);
                     } else {

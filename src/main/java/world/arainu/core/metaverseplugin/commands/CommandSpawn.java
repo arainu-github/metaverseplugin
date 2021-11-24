@@ -123,21 +123,12 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     recipes.add(createRecipe(1, 5, new ItemStack(Material.STONE_BRICKS)));
                     recipes.add(createRecipe(1, 5, new ItemStack(Material.CRACKED_STONE_BRICKS)));
                     recipes.add(createRecipe(1, 5, new ItemStack(Material.CHISELED_STONE_BRICKS)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.GRAVEL)));
                     recipes.add(createRecipe(1, 10, new ItemStack(Material.GRANITE)));
                     recipes.add(createRecipe(1, 10, new ItemStack(Material.POLISHED_GRANITE)));
                     recipes.add(createRecipe(1, 10, new ItemStack(Material.DIORITE)));
                     recipes.add(createRecipe(1, 10, new ItemStack(Material.POLISHED_DIORITE)));
                     recipes.add(createRecipe(1, 10, new ItemStack(Material.ANDESITE)));
                     recipes.add(createRecipe(1, 10, new ItemStack(Material.POLISHED_ANDESITE)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.SANDSTONE)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.CUT_SANDSTONE)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.CHISELED_SANDSTONE)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.SMOOTH_SANDSTONE)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.RED_SANDSTONE)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.CUT_RED_SANDSTONE)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.CHISELED_RED_SANDSTONE)));
-                    recipes.add(createRecipe(1, 5, new ItemStack(Material.SMOOTH_RED_SANDSTONE)));
                     recipes.add(createRecipe(1, 40, new ItemStack(Material.END_STONE)));
                     recipes.add(createRecipe(1, 40, new ItemStack(Material.END_STONE_BRICKS)));
                     recipes.add(createRecipe(1, 50, new ItemStack(Material.OBSIDIAN)));
@@ -185,21 +176,12 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     recipes.add(createRecipe2(1, 5, new ItemStack(Material.STONE_BRICKS)));
                     recipes.add(createRecipe2(1, 5, new ItemStack(Material.CRACKED_STONE_BRICKS)));
                     recipes.add(createRecipe2(1, 5, new ItemStack(Material.CHISELED_STONE_BRICKS)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.GRAVEL)));
                     recipes.add(createRecipe2(1, 10, new ItemStack(Material.GRANITE)));
                     recipes.add(createRecipe2(1, 10, new ItemStack(Material.POLISHED_GRANITE)));
                     recipes.add(createRecipe2(1, 10, new ItemStack(Material.DIORITE)));
                     recipes.add(createRecipe2(1, 10, new ItemStack(Material.POLISHED_DIORITE)));
                     recipes.add(createRecipe2(1, 10, new ItemStack(Material.ANDESITE)));
                     recipes.add(createRecipe2(1, 10, new ItemStack(Material.POLISHED_ANDESITE)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.SANDSTONE)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.CUT_SANDSTONE)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.CHISELED_SANDSTONE)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.SMOOTH_SANDSTONE)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.RED_SANDSTONE)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.CUT_RED_SANDSTONE)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.CHISELED_RED_SANDSTONE)));
-                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.SMOOTH_RED_SANDSTONE)));
                     recipes.add(createRecipe2(1, 40, new ItemStack(Material.END_STONE)));
                     recipes.add(createRecipe2(1, 40, new ItemStack(Material.END_STONE_BRICKS)));
                     recipes.add(createRecipe2(1, 50, new ItemStack(Material.OBSIDIAN)));
@@ -236,22 +218,68 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     recipes.add(createRecipe2(1, 5, new ItemStack(Material.POINTED_DRIPSTONE)));
                     villager.setRecipes(recipes);
                 }
-                case "money-villager" -> {
-                    Villager villager = createVillager("両替店員", Villager.Profession.TOOLSMITH, player);
+                case "mob-villager" -> {
+                    Villager villager = createVillager("モブ店員", Villager.Profession.FARMER, player);
                     sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
                     List<MerchantRecipe> recipes = new ArrayList<>();
-                    recipes.add(createRecipe2(1, 5, Bank.getPluginMoneyEmerald(5,1)));
-                    recipes.add(createRecipe2(5, 2, Bank.getPluginMoneyEmerald(10,1)));
-                    recipes.add(createRecipe2(10, 5, Bank.getPluginMoneyEmerald(50,1)));
-                    recipes.add(createRecipe2(50, 2, Bank.getPluginMoneyEmerald(100,1)));
-                    recipes.add(createRecipe2(100, 5, Bank.getPluginMoneyEmerald(500,1)));
-                    recipes.add(createRecipe2(500,2 , Bank.getPluginMoneyEmerald(1000,1)));
-                    recipes.add(createRecipe(1, 5, Bank.getPluginMoneyEmerald(5,1)));
-                    recipes.add(createRecipe(5, 2, Bank.getPluginMoneyEmerald(10,1)));
-                    recipes.add(createRecipe(10, 5, Bank.getPluginMoneyEmerald(50,1)));
-                    recipes.add(createRecipe(50, 2, Bank.getPluginMoneyEmerald(100,1)));
-                    recipes.add(createRecipe(100, 5, Bank.getPluginMoneyEmerald(500,1)));
-                    recipes.add(createRecipe(500,2 , Bank.getPluginMoneyEmerald(1000,1)));
+                    recipes.add(createRecipe2(1000, 5, new ItemStack(Material.AXOLOTL_SPAWN_EGG)));
+                    recipes.add(createRecipe2(500, 5, new ItemStack(Material.BEE_SPAWN_EGG)));
+                    recipes.add(createRecipe2(500, 5, new ItemStack(Material.CAT_SPAWN_EGG)));
+                    recipes.add(createRecipe2(150, 5, new ItemStack(Material.CHICKEN_SPAWN_EGG)));
+                    recipes.add(createRecipe2(150, 5, new ItemStack(Material.COD_SPAWN_EGG)));
+                    recipes.add(createRecipe2(150, 5, new ItemStack(Material.COW_SPAWN_EGG)));
+                    recipes.add(createRecipe2(1000, 5, new ItemStack(Material.DOLPHIN_SPAWN_EGG)));
+                    recipes.add(createRecipe2(1000, 5, new ItemStack(Material.DONKEY_SPAWN_EGG)));
+                    recipes.add(createRecipe2(500, 5, new ItemStack(Material.FOX_SPAWN_EGG)));
+                    recipes.add(createRecipe2(1000, 5, new ItemStack(Material.HORSE_SPAWN_EGG)));
+                    recipes.add(createRecipe2(1000, 5, new ItemStack(Material.LLAMA_SPAWN_EGG)));
+                    recipes.add(createRecipe2(500, 5, new ItemStack(Material.OCELOT_SPAWN_EGG)));
+                    recipes.add(createRecipe2(1000, 5, new ItemStack(Material.PARROT_SPAWN_EGG)));
+                    recipes.add(createRecipe2(500, 5, new ItemStack(Material.PANDA_SPAWN_EGG)));
+                    recipes.add(createRecipe2(150, 5, new ItemStack(Material.PIG_SPAWN_EGG)));
+                    recipes.add(createRecipe2(500, 5, new ItemStack(Material.POLAR_BEAR_SPAWN_EGG)));
+                    recipes.add(createRecipe2(200, 5, new ItemStack(Material.PUFFERFISH_SPAWN_EGG)));
+                    recipes.add(createRecipe2(500, 5, new ItemStack(Material.RABBIT_SPAWN_EGG)));
+                    recipes.add(createRecipe2(150, 5, new ItemStack(Material.SALMON_SPAWN_EGG)));
+                    recipes.add(createRecipe2(150, 5, new ItemStack(Material.SHEEP_SPAWN_EGG)));
+                    recipes.add(createRecipe2(1000, 5, new ItemStack(Material.SKELETON_HORSE_SPAWN_EGG)));
+                    recipes.add(createRecipe2(150, 5, new ItemStack(Material.SQUID_SPAWN_EGG)));
+                    recipes.add(createRecipe2(1000, 5, new ItemStack(Material.STRIDER_SPAWN_EGG)));
+                    recipes.add(createRecipe2(200, 5, new ItemStack(Material.TROPICAL_FISH_SPAWN_EGG)));
+                    recipes.add(createRecipe2(300, 5, new ItemStack(Material.TURTLE_SPAWN_EGG)));
+                    recipes.add(createRecipe2(500, 5, new ItemStack(Material.WOLF_SPAWN_EGG)));
+                    recipes.add(createRecipe2(1000, 5, new ItemStack(Material.ZOMBIE_HORSE_SPAWN_EGG)));
+                    villager.setRecipes(recipes);
+
+                }
+                case "sandstone-villager" -> {
+                    Villager villager = createVillager("砂岩砂利店員", Villager.Profession.MASON, player);
+                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
+                    List<MerchantRecipe> recipes = new ArrayList<>();
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.GRAVEL)));
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.SANDSTONE)));
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.CUT_SANDSTONE)));
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.CHISELED_SANDSTONE)));
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.SMOOTH_SANDSTONE)));
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.RED_SANDSTONE)));
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.CUT_RED_SANDSTONE)));
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.CHISELED_RED_SANDSTONE)));
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.SMOOTH_RED_SANDSTONE)));
+                    villager.setRecipes(recipes);
+                }
+                case "sandstone-villager-shop" -> {
+                    Villager villager = createVillager("お金店員(砂岩系&砂利)", Villager.Profession.MASON, player);
+                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
+                    List<MerchantRecipe> recipes = new ArrayList<>();
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.GRAVEL)));
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.SANDSTONE)));
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.CUT_SANDSTONE)));
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.CHISELED_SANDSTONE)));
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.SMOOTH_SANDSTONE)));
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.RED_SANDSTONE)));
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.CUT_RED_SANDSTONE)));
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.CHISELED_RED_SANDSTONE)));
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.SMOOTH_RED_SANDSTONE)));
                     villager.setRecipes(recipes);
                 }
                 default -> {
@@ -267,6 +295,6 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
                                       String[] args) {
-        return List.of("mason-villager", "stone-villager", "mason-villager-shop", "stone-villager-shop", "money-villager");
+        return List.of("mason-villager", "stone-villager", "mason-villager-shop", "stone-villager-shop", "mob-villager");
     }
 }
