@@ -33,6 +33,17 @@ public class LateScheduler extends BukkitRunnable {
                     Arrays.asList(50, 20, 6, Material.DIAMOND),
                     Arrays.asList(5, 30, 10, Material.LAPIS_LAZULI)
             ));
+            update("sandstone-villager", Arrays.asList(
+                    Arrays.asList(1, 5, 2, Material.GRAVEL),
+                    Arrays.asList(1, 5, 2, Material.SANDSTONE),
+                    Arrays.asList(1, 5, 2, Material.CUT_SANDSTONE),
+                    Arrays.asList(1, 5, 2, Material.CHISELED_SANDSTONE),
+                    Arrays.asList(1, 5, 2, Material.SMOOTH_SANDSTONE),
+                    Arrays.asList(1, 5, 2, Material.RED_SANDSTONE),
+                    Arrays.asList(1, 5, 2, Material.CUT_RED_SANDSTONE),
+                    Arrays.asList(1, 5, 2, Material.CHISELED_RED_SANDSTONE),
+                    Arrays.asList(1, 5, 2, Material.SMOOTH_RED_SANDSTONE)
+            ));
             //noinspection RedundantTypeArguments (explicit type arguments speedup compilation and analysis time)
             update("stone-villager", Arrays.<List<Object>>asList(
                     Arrays.asList(1, 3, 0, Material.COBBLESTONE),
