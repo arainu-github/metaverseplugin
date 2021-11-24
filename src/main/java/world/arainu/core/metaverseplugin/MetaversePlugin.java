@@ -143,7 +143,7 @@ public final class MetaversePlugin extends JavaPlugin {
         PM.registerEvents(new VillagerListener(), this);
         PM.registerEvents(new CommandWhitelist(), this);
         DiscordSRV.api.subscribe(this);
-        getServer().getMessenger().registerOutgoingPluginChannel(this, "Bungeecord");
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     }
 
     /**
