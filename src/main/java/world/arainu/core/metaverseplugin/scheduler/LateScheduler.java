@@ -190,6 +190,7 @@ public class LateScheduler extends BukkitRunnable {
         {
             put("mason-villager", new ArrayList<>(Collections.nCopies(7, 0)));
             put("stone-villager", new ArrayList<>(Collections.nCopies(47, 0)));
+            put("sandstone-villager", new ArrayList<>(Collections.nCopies(9, 0)));
             put("mob-villager", new ArrayList<>(Collections.nCopies(27, 0)));
         }
     };

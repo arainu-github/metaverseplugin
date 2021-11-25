@@ -177,7 +177,7 @@ public class VillagerListener implements Listener {
                             }
                         } else {
                             final ReturnMoney returnMoney = getTotalmoney(inv);
-                            final int required_money = guiData.price * Objects.requireNonNull(inv.getItem(2)).getAmount();
+                            final int required_money = guiData.price * item.getAmount();
                             if (required_money <= returnMoney.getTotal_money()) {
                                 okay = true;
                                 for (ItemStack i : returnMoney.getMoney_list()) {
@@ -186,7 +186,9 @@ public class VillagerListener implements Listener {
                                     }
                                 }
                                 Bank.addMoneyForPlayer((Player) p, returnMoney.getTotal_money() - required_money);
-                                p.getInventory().addItem(Objects.requireNonNull(inv.getItem(2)));
+                                final ItemStack addItem = new ItemStack(item.getType());
+                                addItem.setAmount(item.getAmount());
+                                p.getInventory().addItem(addItem);
                             }
                         }
                         if(okay){
