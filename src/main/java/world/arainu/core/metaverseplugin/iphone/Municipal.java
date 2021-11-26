@@ -28,16 +28,20 @@ public class Municipal extends iPhoneBase {
         }
     }
 
-    public void createMunicipal(MenuItem menuItem) {
-        menuItem.getClicker().sendMessage(Component.text("まずはじめに、自治体の区域を設定しましょう。\n手元に")
-                .append(Component.text("自治体作成ブック").color(NamedTextColor.LIGHT_PURPLE).decorate(TextDecoration.BOLD).decorate(TextDecoration.UNDERLINED))
-                .append(Component.text("がインベントリ内にあるのでそこから操作をして区域の始点を設定しましょう。")));
+    public static ItemStack createItemStack(){
         final ItemStack item = new ItemStack(Material.ENCHANTED_BOOK);
         final ItemMeta itemMeta = item.getItemMeta();
         itemMeta.displayName(Component.text("自治体作成ブック").color(NamedTextColor.LIGHT_PURPLE));
         itemMeta.lore(Collections.singletonList(Component.text("本を開くことで使用できる。")));
         itemMeta.getPersistentDataContainer().set(ServerStore.getMunicipalBookKey(), PersistentDataType.INTEGER, 1);
         item.setItemMeta(itemMeta);
-        menuItem.getClicker().getInventory().addItem(item);
+        return item;
+    }
+
+    public void createMunicipal(MenuItem menuItem) {
+        menuItem.getClicker().sendMessage(Component.text("まずはじめに、自治体の区域を設定しましょう。\n手元に")
+                .append(Component.text("自治体作成ブック").color(NamedTextColor.LIGHT_PURPLE).decorate(TextDecoration.BOLD).decorate(TextDecoration.UNDERLINED))
+                .append(Component.text("がインベントリ内にあるのでそこから操作をして区域の始点を設定しましょう。")));
+        menuItem.getClicker().getInventory().addItem(createItemStack());
     }
 }

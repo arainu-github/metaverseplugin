@@ -25,6 +25,7 @@ import org.geysermc.floodgate.api.player.FloodgatePlayer;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
+import world.arainu.core.metaverseplugin.iphone.Municipal;
 import world.arainu.core.metaverseplugin.scheduler.ParticleScheduler;
 import world.arainu.core.metaverseplugin.store.ServerStore;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
@@ -110,6 +111,7 @@ public class MunicipalCreateListener implements Listener {
     private void end(MenuItem menuItem){
         final Player player = menuItem.getClicker();
         final HashMap<Player, ArrayList<Location>> markerData = ServerStore.getMarkerData();
+        player.getInventory().remove(Municipal.createItemStack());
         if(Gui.isBedrock(player)){
             CustomForm.Builder builder = CustomForm.builder()
                     .title("自治体を作成")
@@ -168,9 +170,10 @@ public class MunicipalCreateListener implements Listener {
         ServerListener.getChannel().sendMessage(
                 new EmbedBuilder()
                         .setTitle("`"+p.getName()+"`が自治体`"+title+"`を作成しました。")
-                        .setDescription("運営は自治体の場所等を確認し、ほか自治体との被り等がないか確認してください。")
+                        .setDescription("運営は自治体の場所等を確認し、自治体チェックリストに反していないかを確認してください。")
                         .addField("プレイヤー情報","MCID: `"+p.getName()+"`\nUUID: `"+p.getUniqueId()+"`\ndiscordID: "+discordId+"\ndiscordTag: "+ DiscordUtil.getUserById(discordId).getAsTag(),false)
                         .setFooter("接続元サーバー：" + ServerStore.getServerDisplayName())
+                        .setImage("https://data.arainu.world/images/checklist.png")
                         .setColor(Color.PINK)
                         .build()
         ).queue();
