@@ -28,8 +28,6 @@ commands:
     description: プラグイン特有のmobをスポーンさせます。
     usage: /spawn [type]
     permission: metaverse.command.spawn
-  __createmunicipal:
-    permission: metaverse.command.backend
   whitelist:
     description: ホワイトリストの設定
     usage: /whitelist [on|off|add|remove|list]

@@ -1,6 +1,8 @@
 package world.arainu.core.metaverseplugin.listener;
 
+import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.dependencies.jda.api.EmbedBuilder;
+import github.scarsz.discordsrv.util.DiscordUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -162,11 +164,12 @@ public class MunicipalCreateListener implements Listener {
         double[] Z_list = markerData.get(p).stream().map(Location::getZ).mapToDouble(b -> b).toArray();
         markerSet.createAreaMarker("m"+markerSet.getAreaMarkers().size(),title,false,markerData.get(p).get(0).getWorld().getName(),X_list,Z_list,true);
         ChatUtil.success(p, "自治体を正常に作成しました。");
+        String discordId =  DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(p.getUniqueId());
         ServerListener.getChannel().sendMessage(
                 new EmbedBuilder()
                         .setTitle("`"+p.getName()+"`が自治体`"+title+"`を作成しました。")
                         .setDescription("運営は自治体の場所等を確認し、ほか自治体との被り等がないか確認してください。")
-                        .addField("プレイヤー情報","MCID: "+p.getName()+"\nUUID: "+p.getUniqueId()+"\ndiscordTag: ",false)
+                        .addField("プレイヤー情報","MCID: `"+p.getName()+"`\nUUID: `"+p.getUniqueId()+"`\ndiscordID: "+discordId+"\ndiscordTag: "+ DiscordUtil.getUserById(discordId).getAsTag(),false)
                         .setFooter("接続元サーバー：" + ServerStore.getServerDisplayName())
                         .setColor(Color.PINK)
                         .build()

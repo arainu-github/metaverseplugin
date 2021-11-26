@@ -1,5 +1,6 @@
 package world.arainu.core.metaverseplugin.iphone;
 
+import github.scarsz.discordsrv.DiscordSRV;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -10,6 +11,7 @@ import org.bukkit.persistence.PersistentDataType;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.store.ServerStore;
+import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,9 +19,13 @@ import java.util.List;
 public class Municipal extends iPhoneBase {
     @Override
     public void executeGui(MenuItem menuItem) {
-        Gui.getInstance().openMenu(menuItem.getClicker(),"自治体メニュー", List.of(
-                new MenuItem("自分で自治体を作る", this::createMunicipal, true, Material.SLIME_BALL)
-        ));
+        if(DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(menuItem.getClicker().getUniqueId()) != null) {
+            Gui.getInstance().openMenu(menuItem.getClicker(), "自治体メニュー", List.of(
+                    new MenuItem("自分で自治体を作る", this::createMunicipal, true, Material.SLIME_BALL)
+            ));
+        } else {
+            ChatUtil.error(menuItem.getClicker(),"自治体機能はdiscordとminecraftを連携することによって使用できます。\niphone内の「discordと連携する」から、discordとminecraftを連携してください。");
+        }
     }
 
     public void createMunicipal(MenuItem menuItem) {

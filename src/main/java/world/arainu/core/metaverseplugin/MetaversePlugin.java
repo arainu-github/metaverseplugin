@@ -23,16 +23,17 @@ import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.commands.CommandBase;
 import world.arainu.core.metaverseplugin.commands.CommandSpawn;
 import world.arainu.core.metaverseplugin.commands.CommandWhitelist;
-import world.arainu.core.metaverseplugin.listener.MunicipalCreateListener;
-import world.arainu.core.metaverseplugin.commands.CommandiPhone;
-import world.arainu.core.metaverseplugin.gui.Gui;
-import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.iphone.Bank;
+import world.arainu.core.metaverseplugin.iphone.LinkDiscord;
 import world.arainu.core.metaverseplugin.iphone.MoveSurvival;
 import world.arainu.core.metaverseplugin.iphone.Municipal;
 import world.arainu.core.metaverseplugin.iphone.TrapTower;
 import world.arainu.core.metaverseplugin.iphone.Worldteleport;
 import world.arainu.core.metaverseplugin.iphone.iPhoneEnderDragon;
+import world.arainu.core.metaverseplugin.listener.MunicipalCreateListener;
+import world.arainu.core.metaverseplugin.commands.CommandiPhone;
+import world.arainu.core.metaverseplugin.gui.Gui;
+import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.listener.BankListener;
 import world.arainu.core.metaverseplugin.listener.PublicListener;
 import world.arainu.core.metaverseplugin.listener.ServerListener;
@@ -133,6 +134,7 @@ public final class MetaversePlugin extends JavaPlugin {
         iPhoneStore.addGuiItem(new MenuItem("サバイバルサーバーに戻る", new MoveSurvival()::executeGui, true, Material.GRASS_BLOCK), (p) -> p.getWorld().getName().equals(configuration.getString("world.traptower")));
         iPhoneStore.addGuiItem(new MenuItem("エンドラを復活させる", new iPhoneEnderDragon()::executeGui, true, Material.END_STONE), (p) -> !Gui.isEnderDragonLiving(p) && Gui.isPlayerInEnd(p));
         iPhoneStore.addGuiItem(new MenuItem("自治体", new Municipal()::executeGui, true, Material.END_STONE), (p) -> Objects.equals(ServerStore.getServerName(), "survival"));
+        iPhoneStore.addGuiItem(new MenuItem("discordと連携する", new LinkDiscord()::executeGui, true, Material.PAPER), (p) -> DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(p.getUniqueId()) == null);
     }
 
     /**
