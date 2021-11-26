@@ -252,6 +252,36 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     villager.setRecipes(recipes);
 
                 }
+                case "sandstone-villager" -> {
+                    Villager villager = createVillager("砂岩砂利店員", Villager.Profession.MASON, player);
+                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
+                    List<MerchantRecipe> recipes = new ArrayList<>();
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.GRAVEL)));
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.SANDSTONE)));
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.CUT_SANDSTONE)));
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.CHISELED_SANDSTONE)));
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.SMOOTH_SANDSTONE)));
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.RED_SANDSTONE)));
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.CUT_RED_SANDSTONE)));
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.CHISELED_RED_SANDSTONE)));
+                    recipes.add(createRecipe(1, 5, new ItemStack(Material.SMOOTH_RED_SANDSTONE)));
+                    villager.setRecipes(recipes);
+                }
+                case "sandstone-villager-shop" -> {
+                    Villager villager = createVillager("お金店員(砂岩系&砂利)", Villager.Profession.MASON, player);
+                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
+                    List<MerchantRecipe> recipes = new ArrayList<>();
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.GRAVEL)));
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.SANDSTONE)));
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.CUT_SANDSTONE)));
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.CHISELED_SANDSTONE)));
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.SMOOTH_SANDSTONE)));
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.RED_SANDSTONE)));
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.CUT_RED_SANDSTONE)));
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.CHISELED_RED_SANDSTONE)));
+                    recipes.add(createRecipe2(1, 5, new ItemStack(Material.SMOOTH_RED_SANDSTONE)));
+                    villager.setRecipes(recipes);
+                }
                 default -> {
                     ChatUtil.error(player, "そのような独自Mobは存在しません！");
                     return false;

@@ -163,7 +163,7 @@ public class VillagerListener implements Listener {
                             }
                         } else {
                             final ReturnMoney returnMoney = getTotalmoney(inv);
-                            final int required_money = guiData.price * Objects.requireNonNull(inv.getItem(2)).getAmount();
+                            final int required_money = guiData.price * item.getAmount();
                             if (required_money <= returnMoney.total_money()) {
                                 okay = true;
                                 for (ItemStack i : returnMoney.money_list()) {
@@ -172,7 +172,9 @@ public class VillagerListener implements Listener {
                                     }
                                 }
                                 Bank.addMoneyForPlayer((Player) p, returnMoney.total_money() - required_money);
-                                p.getInventory().addItem(Objects.requireNonNull(inv.getItem(2)));
+                                final ItemStack addItem = new ItemStack(item.getType());
+                                addItem.setAmount(item.getAmount());
+                                p.getInventory().addItem(addItem);
                             }
                         }
                         if(okay){
@@ -287,7 +289,12 @@ public class VillagerListener implements Listener {
         boolean isPurchase = Bank.isMoney(recipe.getResult());
         ItemStack money = Bank.isMoney(recipe.getResult()) ? recipe.getResult() : recipe.getIngredients().get(0);
         int price = money.getAmount() * money.getItemMeta().getPersistentDataContainer().get(BankStore.getKey(), PersistentDataType.INTEGER);
-        final Inventory inv = Bukkit.createInventory(null, 27, e.getIcon().displayName().append(Component.text(" を購入")));
+        final Inventory inv;
+        if (isPurchase) {
+            inv = Bukkit.createInventory(null, 27, e.getIcon().displayName().append(Component.text(" を買取")).color(NamedTextColor.BLACK));
+        } else {
+            inv = Bukkit.createInventory(null, 27, e.getIcon().displayName().append(Component.text(" を購入")).color(NamedTextColor.BLACK));
+        }
 
         final ItemStack down_button = new ItemStack(Material.RED_WOOL);
         ItemMeta itemMeta = down_button.getItemMeta();
