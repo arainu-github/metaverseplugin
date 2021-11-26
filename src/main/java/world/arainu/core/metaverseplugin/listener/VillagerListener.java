@@ -164,14 +164,14 @@ public class VillagerListener implements Listener {
                         } else {
                             final ReturnMoney returnMoney = getTotalmoney(inv);
                             final int required_money = guiData.price * item.getAmount();
-                            if (required_money <= returnMoney.getTotal_money()) {
+                            if (required_money <= returnMoney.total_money()) {
                                 okay = true;
                                 for (ItemStack i : returnMoney.money_list()) {
                                     if (Bank.isMoney(i)) {
                                         inv.remove(i);
                                     }
                                 }
-                                Bank.addMoneyForPlayer((Player) p, returnMoney.getTotal_money() - required_money);
+                                Bank.addMoneyForPlayer((Player) p, returnMoney.total_money() - required_money);
                                 final ItemStack addItem = new ItemStack(item.getType());
                                 addItem.setAmount(item.getAmount());
                                 p.getInventory().addItem(addItem);
