@@ -29,7 +29,6 @@ public class iPhoneEnderDragon extends iPhoneBase {
         World world = player.getWorld();
         DragonBattle db = Objects.requireNonNull(world.getEnderDragonBattle());
         final Location portalLocation = Objects.requireNonNull(db.getEndPortalLocation());
-        Bukkit.getLogger().info(String.valueOf(portalLocation));
         world.spawnEntity(new Location(world, 0.5,portalLocation.getBlockY()+1,3.5), EntityType.ENDER_CRYSTAL);
         world.spawnEntity(new Location(world, 0.5,portalLocation.getBlockY()+1,-2.5), EntityType.ENDER_CRYSTAL);
         world.spawnEntity(new Location(world, 3.5,portalLocation.getBlockY()+1,0.5), EntityType.ENDER_CRYSTAL);

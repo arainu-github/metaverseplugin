@@ -20,7 +20,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
-import world.arainu.core.metaverseplugin.store.MarkerStore;
 import world.arainu.core.metaverseplugin.store.ServerStore;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
@@ -109,10 +108,10 @@ public class ServerListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e){
         // GC
-        if(MarkerStore.getMarkerData().containsKey(e.getPlayer())){
-            HashMap<Player, ArrayList<Location>> markerData = MarkerStore.getMarkerData();
+        if(ServerStore.getMarkerData().containsKey(e.getPlayer())){
+            HashMap<Player, ArrayList<Location>> markerData = ServerStore.getMarkerData();
             markerData.remove(e.getPlayer());
-            MarkerStore.setMarkerData(markerData);
+            ServerStore.setMarkerData(markerData);
         }
     }
 

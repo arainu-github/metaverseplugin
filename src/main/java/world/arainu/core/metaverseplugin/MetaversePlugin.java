@@ -7,7 +7,6 @@ import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -24,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.commands.CommandBase;
 import world.arainu.core.metaverseplugin.commands.CommandSpawn;
 import world.arainu.core.metaverseplugin.commands.CommandWhitelist;
-import world.arainu.core.metaverseplugin.commands.Commandcreatemunicipal;
+import world.arainu.core.metaverseplugin.listener.MunicipalCreateListener;
 import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
@@ -45,7 +44,6 @@ import world.arainu.core.metaverseplugin.scheduler.ParticleScheduler;
 import world.arainu.core.metaverseplugin.scheduler.SqlScheduler;
 import world.arainu.core.metaverseplugin.store.ServerStore;
 import world.arainu.core.metaverseplugin.store.iPhoneStore;
-import world.arainu.core.metaverseplugin.utils.ParticleUtil;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.io.File;
@@ -149,6 +147,7 @@ public final class MetaversePlugin extends JavaPlugin {
         PM.registerEvents(new PublicListener(), this);
         PM.registerEvents(new VillagerListener(), this);
         PM.registerEvents(new CommandWhitelist(), this);
+        PM.registerEvents(new MunicipalCreateListener(), this);
         DiscordSRV.api.subscribe(this);
     }
 
@@ -191,7 +190,6 @@ public final class MetaversePlugin extends JavaPlugin {
         addCommand("iphone", new CommandiPhone());
         addCommand("spawn", new CommandSpawn());
         addCommand("whitelist", new CommandWhitelist());
-        addCommand("__createmunicipal", new Commandcreatemunicipal());
     }
 
     @Override
