@@ -1,5 +1,6 @@
 package world.arainu.core.metaverseplugin.listener;
 
+import github.scarsz.discordsrv.dependencies.jda.api.EmbedBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -27,6 +28,7 @@ import world.arainu.core.metaverseplugin.store.ServerStore;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
 import world.arainu.core.metaverseplugin.utils.ParticleUtil;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -160,6 +162,15 @@ public class MunicipalCreateListener implements Listener {
         double[] Z_list = markerData.get(p).stream().map(Location::getZ).mapToDouble(b -> b).toArray();
         markerSet.createAreaMarker("m"+markerSet.getAreaMarkers().size(),title,false,markerData.get(p).get(0).getWorld().getName(),X_list,Z_list,true);
         ChatUtil.success(p, "自治体を正常に作成しました。");
+        ServerListener.getChannel().sendMessage(
+                new EmbedBuilder()
+                        .setTitle("`"+p.getName()+"`が自治体`"+title+"`を作成しました。")
+                        .setDescription("運営は自治体の場所等を確認し、ほか自治体との被り等がないか確認してください。")
+                        .addField("プレイヤー情報","MCID: "+p.getName()+"\nUUID: "+p.getUniqueId()+"\ndiscordTag: ",false)
+                        .setFooter("接続元サーバー：" + ServerStore.getServerDisplayName())
+                        .setColor(Color.PINK)
+                        .build()
+        ).queue();
     }
 
     private final static HashMap<Player,ParticleUtil> playerParticle = new HashMap<>();

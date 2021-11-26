@@ -6,6 +6,7 @@ import github.scarsz.discordsrv.dependencies.jda.api.entities.Message;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.MessageEmbed;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.TextChannel;
 import github.scarsz.discordsrv.util.DiscordUtil;
+import lombok.Getter;
 import me.leoko.advancedban.manager.PunishmentManager;
 import me.leoko.advancedban.manager.TimeManager;
 import me.leoko.advancedban.utils.Punishment;
@@ -35,11 +36,13 @@ import java.util.UUID;
  * @author kumitatepazuru
  */
 public class ServerListener implements Listener {
-    private final JDA jda = DiscordUtil.getJda();
-    private final TextChannel channel = Objects
+    @Getter
+    static private final JDA jda = DiscordUtil.getJda();
+    @Getter
+    static private final TextChannel channel = Objects
             .requireNonNull(jda.getTextChannelById(MetaversePlugin.getConfiguration().getLong("discord.warn_channel")));
 
-    private void sendMessage(UUID uuid,MessageEmbed embed){
+    private void sendMessage(UUID uuid, MessageEmbed embed) {
         if (last_log_map.containsKey(uuid)) {
             if (System.currentTimeMillis() - last_log_map.get(uuid).time < 30 * 60 * 1000) {
                 last_log_map.get(uuid).msg.editMessage(embed)
@@ -81,7 +84,7 @@ public class ServerListener implements Listener {
                     .addField("プレイヤー名", "`" + name + "`", false).addField("UUID", String.valueOf(uuid), false)
                     .setThumbnail("https://crafatar.com/avatars/" + uuid + ".png")
                     .setFooter("接続元サーバー：" + ServerStore.getServerDisplayName()).setColor(Color.YELLOW).build();
-            sendMessage(uuid,embed);
+            sendMessage(uuid, embed);
         } else if (e.getLoginResult() == AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST) {
             sqlUtil.addkickcount(uuid);
             final int kickcount = Objects.requireNonNull(sqlUtil.getkickcount(uuid));
@@ -90,7 +93,7 @@ public class ServerListener implements Listener {
                     .addField("プレイヤー名", "`" + name + "`", false).addField("UUID", String.valueOf(uuid), false)
                     .setThumbnail("https://crafatar.com/avatars/" + uuid + ".png")
                     .setFooter("接続元サーバー：" + ServerStore.getServerDisplayName()).setColor(Color.ORANGE).build();
-            sendMessage(uuid,embed);
+            sendMessage(uuid, embed);
 
             if (kickcount % 10 == 0) {
                 Punishment punishment = new Punishment(name, name, "@attack", "自動BAN", PunishmentType.TEMP_BAN,
@@ -106,9 +109,9 @@ public class ServerListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent e){
+    public void onPlayerQuit(PlayerQuitEvent e) {
         // GC
-        if(ServerStore.getMarkerData().containsKey(e.getPlayer())){
+        if (ServerStore.getMarkerData().containsKey(e.getPlayer())) {
             HashMap<Player, ArrayList<Location>> markerData = ServerStore.getMarkerData();
             markerData.remove(e.getPlayer());
             ServerStore.setMarkerData(markerData);
