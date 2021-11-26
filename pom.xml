@@ -25,8 +25,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>14</source>
-                    <target>14</target>
+                    <source>16</source>
+                    <target>16</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -136,6 +136,13 @@
             <version>2.1.7</version>
             <scope>system</scope>
             <systemPath>${basedir}/lib/AdvancedBan-Bundle-2.3.0-RELEASE.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.dynmap</groupId>
+            <artifactId>DynmapCoreAPI</artifactId>
+            <version>3.2.1</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/Dynmap-3.2.1-spigot.jar</systemPath>
         </dependency>
     </dependencies>
 </project>

@@ -53,7 +53,7 @@ public class BankListener implements Listener {
                     e.setCancelled(true);
                     Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
                         final VillagerListener.ReturnMoney money = VillagerListener.getTotalmoney(inv);
-                        final int total_money = money.getTotal_money();
+                        final int total_money = money.total_money();
                         int required_money = Objects.requireNonNull(BankStore.getGui_hashmap().get(p.getUniqueId()));
                         if (total_money >= required_money) {
                             final Economy econ = MetaversePlugin.getEcon();
@@ -71,12 +71,12 @@ public class BankListener implements Listener {
                     e.setCancelled(true);
                     final Inventory player_inv = e.getWhoClicked().getInventory();
                     final VillagerListener.ReturnMoney returnMoney = VillagerListener.getTotalmoney(player_inv);
-                    for (ItemStack i : returnMoney.getMoney_list()) {
+                    for (ItemStack i : returnMoney.money_list()) {
                         if (Bank.isMoney(i)) {
                             player_inv.remove(i);
                         }
                     }
-                    Bank.addMoneyForInventory(inv, returnMoney.getTotal_money());
+                    Bank.addMoneyForInventory(inv, returnMoney.total_money());
                 }
                 default -> {
                     if (id < 9) e.setCancelled(true);
@@ -85,7 +85,7 @@ public class BankListener implements Listener {
             if (id != 4) {
                 Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
                     VillagerListener.ReturnMoney money = VillagerListener.getTotalmoney(inv);
-                    int total = money.getTotal_money();
+                    int total = money.total_money();
                     int required_money = Objects.requireNonNull(BankStore.getGui_hashmap().get(p.getUniqueId()));
                     final ItemStack priceItem = Objects.requireNonNull(inv.getItem(4));
                     final ItemMeta itemMeta = priceItem.getItemMeta();

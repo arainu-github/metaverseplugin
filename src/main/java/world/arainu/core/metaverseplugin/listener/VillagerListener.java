@@ -1,14 +1,10 @@
 package world.arainu.core.metaverseplugin.listener;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -31,6 +27,7 @@ import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.store.BankStore;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
+import world.arainu.core.metaverseplugin.utils.SoundUtil;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.util.ArrayList;
@@ -83,18 +80,7 @@ public class VillagerListener implements Listener {
     /**
      * Mapのreturnに使うやつ
      */
-    @RequiredArgsConstructor
-    static class Mapdata {
-        private final MerchantRecipe recipe;
-        private final int index;
-        private final Villager villager;
-    }
-
-    /*
-    TODO: Util化
-     */
-    private void playClickSound(Player p) {
-        p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.PLAYERS, 1, 1f);
+    record Mapdata(MerchantRecipe recipe, int index, Villager villager) {
     }
 
     private void updatePrice(Inventory inv, ItemStack item) {
@@ -130,21 +116,21 @@ public class VillagerListener implements Listener {
                 e.setCancelled(true);
                 switch (id) {
                     case 1 -> {
-                        playClickSound((Player) p);
+                        SoundUtil.playClickSound((Player) p);
                         if (item.getAmount() != 1) {
                             item.setAmount(item.getAmount() - 1);
                         }
                         updatePrice(inv, item);
                     }
                     case 3 -> {
-                        playClickSound((Player) p);
+                        SoundUtil.playClickSound((Player) p);
                         if (item.getAmount() != 64) {
                             item.setAmount(item.getAmount() + 1);
                         }
                         updatePrice(inv, item);
                     }
                     case 6 -> {
-                        playClickSound((Player) p);
+                        SoundUtil.playClickSound((Player) p);
                         boolean okay = false;
                         if (guiData.isPurchase) {
                             final HashMap<Integer, ? extends ItemStack> item_list = inv.all(item.getType());
@@ -180,7 +166,7 @@ public class VillagerListener implements Listener {
                             final int required_money = guiData.price * item.getAmount();
                             if (required_money <= returnMoney.getTotal_money()) {
                                 okay = true;
-                                for (ItemStack i : returnMoney.getMoney_list()) {
+                                for (ItemStack i : returnMoney.money_list()) {
                                     if (Bank.isMoney(i)) {
                                         inv.remove(i);
                                     }
@@ -212,7 +198,7 @@ public class VillagerListener implements Listener {
                     required = item.getAmount();
                 } else {
                     ReturnMoney money = getTotalmoney(inv);
-                    total = money.getTotal_money();
+                    total = money.total_money();
                     required = guiData.price * Objects.requireNonNull(inv.getItem(2)).getAmount();
                 }
 
@@ -276,20 +262,7 @@ public class VillagerListener implements Listener {
     /**
      * お金に関するクラス
      */
-    static class ReturnMoney {
-        /**
-         * 初期化
-         *
-         * @param money_list  インベントリ内のエメラルドのリスト
-         * @param total_money 現金の合計
-         */
-        ReturnMoney(List<ItemStack> money_list, int total_money) {
-            this.money_list = money_list;
-            this.total_money = total_money;
-        }
-
-        @Getter private final List<ItemStack> money_list;
-        @Getter private final int total_money;
+    record ReturnMoney(List<ItemStack> money_list, int total_money) {
     }
 
     /**
@@ -385,11 +358,6 @@ public class VillagerListener implements Listener {
 
     private final HashMap<Inventory, GuiData> invMap = new HashMap<>();
 
-    @RequiredArgsConstructor
-    private static class GuiData {
-        private final int price;
-        private final int index;
-        private final boolean isPurchase;
-        private final Villager villager;
+    private record GuiData(int price, int index, boolean isPurchase, Villager villager) {
     }
 }
