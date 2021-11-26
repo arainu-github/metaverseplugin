@@ -122,7 +122,7 @@ public class Gui implements Listener {
 
     private void openMenuJavaImpl(Player player, String title, MenuItem[] items) {
         Integer max = Arrays.stream(items).map(MenuItem::getY).max(Comparator.naturalOrder()).orElse(0);
-        final int size = Math.max(1 + (items.length-1) / 9, max) * 9;
+        final int size = Math.max(1 + (items.length - 1) / 9, max) * 9;
         final Inventory inv = Bukkit.createInventory(null, size, Component.text(title));
         final HashMap<Integer, MenuItem> itemmap = new HashMap<>();
         final int[] count = {0};
@@ -155,15 +155,19 @@ public class Gui implements Listener {
                 .title(title);
 
         for (var item : items) {
-            Component text = item.getIcon().displayName();
+            Component text;
+            text = item.getIcon().getItemMeta().displayName();
+            if (text == null) {
+                text = item.getIcon().displayName();
+            }
             if (item.isShiny()) {
                 text = text.color(NamedTextColor.GREEN);
             }
             if (item.isClose()) {
-                if(text instanceof TextComponent) builder.button(((TextComponent) text).content());
+                if (text instanceof TextComponent) builder.button(((TextComponent) text).content());
                 else builder.button(Objects.requireNonNull(item.getIcon().getI18NDisplayName()));
             } else {
-                if(text instanceof TextComponent) builder.content(((TextComponent) text).content());
+                if (text instanceof TextComponent) builder.content(((TextComponent) text).content());
                 else builder.content(Objects.requireNonNull(item.getIcon().getI18NDisplayName()));
             }
         }
@@ -214,10 +218,11 @@ public class Gui implements Listener {
      */
 
     public static boolean isEnderDragonLiving(Player player) {
-            List<LivingEntity> entity = player.getWorld().getLivingEntities();
-            for (LivingEntity i : entity) {
-                if (i instanceof EnderDragon) return true;
-            } return false;
+        List<LivingEntity> entity = player.getWorld().getLivingEntities();
+        for (LivingEntity i : entity) {
+            if (i instanceof EnderDragon) return true;
+        }
+        return false;
     }
 
     private final HashMap<Inventory, HashMap<Integer, MenuItem>> invMap = new HashMap<>();
