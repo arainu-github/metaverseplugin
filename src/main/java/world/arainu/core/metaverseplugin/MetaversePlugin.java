@@ -30,15 +30,10 @@ import world.arainu.core.metaverseplugin.iphone.Municipal;
 import world.arainu.core.metaverseplugin.iphone.TrapTower;
 import world.arainu.core.metaverseplugin.iphone.Worldteleport;
 import world.arainu.core.metaverseplugin.iphone.iPhoneEnderDragon;
-import world.arainu.core.metaverseplugin.listener.MunicipalCreateListener;
+import world.arainu.core.metaverseplugin.listener.*;
 import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
-import world.arainu.core.metaverseplugin.listener.BankListener;
-import world.arainu.core.metaverseplugin.listener.PublicListener;
-import world.arainu.core.metaverseplugin.listener.ServerListener;
-import world.arainu.core.metaverseplugin.listener.SittingListener;
-import world.arainu.core.metaverseplugin.listener.VillagerListener;
 import world.arainu.core.metaverseplugin.scheduler.LateScheduler;
 import world.arainu.core.metaverseplugin.scheduler.MoneyScheduler;
 import world.arainu.core.metaverseplugin.scheduler.ParticleScheduler;
@@ -150,6 +145,7 @@ public final class MetaversePlugin extends JavaPlugin {
         PM.registerEvents(new VillagerListener(), this);
         PM.registerEvents(new CommandWhitelist(), this);
         PM.registerEvents(new MunicipalCreateListener(), this);
+        PM.registerEvents(new MoneyListener(), this);
         DiscordSRV.api.subscribe(this);
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     }
