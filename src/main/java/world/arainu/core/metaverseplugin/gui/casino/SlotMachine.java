@@ -167,9 +167,8 @@ public class SlotMachine implements Listener {
                         player.openInventory(inventory);
 
                         listeners.addSlotFinishListener((stopMethod) -> {
-                            ItemStack prize = new ItemStack(Material.MOJANG_BANNER_PATTERN);
-                            prize.setAmount((int) Math.round(getWinMoney(getPattern(), stopMethod, bet)));
-                            player.getInventory().addItem(prize);
+                            int prize = (int) Math.round(getWinMoney(getPattern();
+			    //ここに変数prizeに入ってるだけプレイヤーにお金をあげる処理
                         });
 
                         listeners.addButtonPressListener((slotType) -> {
