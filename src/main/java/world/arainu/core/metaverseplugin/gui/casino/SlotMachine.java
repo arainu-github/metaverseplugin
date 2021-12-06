@@ -60,7 +60,6 @@ public class SlotMachine implements Listener {
                 case WARPED_BUTTON -> {
                     final String displayName = Objects.requireNonNull(Objects.requireNonNull(event.getCurrentItem()).getItemMeta()).getDisplayName();
                     if (displayName.contains("Stop slot")) {
-                        System.out.println("Stop");
                         listeners.buttonPressTrigger(intToSlotType(Integer.parseInt(displayName.split(" ")[2])));
                     }
                 }
@@ -70,7 +69,6 @@ public class SlotMachine implements Listener {
                         inventory.setItem(28, inventory.getItem(19));
                         inventory.setItem(19, inventory.getItem(10));
                         inventory.setItem(10, newSlot);
-                        System.out.println("Cycle1");
                     }, 0, 20));
 
                     tasks.add(Bukkit.getScheduler().runTaskTimer(MetaversePlugin.getInstance(), () -> {
@@ -78,14 +76,12 @@ public class SlotMachine implements Listener {
                         inventory.setItem(29, inventory.getItem(20));
                         inventory.setItem(20, inventory.getItem(11));
                         inventory.setItem(11, newSlot);
-                        System.out.println("Cycle2");
                     }, 0, 20));
                     tasks.add(Bukkit.getScheduler().runTaskTimer(MetaversePlugin.getInstance(), () -> {
                         ItemStack newSlot = SlotUtil.getRandom();
                         inventory.setItem(30, inventory.getItem(21));
                         inventory.setItem(21, inventory.getItem(12));
                         inventory.setItem(12, newSlot);
-                        System.out.println("Cycle3");
                     }, 0, 20));
 
                     final ItemStack stopAllButton = new ItemStack(Material.RED_STAINED_GLASS_PANE);
@@ -164,14 +160,13 @@ public class SlotMachine implements Listener {
                             ItemStack stopButton = new ItemStack(Material.WARPED_BUTTON);
                             ItemMeta stopButtonMeta = stopButton.getItemMeta();
                             assert stopButtonMeta != null;
-                            stopButtonMeta.setDisplayName(ChatColor.RED + "Stop slot " + (j - 45));
+                            stopButtonMeta.setDisplayName(ChatColor.RED + ((j - 45) + "番目のスロットを止める"));
                             stopButton.setItemMeta(stopButtonMeta);
                             inventory.setItem(j, stopButton);
                         }
                         player.openInventory(inventory);
 
                         listeners.addSlotFinishListener((stopMethod) -> {
-                            getPattern().forEach(System.out::println);
                             ItemStack prize = new ItemStack(Material.MOJANG_BANNER_PATTERN);
                             prize.setAmount((int) Math.round(getWinMoney(getPattern(), stopMethod, bet)));
                             player.getInventory().addItem(prize);
