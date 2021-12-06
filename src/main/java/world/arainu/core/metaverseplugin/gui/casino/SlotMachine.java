@@ -167,7 +167,7 @@ public class SlotMachine implements Listener {
                         player.openInventory(inventory);
 
                         listeners.addSlotFinishListener((stopMethod) -> {
-                            int prize = (int) Math.round(getWinMoney(getPattern();
+                            int prize = (int) Math.round(getWinMoney(getPattern());
 			    //ここに変数prizeに入ってるだけプレイヤーにお金をあげる処理
                         });
 
