@@ -167,8 +167,10 @@ public class SlotMachine implements Listener {
                         player.openInventory(inventory);
 
                         listeners.addSlotFinishListener((stopMethod) -> {
-                            int prize = (int) Math.round(getWinMoney(getPattern());
-			    //ここに変数prizeに入ってるだけプレイヤーにお金をあげる処理
+                            int prize = (int) Math.round(getWinMoney(getPattern(), stopMethod, bet));
+                            /*
+                             * @todo prize変数にあるだけプレイヤーにお金を口座に直接入金するコードを書く
+                             */
                         });
 
                         listeners.addButtonPressListener((slotType) -> {
@@ -186,6 +188,8 @@ public class SlotMachine implements Listener {
                     } else {
                         throw new Error("スロット内のアイテムは９個でなければいけません。SlotUtilを確認してください。");
                     }
+                } else {
+                    ChatUtil.warning(player, "あなたはそこまでお金を持っていません");
                 }
             } else {
                 ChatUtil.error(player, "数字以外のものが含まれているか無効な数字です！");
