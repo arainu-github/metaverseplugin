@@ -7,9 +7,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
 import java.util.List;
+import java.util.Objects;
 
 
 public class MoneyListener implements Listener {
@@ -56,6 +58,15 @@ public class MoneyListener implements Listener {
                     ).forEach(n -> {
                 if (e.getEntity().getType() == n.type()) addMoney(e.getEntity().getKiller(), n.money());
             });
+        }
+    }
+
+    @EventHandler
+    public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent e){
+        switch (Objects.requireNonNull(e.getAdvancement().getDisplay()).frame()){
+            case TASK -> addMoney(e.getPlayer(),500);
+            case GOAL -> addMoney(e.getPlayer(),1500);
+            case CHALLENGE -> addMoney(e.getPlayer(),3000);
         }
     }
 
