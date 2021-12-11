@@ -1,7 +1,9 @@
 package world.arainu.core.metaverseplugin.listener;
 
+import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent;
 import net.kyori.adventure.text.Component;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -63,11 +65,16 @@ public class MoneyListener implements Listener {
 
     @EventHandler
     public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent e){
-        switch (Objects.requireNonNull(e.getAdvancement().getDisplay()).frame()){
-            case TASK -> addMoney(e.getPlayer(),500);
-            case GOAL -> addMoney(e.getPlayer(),1500);
-            case CHALLENGE -> addMoney(e.getPlayer(),3000);
-        }
+        // TODO: バグがあるのですぐに修正
+//        Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> {
+//            switch (Objects.requireNonNull(e.getAdvancement().getDisplay()).frame()){
+//                case TASK -> addMoney(e.getPlayer(),500);
+//                case GOAL -> addMoney(e.getPlayer(),1500);
+//                case CHALLENGE -> addMoney(e.getPlayer(),3000);
+//            }
+//        },1);
+        // 一旦これにする
+        addMoney(e.getPlayer(),500);
     }
 
     record money(EntityType type,int money){
