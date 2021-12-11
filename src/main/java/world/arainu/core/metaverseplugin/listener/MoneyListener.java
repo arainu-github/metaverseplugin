@@ -63,19 +63,19 @@ public class MoneyListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onPlayerAdvancementCriterionGrant(PlayerAdvancementCriterionGrantEvent e){
-        // TODO: バグがあるのですぐに修正
-//        Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> {
-//            switch (Objects.requireNonNull(e.getAdvancement().getDisplay()).frame()){
-//                case TASK -> addMoney(e.getPlayer(),500);
-//                case GOAL -> addMoney(e.getPlayer(),1500);
-//                case CHALLENGE -> addMoney(e.getPlayer(),3000);
-//            }
-//        },1);
-        // 一旦これにする
-        addMoney(e.getPlayer(),500);
-    }
+//    @EventHandler
+//    public void onPlayerAdvancementCriterionGrant(PlayerAdvancementCriterionGrantEvent e){
+//        // TODO: バグがあるのですぐに修正
+////        Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> {
+////            switch (Objects.requireNonNull(e.getAdvancement().getDisplay()).frame()){
+////                case TASK -> addMoney(e.getPlayer(),500);
+////                case GOAL -> addMoney(e.getPlayer(),1500);
+////                case CHALLENGE -> addMoney(e.getPlayer(),3000);
+////            }
+////        },1);
+//        // 一旦これにする
+//        addMoney(e.getPlayer(),500);
+//    }
 
     record money(EntityType type,int money){
     }
