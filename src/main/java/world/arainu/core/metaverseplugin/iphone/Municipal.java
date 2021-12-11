@@ -4,10 +4,13 @@ import github.scarsz.discordsrv.DiscordSRV;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.store.ServerStore;
@@ -39,9 +42,16 @@ public class Municipal extends iPhoneBase {
     }
 
     public void createMunicipal(MenuItem menuItem) {
-        menuItem.getClicker().sendMessage(Component.text("まずはじめに、自治体の区域を設定しましょう。\n手元に")
-                .append(Component.text("自治体作成ブック").color(NamedTextColor.LIGHT_PURPLE).decorate(TextDecoration.BOLD).decorate(TextDecoration.UNDERLINED))
-                .append(Component.text("がインベントリ内にあるのでそこから操作をして区域の始点を設定しましょう。")));
-        menuItem.getClicker().getInventory().addItem(createItemStack());
+        Player player = menuItem.getClicker();
+        Economy econ = MetaversePlugin.getEcon();
+        if(econ.has(player, 2000)) {
+            econ.withdrawPlayer(player, 2000);
+            player.sendMessage(Component.text("まずはじめに、自治体の区域を設定しましょう。\n手元に")
+                    .append(Component.text("自治体作成ブック").color(NamedTextColor.LIGHT_PURPLE).decorate(TextDecoration.BOLD).decorate(TextDecoration.UNDERLINED))
+                    .append(Component.text("がインベントリ内にあるのでそこから操作をして区域の始点を設定しましょう。")));
+            player.getInventory().addItem(createItemStack());
+        } else {
+            ChatUtil.error(player,"作成には2000円必要ですが、あなたにはそこまでお金はありません！\n残高: " + econ.format(econ.getBalance(player)));
+        }
     }
 }
