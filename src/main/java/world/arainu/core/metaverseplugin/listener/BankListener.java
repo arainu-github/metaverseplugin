@@ -49,26 +49,22 @@ public class BankListener implements Listener {
             final int id = e.getRawSlot();
             Inventory inv = e.getInventory();
             switch (id) {
-                case 4 -> {
-                    e.setCancelled(true);
-                    Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
-                        final VillagerListener.ReturnMoney money = VillagerListener.getTotalmoney(inv);
-                        final int total_money = money.total_money();
-                        int required_money = Objects.requireNonNull(BankStore.getGui_hashmap().get(p.getUniqueId()));
-                        if (total_money >= required_money) {
-                            final Economy econ = MetaversePlugin.getEcon();
-                            Bank.addMoneyForPlayer(p, total_money - required_money);
-                            econ.depositPlayer(p, required_money);
-                            ChatUtil.success(p, econ.format(required_money) + "を正常に入金しました。");
-                            gui_hashmap.remove(p.getUniqueId());
-                            BankStore.setGui_hashmap(gui_hashmap);
-                            inv.clear();
-                            inv.close();
-                        }
-                    }, 1L);
-                }
+                case 4 -> Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
+                    final VillagerListener.ReturnMoney money = VillagerListener.getTotalmoney(inv);
+                    final int total_money = money.total_money();
+                    int required_money = Objects.requireNonNull(BankStore.getGui_hashmap().get(p.getUniqueId()));
+                    if (total_money >= required_money) {
+                        final Economy econ = MetaversePlugin.getEcon();
+                        Bank.addMoneyForPlayer(p, total_money - required_money);
+                        econ.depositPlayer(p, required_money);
+                        ChatUtil.success(p, econ.format(required_money) + "を正常に入金しました。");
+                        gui_hashmap.remove(p.getUniqueId());
+                        BankStore.setGui_hashmap(gui_hashmap);
+                        inv.clear();
+                        inv.close();
+                    }
+                }, 1L);
                 case 8 -> {
-                    e.setCancelled(true);
                     final Inventory player_inv = e.getWhoClicked().getInventory();
                     final VillagerListener.ReturnMoney returnMoney = VillagerListener.getTotalmoney(player_inv);
                     for (ItemStack i : returnMoney.money_list()) {

@@ -262,7 +262,7 @@ public class VillagerListener implements Listener {
     /**
      * お金に関するクラス
      */
-    record ReturnMoney(List<ItemStack> money_list, int total_money) {
+    public record ReturnMoney(List<ItemStack> money_list, int total_money) {
     }
 
     /**
