@@ -64,7 +64,7 @@ public class MoneyListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent e){
+    public void onPlayerAdvancementCriterionGrant(PlayerAdvancementCriterionGrantEvent e){
         // TODO: バグがあるのですぐに修正
 //        Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> {
 //            switch (Objects.requireNonNull(e.getAdvancement().getDisplay()).frame()){
