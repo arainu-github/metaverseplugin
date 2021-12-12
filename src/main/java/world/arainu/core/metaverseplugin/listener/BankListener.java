@@ -22,6 +22,7 @@ import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.store.BankStore;
 import world.arainu.core.metaverseplugin.utils.BankNotice;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
+import world.arainu.core.metaverseplugin.utils.SoundUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +51,7 @@ public class BankListener implements Listener {
             Inventory inv = e.getInventory();
             switch (id) {
                 case 4 -> Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
+                    SoundUtil.playClickSound(p);
                     final VillagerListener.ReturnMoney money = VillagerListener.getTotalmoney(inv);
                     final int total_money = money.total_money();
                     int required_money = Objects.requireNonNull(BankStore.getGui_hashmap().get(p.getUniqueId()));
@@ -65,6 +67,7 @@ public class BankListener implements Listener {
                     }
                 }, 1L);
                 case 8 -> {
+                    SoundUtil.playClickSound(p);
                     final Inventory player_inv = e.getWhoClicked().getInventory();
                     final VillagerListener.ReturnMoney returnMoney = VillagerListener.getTotalmoney(player_inv);
                     for (ItemStack i : returnMoney.money_list()) {
@@ -74,10 +77,8 @@ public class BankListener implements Listener {
                     }
                     Bank.addMoneyForInventory(inv, returnMoney.total_money());
                 }
-                default -> {
-                    if (id < 9) e.setCancelled(true);
-                }
             }
+            if (id < 9) e.setCancelled(true);
             if (id != 4) {
                 Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
                     VillagerListener.ReturnMoney money = VillagerListener.getTotalmoney(inv);

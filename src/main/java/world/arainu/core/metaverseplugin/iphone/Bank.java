@@ -117,11 +117,6 @@ public class Bank extends iPhoneBase {
             if(Objects.equals(text, "#")){
                 final Inventory player_inv = player.getInventory();
                 final VillagerListener.ReturnMoney returnMoney = VillagerListener.getTotalmoney(player_inv);
-                for (ItemStack i : returnMoney.money_list()) {
-                    if (Bank.isMoney(i)) {
-                        player_inv.remove(i);
-                    }
-                }
                 text = String.valueOf(returnMoney.total_money());
             }
             int payment_yen = Integer.parseInt(text);
