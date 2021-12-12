@@ -133,7 +133,6 @@ public class LateScheduler extends BukkitRunnable {
         villager_list.addAll(Objects.requireNonNull(sqlUtil.getuuidsbytype(type)));
         villager_list.addAll(Objects.requireNonNull(sqlUtil.getuuidsbytype(type + "-shop")));
         for (UUID uuid : villager_list) {
-            Bukkit.getLogger().info("villager uuid:" + uuid);
             Villager villager = (Villager) Bukkit.getEntity(uuid);
             if (villager != null) {
                 List<MerchantRecipe> recipes = villager.getRecipes();
@@ -181,7 +180,6 @@ public class LateScheduler extends BukkitRunnable {
                     villager.setRecipes(recipes2);
                 }
             }
-            Bukkit.getLogger().info("すべての" + type + "及び" + type + "-shopの価格を変更しました。");
         }
     }
 
