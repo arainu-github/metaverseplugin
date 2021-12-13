@@ -2,8 +2,12 @@ package world.arainu.core.metaverseplugin.listener;
 
 import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -85,7 +89,8 @@ public class MoneyListener implements Listener {
 
     private void addMoney(Player player, int money){
         Economy econ = MetaversePlugin.getEcon();
-        player.sendActionBar(Component.text("+"+econ.format(money)));
+        player.sendActionBar(Component.text("+"+econ.format(money)).color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD).decorate(TextDecoration.UNDERLINED));
         econ.depositPlayer(player,money);
+        player.playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 1, 1f);
     }
 }
