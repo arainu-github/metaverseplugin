@@ -7,9 +7,7 @@ on: [push,pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 16
@@ -30,3 +28,24 @@ jobs:
       with:
         name: target dir
         path: target/*
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: actions/download-artifact@master
+        with:
+          name: jarfile only
+          path: ./
+      - name: deploy file
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.1
+        with:
+          username: ${{ secrets.SSH_USERNAME }}
+          server: ${{ secrets.SSH_SERVER }}
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          local_path: './Metaverseplugin.jar'
+          remote_path: '/home/riku/minecraft/plugins/'
+          args: '-o ConnectTimeout=5'
