@@ -232,10 +232,10 @@ public class VillagerListener implements Listener {
                         .map(itemStack -> itemStack.getItemMeta().getPersistentDataContainer().has(BankStore.getKey(), PersistentDataType.INTEGER))
                         .collect(Collectors.toList());
                 MerchantRecipe recipe = ((MerchantInventory) inv).getSelectedRecipe();
-                if(recipe != null) {
+                if(recipe != null && isMoney.contains(true)) {
                     recipe.setUses(recipe.getUses() - 1);
                     ChatUtil.error(p,"ゲーム内通貨で通常の村人と貿易することはできません！");
-                    e.setCancelled(isMoney.contains(true));
+                    e.setCancelled(true);
                 }
             }
         }
