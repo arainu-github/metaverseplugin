@@ -23,16 +23,12 @@ import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
+import world.arainu.core.metaverseplugin.listener.VillagerListener;
 import world.arainu.core.metaverseplugin.store.BankStore;
 import world.arainu.core.metaverseplugin.utils.BankNotice;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -118,6 +114,11 @@ public class Bank extends iPhoneBase {
 
     private void payment_Complete(Player player, String text, AtomicBoolean complete_flag) {
         try {
+            if(Objects.equals(text, "#")){
+                final Inventory player_inv = player.getInventory();
+                final VillagerListener.ReturnMoney returnMoney = VillagerListener.getTotalmoney(player_inv);
+                text = String.valueOf(returnMoney.total_money());
+            }
             int payment_yen = Integer.parseInt(text);
             if (payment_yen < 0) {
                 throw new NumberFormatException();
@@ -250,7 +251,7 @@ public class Bank extends iPhoneBase {
                 Player player = menuItem.getClicker();
                 CustomForm.Builder builder = CustomForm.builder()
                         .title("お金の入金")
-                        .input("入金する金額を入力", "半角数字で!!!!!")
+                        .input("入金する金額を入力", "全額入金は#と入力")
                         .responseHandler((form, responseData) -> {
                             CustomFormResponse response = form.parseResponse(responseData);
                             if (!response.isCorrect()) ChatUtil.warning(player, "お金の入金を取りやめました。");
@@ -296,7 +297,7 @@ public class Bank extends iPhoneBase {
                         return AnvilGUI.Response.close();
                     })
                     .title("入金する金額を入力")
-                    .text("半角数字で!!!")
+                    .text("全額入金は#と入力")
                     .plugin(MetaversePlugin.getInstance())
                     .open(menuItem.getClicker());
 

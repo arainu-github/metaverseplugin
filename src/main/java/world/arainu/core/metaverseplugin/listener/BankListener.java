@@ -12,7 +12,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -22,6 +21,7 @@ import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.store.BankStore;
 import world.arainu.core.metaverseplugin.utils.BankNotice;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
+import world.arainu.core.metaverseplugin.utils.SoundUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,43 +49,39 @@ public class BankListener implements Listener {
             final int id = e.getRawSlot();
             Inventory inv = e.getInventory();
             switch (id) {
-                case 4 -> {
-                    e.setCancelled(true);
-                    Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
-                        final VillagerListener.ReturnMoney money = VillagerListener.getTotalmoney(inv);
-                        final int total_money = money.getTotal_money();
-                        int required_money = Objects.requireNonNull(BankStore.getGui_hashmap().get(p.getUniqueId()));
-                        if (total_money >= required_money) {
-                            final Economy econ = MetaversePlugin.getEcon();
-                            Bank.addMoneyForPlayer(p, total_money - required_money);
-                            econ.depositPlayer(p, required_money);
-                            ChatUtil.success(p, econ.format(required_money) + "を正常に入金しました。");
-                            gui_hashmap.remove(p.getUniqueId());
-                            BankStore.setGui_hashmap(gui_hashmap);
-                            inv.clear();
-                            inv.close();
-                        }
-                    }, 1L);
-                }
+                case 4 -> Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
+                    SoundUtil.playClickSound(p);
+                    final VillagerListener.ReturnMoney money = VillagerListener.getTotalmoney(inv);
+                    final int total_money = money.total_money();
+                    int required_money = Objects.requireNonNull(BankStore.getGui_hashmap().get(p.getUniqueId()));
+                    if (total_money >= required_money) {
+                        final Economy econ = MetaversePlugin.getEcon();
+                        Bank.addMoneyForPlayer(p, total_money - required_money);
+                        econ.depositPlayer(p, required_money);
+                        ChatUtil.success(p, econ.format(required_money) + "を正常に入金しました。");
+                        gui_hashmap.remove(p.getUniqueId());
+                        BankStore.setGui_hashmap(gui_hashmap);
+                        inv.clear();
+                        inv.close();
+                    }
+                }, 1L);
                 case 8 -> {
-                    e.setCancelled(true);
+                    SoundUtil.playClickSound(p);
                     final Inventory player_inv = e.getWhoClicked().getInventory();
                     final VillagerListener.ReturnMoney returnMoney = VillagerListener.getTotalmoney(player_inv);
-                    for (ItemStack i : returnMoney.getMoney_list()) {
+                    for (ItemStack i : returnMoney.money_list()) {
                         if (Bank.isMoney(i)) {
                             player_inv.remove(i);
                         }
                     }
-                    Bank.addMoneyForInventory(inv, returnMoney.getTotal_money());
-                }
-                default -> {
-                    if (id < 9) e.setCancelled(true);
+                    Bank.addMoneyForInventory(inv, returnMoney.total_money());
                 }
             }
+            if (id < 9) e.setCancelled(true);
             if (id != 4) {
                 Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
                     VillagerListener.ReturnMoney money = VillagerListener.getTotalmoney(inv);
-                    int total = money.getTotal_money();
+                    int total = money.total_money();
                     int required_money = Objects.requireNonNull(BankStore.getGui_hashmap().get(p.getUniqueId()));
                     final ItemStack priceItem = Objects.requireNonNull(inv.getItem(4));
                     final ItemMeta itemMeta = priceItem.getItemMeta();
@@ -151,21 +147,6 @@ public class BankListener implements Listener {
                 ChatUtil.success(e.getPlayer(), i.getPlayerUID() + "があなたへ" + i.getFormatedMoney() + "送金しました。\n所持金は" + econ.format(econ.getBalance(e.getPlayer())) + "です。");
             }
         }
-        HashMap<UUID, Long> login_money_map = BankStore.getLogin_money_map();
-        login_money_map.put(e.getPlayer().getUniqueId(), System.currentTimeMillis() / 1000);
-        BankStore.setLogin_money_map(login_money_map);
-    }
-
-    /**
-     * プレイヤーが退出したときに発火する関数
-     *
-     * @param e イベント
-     */
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent e) {
-        HashMap<UUID, Long> login_money_map = BankStore.getLogin_money_map();
-        login_money_map.remove(e.getPlayer().getUniqueId());
-        BankStore.setLogin_money_map(login_money_map);
     }
 
     /**
