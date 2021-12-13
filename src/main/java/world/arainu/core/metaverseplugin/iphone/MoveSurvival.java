@@ -13,6 +13,8 @@ import java.util.UUID;
 
 /**
  * 公共施設からサバイバルサーバーに戻るボタンを実現するクラス
+ *
+ * @author kumitatepazuru
  */
 public class MoveSurvival extends iPhoneBase {
     /**

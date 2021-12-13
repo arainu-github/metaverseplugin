@@ -19,7 +19,6 @@ public class BankStore {
     @Getter @Setter private static HashMap<UUID, Integer> gui_hashmap = new HashMap<>();
     // TODO: Mysqlに移行
     @Getter @Setter private static HashMap<UUID, List<BankNotice>> remittance_map = new HashMap<>();
-    @Getter @Setter private static HashMap<UUID, Long> login_money_map = new HashMap<>();
     @Getter @Setter private static HashMap<String, Integer> money_late_two_ago = new HashMap<>();
     @Getter @Setter private static HashMap<String, Integer> money_late_yesterday = new HashMap<>();
     @Getter @Setter private static HashMap<String, Integer> money_late = new HashMap<>();

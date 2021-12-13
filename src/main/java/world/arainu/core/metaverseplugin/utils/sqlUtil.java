@@ -57,7 +57,7 @@ public class sqlUtil {
 
     private static void create_uuidtype_table(){
         try {
-            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `uuidtype` ( `uuid` VARCHAR(36) NOT NULL , `type` VARCHAR(20) NOT NULL , PRIMARY KEY (`uuid`)) ");
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `uuidtype` ( `uuid` VARCHAR(36) NOT NULL , `type` VARCHAR(64) NOT NULL , PRIMARY KEY (`uuid`)) ");
             ps.executeUpdate();
         } catch (SQLException e){
             e.printStackTrace();
