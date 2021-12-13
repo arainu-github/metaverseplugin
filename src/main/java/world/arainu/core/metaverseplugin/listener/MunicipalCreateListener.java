@@ -16,6 +16,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.dynmap.DynmapAPI;
+import org.dynmap.markers.AreaMarker;
+import org.dynmap.markers.GenericMarker;
 import org.dynmap.markers.MarkerAPI;
 import org.dynmap.markers.MarkerSet;
 import org.geysermc.cumulus.CustomForm;
@@ -37,6 +39,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 public class MunicipalCreateListener implements Listener {
     @EventHandler
@@ -164,7 +167,12 @@ public class MunicipalCreateListener implements Listener {
         final HashMap<Player, ArrayList<Location>> markerData = ServerStore.getMarkerData();
         double[] X_list = markerData.get(p).stream().map(Location::getX).mapToDouble(b -> b).toArray();
         double[] Z_list = markerData.get(p).stream().map(Location::getZ).mapToDouble(b -> b).toArray();
-        markerSet.createAreaMarker("m"+markerSet.getAreaMarkers().size(),title,false,markerData.get(p).get(0).getWorld().getName(),X_list,Z_list,true);
+        int i = 0;
+        List<String> names = markerSet.getAreaMarkers().stream().map(GenericMarker::getMarkerID).collect(Collectors.toList());
+        while(names.contains("m"+i)){
+            i++;
+        }
+        markerSet.createAreaMarker("m"+i,title,false,markerData.get(p).get(0).getWorld().getName(),X_list,Z_list,true);
         ChatUtil.success(p, "自治体を正常に作成しました。");
         String discordId =  DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(p.getUniqueId());
         ServerListener.getChannel().sendMessage(
