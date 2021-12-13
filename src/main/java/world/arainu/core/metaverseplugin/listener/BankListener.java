@@ -12,7 +12,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -148,21 +147,6 @@ public class BankListener implements Listener {
                 ChatUtil.success(e.getPlayer(), i.getPlayerUID() + "があなたへ" + i.getFormatedMoney() + "送金しました。\n所持金は" + econ.format(econ.getBalance(e.getPlayer())) + "です。");
             }
         }
-        HashMap<UUID, Long> login_money_map = BankStore.getLogin_money_map();
-        login_money_map.put(e.getPlayer().getUniqueId(), System.currentTimeMillis() / 1000);
-        BankStore.setLogin_money_map(login_money_map);
-    }
-
-    /**
-     * プレイヤーが退出したときに発火する関数
-     *
-     * @param e イベント
-     */
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent e) {
-        HashMap<UUID, Long> login_money_map = BankStore.getLogin_money_map();
-        login_money_map.remove(e.getPlayer().getUniqueId());
-        BankStore.setLogin_money_map(login_money_map);
     }
 
     /**
