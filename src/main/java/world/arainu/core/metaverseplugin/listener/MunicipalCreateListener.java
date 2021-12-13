@@ -173,6 +173,8 @@ public class MunicipalCreateListener implements Listener {
             i++;
         }
         markerSet.createAreaMarker("m"+i,title,false,markerData.get(p).get(0).getWorld().getName(),X_list,Z_list,true);
+        markerData.remove(p);
+        ServerStore.setMarkerData(markerData);
         ChatUtil.success(p, "自治体を正常に作成しました。");
         String discordId =  DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(p.getUniqueId());
         ServerListener.getChannel().sendMessage(
