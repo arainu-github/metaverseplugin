@@ -10,8 +10,8 @@ depend:
   - floodgate
   - DiscordSRV
   - AdvancedBan
-  - dynmap
 softdepend:
+  - dynmap
   - Multiverse-Core
 commands:
   worldtp:
