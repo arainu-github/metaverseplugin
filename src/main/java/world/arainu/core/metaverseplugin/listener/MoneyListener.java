@@ -1,15 +1,24 @@
 package world.arainu.core.metaverseplugin.listener;
 
+import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
 import java.util.List;
+import java.util.Objects;
 
 
 public class MoneyListener implements Listener {
@@ -61,26 +70,27 @@ public class MoneyListener implements Listener {
         }
     }
 
-//    @EventHandler
-//    public void onPlayerAdvancementCriterionGrant(PlayerAdvancementCriterionGrantEvent e){
-//        // TODO: バグがあるのですぐに修正
-////        Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> {
-////            switch (Objects.requireNonNull(e.getAdvancement().getDisplay()).frame()){
-////                case TASK -> addMoney(e.getPlayer(),500);
-////                case GOAL -> addMoney(e.getPlayer(),1500);
-////                case CHALLENGE -> addMoney(e.getPlayer(),3000);
-////            }
-////        },1);
-//        // 一旦これにする
-//        addMoney(e.getPlayer(),500);
-//    }
+    @EventHandler
+    public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent e){
+        Advancement advancement = e.getAdvancement();
+        if(advancement.getDisplay() != null) {
+            Bukkit.getLogger().info("done");
+            switch (Objects.requireNonNull(e.getAdvancement().getDisplay()).frame()){
+                case TASK -> addMoney(e.getPlayer(),100);
+                case GOAL -> addMoney(e.getPlayer(),500);
+                case CHALLENGE -> addMoney(e.getPlayer(),1500);
+            }
+            addMoney(e.getPlayer(), 500);
+        }
+    }
 
     record money(EntityType type,int money){
     }
 
     private void addMoney(Player player, int money){
         Economy econ = MetaversePlugin.getEcon();
-        player.sendActionBar(Component.text("+"+econ.format(money)));
+        player.sendActionBar(Component.text("+"+econ.format(money)).color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD).decorate(TextDecoration.UNDERLINED));
         econ.depositPlayer(player,money);
+        player.playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 1, 1f);
     }
 }
