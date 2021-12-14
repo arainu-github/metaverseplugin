@@ -220,7 +220,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                 }
                 case "mob-villager" -> {
                     Villager villager = createVillager("モブ店員", Villager.Profession.FARMER, player);
-                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
+                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]+"-shop");
                     List<MerchantRecipe> recipes = new ArrayList<>();
                     recipes.add(createRecipe2(1000, 5, new ItemStack(Material.AXOLOTL_SPAWN_EGG)));
                     recipes.add(createRecipe2(500, 5, new ItemStack(Material.BEE_SPAWN_EGG)));
@@ -228,7 +228,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     recipes.add(createRecipe2(150, 5, new ItemStack(Material.CHICKEN_SPAWN_EGG)));
                     recipes.add(createRecipe2(150, 5, new ItemStack(Material.COD_SPAWN_EGG)));
                     recipes.add(createRecipe2(150, 5, new ItemStack(Material.COW_SPAWN_EGG)));
-                    recipes.add(createRecipe2(1000, 5, new ItemStack(Material.DOLPHIN_SPAWN_EGG)));
+                    recipes.add(createRecipe2(100000, 5, new ItemStack(Material.DOLPHIN_SPAWN_EGG)));
                     recipes.add(createRecipe2(1000, 5, new ItemStack(Material.DONKEY_SPAWN_EGG)));
                     recipes.add(createRecipe2(500, 5, new ItemStack(Material.FOX_SPAWN_EGG)));
                     recipes.add(createRecipe2(1000, 5, new ItemStack(Material.HORSE_SPAWN_EGG)));
@@ -295,6 +295,6 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
                                       String[] args) {
-        return List.of("mason-villager", "stone-villager", "mason-villager-shop", "stone-villager-shop", "mob-villager");
+        return List.of("mason-villager", "stone-villager", "mason-villager-shop", "stone-villager-shop", "mob-villager","sandstone-villager","sandstone-villager-shop");
     }
 }

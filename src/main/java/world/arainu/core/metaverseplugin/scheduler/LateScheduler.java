@@ -101,7 +101,7 @@ public class LateScheduler extends BukkitRunnable {
                     Arrays.asList(150, 5, 3, Material.CHICKEN_SPAWN_EGG),
                     Arrays.asList(150, 5, 3, Material.COD_SPAWN_EGG),
                     Arrays.asList(150, 5, 3, Material.COW_SPAWN_EGG),
-                    Arrays.asList(1000, 5, 3, Material.DOLPHIN_SPAWN_EGG),
+                    Arrays.asList(100000, 5, 3, Material.DOLPHIN_SPAWN_EGG),
                     Arrays.asList(1000, 5, 3, Material.DONKEY_SPAWN_EGG),
                     Arrays.asList(500, 5, 3, Material.FOX_SPAWN_EGG),
                     Arrays.asList(1000, 5, 3, Material.HORSE_SPAWN_EGG),
