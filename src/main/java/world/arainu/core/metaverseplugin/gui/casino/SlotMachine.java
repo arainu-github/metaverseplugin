@@ -113,9 +113,11 @@ public class SlotMachine implements Listener {
         if (!Gui.isBedrock(player) && !SlotUtil.isSlotStarted) {
             SlotUtil.isSlotStarted = true;
             new AnvilGUI.Builder()
-                    .title("賭ける金額を入力してください。")
+                    .title("賭ける金額を入力")
                     .onClose(p -> ChatUtil.warning(p, "賭ける金額の入力を取りやめました。"))
                     .onComplete(slotMechanic())
+                    .plugin(MetaversePlugin.getInstance())
+                    .text("半角数字で!!!")
                     .open(player);
         }
     }
