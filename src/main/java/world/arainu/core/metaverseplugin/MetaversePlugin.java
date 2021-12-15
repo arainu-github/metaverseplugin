@@ -23,13 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.commands.CommandBase;
 import world.arainu.core.metaverseplugin.commands.CommandSpawn;
 import world.arainu.core.metaverseplugin.commands.CommandWhitelist;
-import world.arainu.core.metaverseplugin.iphone.Bank;
-import world.arainu.core.metaverseplugin.iphone.LinkDiscord;
-import world.arainu.core.metaverseplugin.iphone.MoveSurvival;
-import world.arainu.core.metaverseplugin.iphone.Municipal;
-import world.arainu.core.metaverseplugin.iphone.TrapTower;
-import world.arainu.core.metaverseplugin.iphone.Worldteleport;
-import world.arainu.core.metaverseplugin.iphone.iPhoneEnderDragon;
+import world.arainu.core.metaverseplugin.iphone.*;
 import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
@@ -130,6 +124,7 @@ public final class MetaversePlugin extends JavaPlugin {
         traptowerMeta.lore(Collections.singletonList(Component.text("利用料金 200円/分").color(NamedTextColor.RED)));
         traptowerItem.setItemMeta(traptowerMeta);
         iPhoneStore.addGuiItem(new MenuItem("トラップタワーに行く", new TrapTower()::executeGui, true, traptowerItem), (p) -> !p.getWorld().getName().equals(configuration.getString("world.traptower")) && Objects.equals(ServerStore.getServerName(), "survival"));
+        iPhoneStore.addGuiItem(new MenuItem("自動採掘をする", new Drilling()::executeGui, true, Material.BRICKS), (p) -> !p.getWorld().getName().equals(configuration.getString("world.traptower")) && Objects.equals(ServerStore.getServerName(), "survival"));
         iPhoneStore.addGuiItem(new MenuItem("サバイバルサーバーに戻る", new MoveSurvival()::executeGui, true, Material.GRASS_BLOCK), (p) -> p.getWorld().getName().equals(configuration.getString("world.traptower")));
         iPhoneStore.addGuiItem(new MenuItem("エンドラを復活させる", new iPhoneEnderDragon()::executeGui, true, Material.END_STONE), (p) -> !Gui.isEnderDragonLiving(p) && Gui.isPlayerInEnd(p));
         iPhoneStore.addGuiItem(new MenuItem("自治体", new Municipal()::executeGui, true, Material.END_STONE), (p) -> Objects.equals(ServerStore.getServerName(), "survival"));
@@ -214,7 +209,7 @@ public final class MetaversePlugin extends JavaPlugin {
         FileConfiguration stairsConfig = YamlConfiguration.loadConfiguration(stairsYml);
 
         try {
-            stairsConfig.save(stairsYml);
+            if(!stairsYml.exists()) stairsConfig.save(stairsYml);
         } catch (Exception e) {
             e.printStackTrace();
         }
