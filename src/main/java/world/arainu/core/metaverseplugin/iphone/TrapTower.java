@@ -79,7 +79,7 @@ public class TrapTower extends iPhoneBase {
                         component = component.append(Component.text("トラップタワーからサバイバルサーバーに戻るとチェスト内のアイテムはすべて削除されます。"));
                         component = component.append(Component.text("また、一旦サーバーを抜けると強制的にサバイバルサーバーに転送されます。"));
                         component = component.append(Component.text("\n\n詳しくはこちら: ").color(NamedTextColor.WHITE));
-                        component = component.append(Component.text("https://www.arainu.world/minecraft/survival/public/traptower").decorate(TextDecoration.UNDERLINED).decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN).clickEvent(ClickEvent.openUrl("https://www.arainu.world/minecraft/survival/public/traptower")));
+                        component = component.append(Component.text("https://www.arainu.world/archives/212").decorate(TextDecoration.UNDERLINED).decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN).clickEvent(ClickEvent.openUrl("https://www.arainu.world/minecraft/survival/public/traptower")));
                         player.sendMessage(component);
                         new TrapTowerScheduler(player).runTaskTimer(MetaversePlugin.getInstance(), 0, 1200);
                     } else {
