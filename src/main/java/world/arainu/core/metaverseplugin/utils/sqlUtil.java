@@ -5,6 +5,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.dynmap.utils.Vector3D;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
 import java.io.ByteArrayOutputStream;
@@ -81,7 +82,7 @@ public class sqlUtil {
 
     private static void create_drilling_table(){
         try {
-            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `drilling` ( `uuid` VARCHAR(36) NOT NULL , `block` BLOB NOT NULL, PRIMARY KEY (`uuid`)) ");
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `drilling` ( `uuid` VARCHAR(36) NOT NULL , `x` INT NOT NULL, `y` INT NOT NULL, `z` INT NOT NULL, `blockX` INT NOT NULL, `blockY` INT NOT NULL, `blockZ` INT NOT NULL, PRIMARY KEY (`uuid`)) ");
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -115,7 +116,7 @@ public class sqlUtil {
     public static void setuuidtype(UUID uuid, String type){
         try {
             create_uuidtype_table();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO `uuidtype` (`uuid`, `type`) VALUES('" + uuid + "', '" + type + "')");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO `uuidtype` VALUES('" + uuid + "', '" + type + "')");
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -178,7 +179,7 @@ public class sqlUtil {
     public static void setplayerpos(UUID uuid, Location location){
         try {
             create_playerpos_table();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO `playerpos` (`uuid`, `world`, `x`, `y`, `z`) VALUES('" + uuid + "', '" + location.getWorld().getUID() + "',"+(int) location.getX()+","+(int) location.getY()+","+(int) location.getZ()+")");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO `playerpos` VALUES('" + uuid + "', '" + location.getWorld().getUID() + "',"+(int) location.getX()+","+(int) location.getY()+","+(int) location.getZ()+")");
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -269,7 +270,7 @@ public class sqlUtil {
     public static void addWhitelist(UUID uuid) {
         try {
             create_whitelist_table();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO whitelist (`uuid`) VALUES('" + uuid + "')");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO whitelist VALUES('" + uuid + "')");
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -316,34 +317,44 @@ public class sqlUtil {
         }
     }
 
-    public static Block getDrillingBlock(UUID uuid){
+    public static returnDrilling getDrillingBlock(UUID uuid){
         try {
             create_drilling_table();
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT block FROM `drilling` WHERE `uuid` LIKE '"+uuid+"'");
-            rs.next();
-            InputStream is = rs.getBinaryStream( 1 );
+            ResultSet rs = stmt.executeQuery("SELECT * FROM `drilling` WHERE `uuid` LIKE '"+uuid+"'");
+            rs.first();
+            InputStream is = rs.getBinaryStream( 5 );
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             byte[] bs = new byte[1024];
             int size;
             while( ( size = is.read( bs ) ) != -1 ){
                 baos.write( bs, 0, size );
             }
-            byte[] r = baos.toByteArray();
+
+            Vector3D vector3D = new Vector3D(rs.getInt(2),rs.getInt(3),rs.getInt(4));
+            Block block = SerializationUtils.deserialize(baos.toByteArray());
             rs.close();
             stmt.close();
-            return SerializationUtils.deserialize(r);
+            return new returnDrilling(vector3D,block);
         } catch (SQLException | IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public static void addDrillingBlock(UUID uuid,Block block){
+    record returnDrilling(Vector3D vector3D, Block block){
+    }
+
+    public static void addDrillingBlock(UUID uuid, Vector3D vector3D, Block block){
         try {
             create_drilling_table();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO drilling (`uuid`,`block`) VALUES('" + uuid + "', ?)");
-            ps.setBytes(2, SerializationUtils.serialize((Serializable) block));
+            Location loc = block.getLocation();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO drilling VALUES(?, ?, ?, ?,?)");
+            ps.setString(1, String.valueOf(uuid));
+            ps.setInt(2, (int) vector3D.x);
+            ps.setInt(3, (int) vector3D.y);
+            ps.setInt(4, (int) vector3D.z);
+            ps.setBytes(5, SerializationUtils.serialize((Serializable) block));
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
