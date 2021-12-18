@@ -28,15 +28,15 @@ public class ParticleScheduler extends BukkitRunnable {
                 final double Z = i.y2() - i.y1();
                 final double Y = i.z2() - i.z1();
                 final double r = Math.sqrt(Math.pow(X, 2) + Math.pow(Y, 2) + Math.pow(Z, 2));
-                final double θ = Math.acos(Z / r);
-                double ϕ = Math.signum(Y) * Math.acos(X / Math.sqrt(Math.pow(X, 2) + Math.pow(Y, 2)));
-                if (Double.isNaN(ϕ)) {
-                    ϕ = 0;
+                final double t = Math.acos(Z / r);
+                double f = Math.signum(Y) * Math.acos(X / Math.sqrt(Math.pow(X, 2) + Math.pow(Y, 2)));
+                if (Double.isNaN(f)) {
+                    f = 0;
                 }
                 for (double j = 0; j < r; j += 0.5) {
-                    final double x = i.x1() + j * Math.sin(θ) * Math.cos(ϕ);
-                    final double z = i.z1() + j * Math.sin(θ) * Math.sin(ϕ);
-                    final double y = i.y1() + j * Math.cos(θ);
+                    final double x = i.x1() + j * Math.sin(t) * Math.cos(f);
+                    final double z = i.z1() + j * Math.sin(t) * Math.sin(f);
+                    final double y = i.y1() + j * Math.cos(t);
 //                    Bukkit.getLogger().info("x:"+x+",y:"+y+",z:"+z);
                     i.world().spawnParticle(Particle.END_ROD, i.show_player(), null, x, y, z, 1, 0, 0, 0, 0, null, true);
                 }
