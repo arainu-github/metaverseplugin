@@ -23,11 +23,19 @@ import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.commands.CommandBase;
 import world.arainu.core.metaverseplugin.commands.CommandSpawn;
 import world.arainu.core.metaverseplugin.commands.CommandWhitelist;
-import world.arainu.core.metaverseplugin.iphone.*;
 import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
+import world.arainu.core.metaverseplugin.iphone.Bank;
+import world.arainu.core.metaverseplugin.iphone.Drilling;
+import world.arainu.core.metaverseplugin.iphone.LinkDiscord;
+import world.arainu.core.metaverseplugin.iphone.MoveSurvival;
+import world.arainu.core.metaverseplugin.iphone.Municipal;
+import world.arainu.core.metaverseplugin.iphone.TrapTower;
+import world.arainu.core.metaverseplugin.iphone.Worldteleport;
+import world.arainu.core.metaverseplugin.iphone.iPhoneEnderDragon;
 import world.arainu.core.metaverseplugin.listener.BankListener;
+import world.arainu.core.metaverseplugin.listener.DrillingListener;
 import world.arainu.core.metaverseplugin.listener.MoneyListener;
 import world.arainu.core.metaverseplugin.listener.MunicipalCreateListener;
 import world.arainu.core.metaverseplugin.listener.PublicListener;
@@ -79,7 +87,7 @@ public final class MetaversePlugin extends JavaPlugin {
     private void setScheduler() {
         new LateScheduler().runTaskTimer(this, 0, 20);
         new SqlScheduler().runTaskTimer(this, 0, 20 * 60 * 60);
-        new ParticleScheduler().runTaskTimer(this, 0, 10);
+        new ParticleScheduler().runTaskTimer(this, 0, 2);
         createStairsYml();
     }
 
@@ -145,6 +153,7 @@ public final class MetaversePlugin extends JavaPlugin {
         PM.registerEvents(new CommandWhitelist(), this);
         PM.registerEvents(new MunicipalCreateListener(), this);
         PM.registerEvents(new MoneyListener(), this);
+        PM.registerEvents(new DrillingListener(), this);
         DiscordSRV.api.subscribe(this);
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     }

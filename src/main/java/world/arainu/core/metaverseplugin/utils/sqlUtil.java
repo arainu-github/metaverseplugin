@@ -1,10 +1,16 @@
 package world.arainu.core.metaverseplugin.utils;
 
 import lombok.Getter;
+import org.apache.commons.lang3.SerializationUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -67,6 +73,15 @@ public class sqlUtil {
     private static void create_playerpos_table(){
         try {
             PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `playerpos` ( `uuid` VARCHAR(36) NOT NULL ,  `world` VARCHAR(36) NOT NULL , `x` INT NOT NULL , `y` SMALLINT NOT NULL ,`z` INT NOT NULL ,PRIMARY KEY (`uuid`)) ");
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void create_drilling_table(){
+        try {
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `drilling` ( `uuid` VARCHAR(36) NOT NULL , `block` BLOB NOT NULL, PRIMARY KEY (`uuid`)) ");
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -298,6 +313,52 @@ public class sqlUtil {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public static Block getDrillingBlock(UUID uuid){
+        try {
+            create_drilling_table();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT block FROM `drilling` WHERE `uuid` LIKE '"+uuid+"'");
+            rs.next();
+            InputStream is = rs.getBinaryStream( 1 );
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] bs = new byte[1024];
+            int size;
+            while( ( size = is.read( bs ) ) != -1 ){
+                baos.write( bs, 0, size );
+            }
+            byte[] r = baos.toByteArray();
+            rs.close();
+            stmt.close();
+            return SerializationUtils.deserialize(r);
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void addDrillingBlock(UUID uuid,Block block){
+        try {
+            create_drilling_table();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO drilling (`uuid`,`block`) VALUES('" + uuid + "', ?)");
+            ps.setBytes(2, SerializationUtils.serialize((Serializable) block));
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void removeDrillingBlock(UUID uuid) {
+        try {
+            create_drilling_table();
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM drilling WHERE uuid LIKE '" + uuid + "'");
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
