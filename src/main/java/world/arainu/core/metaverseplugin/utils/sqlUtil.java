@@ -18,7 +18,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * sql関係の便利関数を集めているクラス
@@ -334,26 +338,6 @@ public class sqlUtil {
         }
     }
 
-//    public static returnDrilling getDrillingBlock(Location location) {
-//        try {
-//            create_drilling_table();
-//            PreparedStatement ps = conn.prepareStatement("SELECT * FROM `drilling` WHERE `location` LIKE ?");
-//            ps.setBytes(1,SerializationUtils.serialize((Serializable) location));
-//            ResultSet rs = ps.executeQuery();
-//            rs.first();
-//            UUID uuid = UUID.fromString(rs.getString(2));
-//            Vector3D vector3D = new Vector3D(rs.getInt(3), rs.getInt(4), rs.getInt(5));
-//            ItemStack pickaxe = getBinary(rs,6);
-//            ItemStack shovel = getBinary(rs,7);
-//            rs.close();
-//            ps.close();
-//            return new returnDrilling(uuid,vector3D,pickaxe, shovel);
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
-
     public static List<Location> getDrillingBlocks() {
         try {
             create_drilling_table();
@@ -379,12 +363,6 @@ public class sqlUtil {
             create_drilling_table();
             PreparedStatement ps = conn.prepareStatement("INSERT INTO drilling VALUES(?)");
             ps.setBytes(1, SerializationUtils.serialize((Serializable) location.serialize()));
-//            ps.setString(2, String.valueOf(uuid));
-//            ps.setInt(3, (int) vector3D.x);
-//            ps.setInt(4, (int) vector3D.y);
-//            ps.setInt(5, (int) vector3D.z);
-//            ps.setBytes(6, SerializationUtils.serialize((Serializable) pickaxe));
-//            ps.setBytes(7, SerializationUtils.serialize((Serializable) shovel));
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
