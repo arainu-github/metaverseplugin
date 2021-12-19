@@ -1,10 +1,10 @@
 package world.arainu.core.metaverseplugin.utils;
 
 import lombok.Getter;
-import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang.SerializationUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
+import org.bukkit.inventory.ItemStack;
 import org.dynmap.utils.Vector3D;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
@@ -18,9 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * sql関係の便利関数を集めているクラス
@@ -82,7 +80,7 @@ public class sqlUtil {
 
     private static void create_drilling_table() {
         try {
-            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `drilling` ( `uuid` VARCHAR(36) NOT NULL , `x` INT NOT NULL, `y` INT NOT NULL, `z` INT NOT NULL, `blockX` INT NOT NULL, `blockY` INT NOT NULL, `blockZ` INT NOT NULL, PRIMARY KEY (`uuid`)) ");
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `drilling` ( `location` BLOB NOT NULL) ");
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -320,43 +318,73 @@ public class sqlUtil {
         }
     }
 
-    public static returnDrilling getDrillingBlock(UUID uuid) {
+    private static Object getBinary(ResultSet rs, int index) {
         try {
-            create_drilling_table();
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM `drilling` WHERE `uuid` LIKE '" + uuid + "'");
-            rs.first();
-            InputStream is = rs.getBinaryStream(5);
+            InputStream is = rs.getBinaryStream(index);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             byte[] bs = new byte[1024];
             int size;
             while ((size = is.read(bs)) != -1) {
                 baos.write(bs, 0, size);
             }
-
-            Vector3D vector3D = new Vector3D(rs.getInt(2), rs.getInt(3), rs.getInt(4));
-            Block block = SerializationUtils.deserialize(baos.toByteArray());
-            rs.close();
-            stmt.close();
-            return new returnDrilling(vector3D, block);
+            return SerializationUtils.deserialize(baos.toByteArray());
         } catch (SQLException | IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    record returnDrilling(Vector3D vector3D, Block block) {
-    }
+//    public static returnDrilling getDrillingBlock(Location location) {
+//        try {
+//            create_drilling_table();
+//            PreparedStatement ps = conn.prepareStatement("SELECT * FROM `drilling` WHERE `location` LIKE ?");
+//            ps.setBytes(1,SerializationUtils.serialize((Serializable) location));
+//            ResultSet rs = ps.executeQuery();
+//            rs.first();
+//            UUID uuid = UUID.fromString(rs.getString(2));
+//            Vector3D vector3D = new Vector3D(rs.getInt(3), rs.getInt(4), rs.getInt(5));
+//            ItemStack pickaxe = getBinary(rs,6);
+//            ItemStack shovel = getBinary(rs,7);
+//            rs.close();
+//            ps.close();
+//            return new returnDrilling(uuid,vector3D,pickaxe, shovel);
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
 
-    public static void addDrillingBlock(UUID uuid, Vector3D vector3D, Block block) {
+    public static List<Location> getDrillingBlocks() {
         try {
             create_drilling_table();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO drilling VALUES(?, ?, ?, ?,?)");
-            ps.setString(1, String.valueOf(uuid));
-            ps.setInt(2, (int) vector3D.x);
-            ps.setInt(3, (int) vector3D.y);
-            ps.setInt(4, (int) vector3D.z);
-            ps.setBytes(5, SerializationUtils.serialize((Serializable) block));
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM `drilling`");
+            ResultSet rs = ps.executeQuery();
+            List<Location> r = new ArrayList<>();
+            while (rs.next())
+                r.add(Location.deserialize(Objects.requireNonNull((HashMap<String, Object>) getBinary(rs, 1))));
+            rs.close();
+            ps.close();
+            return r;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    record returnDrilling(UUID uuid, Vector3D vector3D, ItemStack pickaxe, ItemStack shovel) {
+    }
+
+    public static void addDrillingBlock(Location location) {
+        try {
+            create_drilling_table();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO drilling VALUES(?)");
+            ps.setBytes(1, SerializationUtils.serialize((Serializable) location.serialize()));
+//            ps.setString(2, String.valueOf(uuid));
+//            ps.setInt(3, (int) vector3D.x);
+//            ps.setInt(4, (int) vector3D.y);
+//            ps.setInt(5, (int) vector3D.z);
+//            ps.setBytes(6, SerializationUtils.serialize((Serializable) pickaxe));
+//            ps.setBytes(7, SerializationUtils.serialize((Serializable) shovel));
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -364,10 +392,11 @@ public class sqlUtil {
         }
     }
 
-    public static void removeDrillingBlock(UUID uuid) {
+    public static void removeDrillingBlock(Location location) {
         try {
             create_drilling_table();
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM drilling WHERE uuid LIKE '" + uuid + "'");
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM `drilling` WHERE `location` LIKE ?");
+            ps.setBytes(1, SerializationUtils.serialize((Serializable) location.serialize()));
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {

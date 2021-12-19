@@ -80,7 +80,6 @@ public class MoneyListener implements Listener {
                 case GOAL -> addMoney(e.getPlayer(),500);
                 case CHALLENGE -> addMoney(e.getPlayer(),1500);
             }
-            addMoney(e.getPlayer(), 500);
         }
     }
 

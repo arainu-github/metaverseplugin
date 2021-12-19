@@ -75,13 +75,13 @@ public final class MetaversePlugin extends JavaPlugin {
         configuration = getConfig();
         getLogger().info("メタバースプラグインが有効になりました。");
         Instance = this;
+        sqlUtil.connect();
+        ServerStore.setServerName(configuration.getString("servername"));
         loadCommands();
-        setListener();
         loadGuis();
         EnablePlugins();
+        setListener();
         setScheduler();
-        ServerStore.setServerName(configuration.getString("servername"));
-        sqlUtil.connect();
     }
 
     private void setScheduler() {

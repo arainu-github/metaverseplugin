@@ -33,7 +33,7 @@ public class ParticleScheduler extends BukkitRunnable {
                 if (Double.isNaN(f)) {
                     f = 0;
                 }
-                for (double j = 0; j < r; j += 0.5) {
+                for (double j = 0; j < r+0.5; j += 0.5) {
                     final double x = i.x1() + j * Math.sin(t) * Math.cos(f);
                     final double z = i.z1() + j * Math.sin(t) * Math.sin(f);
                     final double y = i.y1() + j * Math.cos(t);
