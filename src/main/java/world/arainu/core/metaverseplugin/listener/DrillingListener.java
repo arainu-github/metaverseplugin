@@ -24,6 +24,7 @@ import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.iphone.Drilling;
 import world.arainu.core.metaverseplugin.scheduler.DrillingScheduler;
 import world.arainu.core.metaverseplugin.scheduler.ParticleScheduler;
+import world.arainu.core.metaverseplugin.utils.ChatUtil;
 import world.arainu.core.metaverseplugin.utils.ParticleUtil;
 import world.arainu.core.metaverseplugin.utils.SoundUtil;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
@@ -77,6 +78,7 @@ public class DrillingListener implements Listener {
             e.getBlockPlaced().setMetadata("metaverse-drilling__vector", new FixedMetadataValue(MetaversePlugin.getInstance(), vector3D));
             e.getBlockPlaced().setMetadata("metaverse-drilling__pickaxe", new FixedMetadataValue(MetaversePlugin.getInstance(), air));
             e.getBlockPlaced().setMetadata("metaverse-drilling__shovel", new FixedMetadataValue(MetaversePlugin.getInstance(), air));
+            e.getBlockPlaced().setMetadata("metaverse-drilling__vector2", new FixedMetadataValue(MetaversePlugin.getInstance(), new Vector3D(0,0,0)));
             createCube(e.getBlockPlaced(), vector3D);
         }
     }
@@ -247,6 +249,9 @@ public class DrillingListener implements Listener {
             case 13 -> {
                 e.setCancelled(false);
                 Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> {
+                    if(drillingTaskMap.containsKey(block)){
+                        drillingTaskMap.get(block).cancel();
+                    }
                     ItemStack item = e.getInventory().getItem(13);
                     if(item == null){
                         item = new ItemStack(Material.AIR);
@@ -258,6 +263,9 @@ public class DrillingListener implements Listener {
             case 14 -> {
                 e.setCancelled(false);
                 Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> {
+                    if(drillingTaskMap.containsKey(block)){
+                        drillingTaskMap.get(block).cancel();
+                    }
                     ItemStack item = e.getInventory().getItem(14);
                     if(item == null){
                         item = new ItemStack(Material.AIR);
@@ -271,18 +279,28 @@ public class DrillingListener implements Listener {
                         boolean ok = true;
                         final Vector3D pos;
                         if (drillingTaskMap.containsKey(block)) {
-                            if (drillingTaskMap.get(block).ended == 0) {
-                                ok = false;
-                            } else if(drillingTaskMap.get(block).ended == 2){
-                                r.cancel();
+                            switch (drillingTaskMap.get(block).ended) {
+                                case 0 -> ok = false;
+                                case 2 -> {
+                                    ParticleScheduler.removeQueue(particleDrillingMap.get(block));
+                                    particleDrillingMap.remove(block);
+                                    ChatUtil.success(p, "採掘が正常に完了しました。");
+                                    drillingTaskMap.remove(block);
+                                    ok = false;
+                                    r.cancel();
+                                }
+                                case 3 -> {
+                                    ParticleScheduler.removeQueue(particleDrillingMap.get(block));
+                                    particleDrillingMap.remove(block);
+                                    ChatUtil.warning(p, "採掘を一時停止しました。");
+                                    drillingTaskMap.remove(block);
+                                    ok = false;
+                                    r.cancel();
+                                }
                             }
-                            pos = drillingTaskMap.get(block).getVector3D();
-                        }else {
-                            pos = new Vector3D(0,0,0);
                         }
-//                            Bukkit.getLogger().info(String.valueOf(ok));
+                        pos = Objects.requireNonNull((Vector3D) block.getMetadata("metaverse-drilling__vector2").get(0).value());
                         if(ok){
-
                             final ItemStack pickaxe = (ItemStack) block.getMetadata("metaverse-drilling__pickaxe").get(0).value();
                             final ItemStack shovel = (ItemStack) block.getMetadata("metaverse-drilling__shovel").get(0).value();
 
