@@ -1,5 +1,13 @@
 package world.arainu.core.metaverseplugin.listener;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.flags.Flags;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
+import com.sk89q.worldguard.protection.regions.RegionQuery;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -299,52 +307,71 @@ public class DrillingListener implements Listener {
                                 }
                             }
                         }
+
                         pos = Objects.requireNonNull((Vector3D) block.getMetadata("metaverse-drilling__vector2").get(0).value());
-                        if(ok){
-                            final ItemStack pickaxe = (ItemStack) block.getMetadata("metaverse-drilling__pickaxe").get(0).value();
-                            final ItemStack shovel = (ItemStack) block.getMetadata("metaverse-drilling__shovel").get(0).value();
-
-                            if (pos.x > vector3D.x-1) {
-                                pos.x = 0;
-                                pos.z++;
-                            }
-                            if (pos.z > vector3D.z-1) {
-                                pos.z = 0;
-                                pos.y++;
-                            }
-                            final Location location = block.getLocation();
-                            location.add(pos.x+1,pos.y,pos.z);
-                            final Block nextBlock = block.getWorld().getBlockAt(location);
-                            final ItemStack useTool;
-                            if(nextBlock.isPreferredTool(Objects.requireNonNull(pickaxe))){
-                                useTool = pickaxe;
-                            } else if(nextBlock.isPreferredTool(Objects.requireNonNull(shovel))){
-                                useTool = shovel;
-                            } else {
-                                useTool = new ItemStack(Material.AIR);
-                            }
-                            double multiply = 5;
-                            if(nextBlock.isValidTool(useTool)){
-                                multiply = 1.5;
-                            }
-                            final int delay;
-                            if(nextBlock.getType().getHardness()*30<=nextBlock.getDestroySpeed(useTool)){
-                                delay = 0;
-                            } else {
-                                delay = (int) (nextBlock.getType().getHardness()*multiply/nextBlock.getDestroySpeed(useTool)*20+6);
-                            }
-
+                        if (pos.x > vector3D.x-1) {
+                            pos.x = 0;
+                            pos.z++;
+                        }
+                        if (pos.z > vector3D.z-1) {
+                            pos.z = 0;
+                            pos.y++;
+                        }
+                        if (pos.y > vector3D.y-1) {
                             ParticleScheduler.removeQueue(particleDrillingMap.get(block));
                             particleDrillingMap.remove(block);
-                            final ParticleUtil particleUtil = new ParticleUtil();
-                            particleUtil.addBlockLine(nextBlock,null);
-                            ParticleScheduler.addQueue(particleUtil);
-                            particleDrillingMap.put(block,particleUtil);
-
-                            DrillingScheduler newTask = new DrillingScheduler(block, p, vector3D);
-                            newTask.runTaskLater(MetaversePlugin.getInstance(), delay);
+                            ChatUtil.success(p, "採掘が正常に完了しました。");
                             drillingTaskMap.remove(block);
-                            drillingTaskMap.put(block, newTask);
+                            ok = false;
+                            r.cancel();
+                        }
+                        if(ok){
+                            ParticleScheduler.removeQueue(particleDrillingMap.get(block));
+                            particleDrillingMap.remove(block);
+                            final ItemStack pickaxe = (ItemStack) block.getMetadata("metaverse-drilling__pickaxe").get(0).value();
+                            final ItemStack shovel = (ItemStack) block.getMetadata("metaverse-drilling__shovel").get(0).value();
+                            final Location location = block.getLocation();
+                            location.add(pos.x+1,pos.y,pos.z);
+
+                            LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
+                            RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+                            RegionQuery query = container.createQuery();
+                            final StateFlag.State canBreak = query.queryState(BukkitAdapter.adapt(location), localPlayer, Flags.BLOCK_BREAK);
+
+                            if (canBreak == StateFlag.State.DENY && !p.isOp()) {
+                                ChatUtil.warning(p,"保護区域のため、X:"+location.getBlockX()+",Y:"+location.getBlockY()+",Z:"+location.getBlockZ()+"の採掘ができませんでした。");
+                                pos.x++;
+                            } else {
+                                final Block nextBlock = block.getWorld().getBlockAt(location);
+                                final ItemStack useTool;
+                                if(nextBlock.isPreferredTool(Objects.requireNonNull(pickaxe))){
+                                    useTool = pickaxe;
+                                } else if(nextBlock.isPreferredTool(Objects.requireNonNull(shovel))){
+                                    useTool = shovel;
+                                } else {
+                                    useTool = new ItemStack(Material.AIR);
+                                }
+                                double multiply = 5;
+                                if(nextBlock.isValidTool(useTool)){
+                                    multiply = 1.5;
+                                }
+                                final int delay;
+                                if(nextBlock.getType().getHardness()*30<=nextBlock.getDestroySpeed(useTool)){
+                                    delay = 0;
+                                } else {
+                                    delay = (int) (nextBlock.getType().getHardness()*multiply/nextBlock.getDestroySpeed(useTool)*20+6);
+                                }
+
+                                final ParticleUtil particleUtil = new ParticleUtil();
+                                particleUtil.addBlockLine(nextBlock,null);
+                                ParticleScheduler.addQueue(particleUtil);
+                                particleDrillingMap.put(block,particleUtil);
+
+                                DrillingScheduler newTask = new DrillingScheduler(block, vector3D);
+                                newTask.runTaskLater(MetaversePlugin.getInstance(), delay);
+                                drillingTaskMap.remove(block);
+                                drillingTaskMap.put(block, newTask);
+                            }
                         }
                     }, 0, 1);
             default -> {
