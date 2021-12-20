@@ -11,6 +11,7 @@ depend:
   - DiscordSRV
   - AdvancedBan
   - dynmap
+  - WorldGuard
 softdepend:
   - Multiverse-Core
 commands:

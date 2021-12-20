@@ -341,7 +341,7 @@ public class DrillingListener implements Listener {
                             ParticleScheduler.addQueue(particleUtil);
                             particleDrillingMap.put(block,particleUtil);
 
-                            DrillingScheduler newTask = new DrillingScheduler(block, pos, vector3D);
+                            DrillingScheduler newTask = new DrillingScheduler(block, p, vector3D);
                             newTask.runTaskLater(MetaversePlugin.getInstance(), delay);
                             drillingTaskMap.remove(block);
                             drillingTaskMap.put(block, newTask);
