@@ -37,7 +37,6 @@ public class ParticleScheduler extends BukkitRunnable {
                     final double x = i.x1() + j * Math.sin(t) * Math.cos(f);
                     final double z = i.z1() + j * Math.sin(t) * Math.sin(f);
                     final double y = i.y1() + j * Math.cos(t);
-//                    Bukkit.getLogger().info("x:"+x+",y:"+y+",z:"+z);
                     i.world().spawnParticle(Particle.END_ROD, i.show_player(), null, x, y, z, 1, 0, 0, 0, 0, null, true);
                 }
             }
