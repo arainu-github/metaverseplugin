@@ -163,21 +163,28 @@ public class DrillingListener implements Listener {
         itemMeta = descriptionPaper1.getItemMeta();
         itemMeta.displayName(Component.text("下に採掘時に使用するシャベルを入れてください。"));
         descriptionPaper1.setItemMeta(itemMeta);
-        inv.setItem(5, descriptionPaper1);
-        inv.setItem(14, shovel);
+        inv.setItem(6, descriptionPaper1);
+        inv.setItem(15, shovel);
 
         final ItemStack descriptionPaper2 = new ItemStack(Material.PAPER);
         itemMeta = descriptionPaper2.getItemMeta();
         itemMeta.displayName(Component.text("下に採掘時に使用するツルハシを入れてください。"));
         descriptionPaper2.setItemMeta(itemMeta);
-        inv.setItem(4, descriptionPaper2);
-        inv.setItem(13, pickaxe);
+        inv.setItem(5, descriptionPaper2);
+        inv.setItem(14, pickaxe);
 
-        final ItemStack startButton = new ItemStack(Material.REDSTONE);
-        itemMeta = startButton.getItemMeta();
-        itemMeta.displayName(Component.text("採掘を開始する").color(NamedTextColor.GREEN));
+        final ItemStack startButton;
+        if(drillingTaskMap.containsKey(block)){
+            startButton = new ItemStack(Material.BARRIER);
+            itemMeta = startButton.getItemMeta();
+            itemMeta.displayName(Component.text("採掘を停止する").color(NamedTextColor.RED));
+        } else {
+            startButton = new ItemStack(Material.REDSTONE);
+            itemMeta = startButton.getItemMeta();
+            itemMeta.displayName(Component.text("採掘を開始する").color(NamedTextColor.GREEN));
+        }
         startButton.setItemMeta(itemMeta);
-        inv.setItem(15, new ItemStack(startButton));
+        inv.setItem(16, new ItemStack(startButton));
 //        Economy econ = MetaversePlugin.getEcon();
 //        final int drillingAmount = (int) (vector3D.x * vector3D.y * vector3D.z);
         ParticleScheduler.removeQueue(particleMap.get(block));
@@ -254,20 +261,6 @@ public class DrillingListener implements Listener {
                     SoundUtil.playClickSound(p);
                 }
             }
-            case 13 -> {
-                e.setCancelled(false);
-                Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> {
-                    if(drillingTaskMap.containsKey(block)){
-                        drillingTaskMap.get(block).cancel();
-                    }
-                    ItemStack item = e.getInventory().getItem(13);
-                    if(item == null){
-                        item = new ItemStack(Material.AIR);
-                    }
-                    block.removeMetadata("metaverse-drilling__pickaxe", MetaversePlugin.getInstance());
-                    block.setMetadata("metaverse-drilling__pickaxe",new FixedMetadataValue(MetaversePlugin.getInstance(),item));
-                },1);
-            }
             case 14 -> {
                 e.setCancelled(false);
                 Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> {
@@ -278,18 +271,68 @@ public class DrillingListener implements Listener {
                     if(item == null){
                         item = new ItemStack(Material.AIR);
                     }
+                    block.removeMetadata("metaverse-drilling__pickaxe", MetaversePlugin.getInstance());
+                    block.setMetadata("metaverse-drilling__pickaxe",new FixedMetadataValue(MetaversePlugin.getInstance(),item));
+                },1);
+            }
+            case 15 -> {
+                e.setCancelled(false);
+                Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> {
+                    if(drillingTaskMap.containsKey(block)){
+                        drillingTaskMap.get(block).cancel();
+                    }
+                    ItemStack item = e.getInventory().getItem(15);
+                    if(item == null){
+                        item = new ItemStack(Material.AIR);
+                    }
                     block.removeMetadata("metaverse-drilling__shovel", MetaversePlugin.getInstance());
                     block.setMetadata("metaverse-drilling__shovel",new FixedMetadataValue(MetaversePlugin.getInstance(),item));
                 },1);
                 }
-            case 15 -> Bukkit.getScheduler().runTaskTimer(MetaversePlugin.getInstance(),
-                    (r) -> {
-                        boolean ok = true;
-                        final Vector3D pos;
-                        if (drillingTaskMap.containsKey(block)) {
-                            switch (drillingTaskMap.get(block).ended) {
-                                case 0 -> ok = false;
-                                case 2 -> {
+            case 16 -> {
+                e.getInventory().close();
+                SoundUtil.playClickSound(p);
+                if(drillingTaskMap.containsKey(block)){
+                    drillingTaskMap.get(block).ended = 3;
+                } else {
+                    ChatUtil.success(p, "採掘を開始しました。");
+                    invList.remove(e.getInventory());
+                    Bukkit.getScheduler().runTaskTimer(MetaversePlugin.getInstance(),
+                            (r) -> {
+                                boolean ok = true;
+                                final Vector3D pos;
+                                if (drillingTaskMap.containsKey(block)) {
+                                    switch (drillingTaskMap.get(block).ended) {
+                                        case 0 -> ok = false;
+                                        case 2 -> {
+                                            ParticleScheduler.removeQueue(particleDrillingMap.get(block));
+                                            particleDrillingMap.remove(block);
+                                            ChatUtil.success(p, "採掘が正常に完了しました。");
+                                            drillingTaskMap.remove(block);
+                                            ok = false;
+                                            r.cancel();
+                                        }
+                                        case 3 -> {
+                                            ParticleScheduler.removeQueue(particleDrillingMap.get(block));
+                                            particleDrillingMap.remove(block);
+                                            ChatUtil.warning(p, "採掘を一時停止しました。");
+                                            drillingTaskMap.remove(block);
+                                            ok = false;
+                                            r.cancel();
+                                        }
+                                    }
+                                }
+
+                                pos = Objects.requireNonNull((Vector3D) block.getMetadata("metaverse-drilling__vector2").get(0).value());
+                                if (pos.x > vector3D.x - 1) {
+                                    pos.x = 0;
+                                    pos.z++;
+                                }
+                                if (pos.z > vector3D.z - 1) {
+                                    pos.z = 0;
+                                    pos.y++;
+                                }
+                                if (pos.y > vector3D.y - 1) {
                                     ParticleScheduler.removeQueue(particleDrillingMap.get(block));
                                     particleDrillingMap.remove(block);
                                     ChatUtil.success(p, "採掘が正常に完了しました。");
@@ -297,85 +340,59 @@ public class DrillingListener implements Listener {
                                     ok = false;
                                     r.cancel();
                                 }
-                                case 3 -> {
+                                if (ok) {
                                     ParticleScheduler.removeQueue(particleDrillingMap.get(block));
                                     particleDrillingMap.remove(block);
-                                    ChatUtil.warning(p, "採掘を一時停止しました。");
-                                    drillingTaskMap.remove(block);
-                                    ok = false;
-                                    r.cancel();
+                                    final ItemStack pickaxe = (ItemStack) block.getMetadata("metaverse-drilling__pickaxe").get(0).value();
+                                    final ItemStack shovel = (ItemStack) block.getMetadata("metaverse-drilling__shovel").get(0).value();
+                                    final Location location = block.getLocation();
+                                    location.add(pos.x + 1, pos.y, pos.z);
+
+                                    LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
+                                    RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+                                    RegionQuery query = container.createQuery();
+                                    final StateFlag.State canBreak = query.queryState(BukkitAdapter.adapt(location), localPlayer, Flags.BLOCK_BREAK);
+
+                                    if (canBreak == StateFlag.State.DENY && !p.isOp()) {
+                                        ChatUtil.warning(p, "保護区域のため、X:" + location.getBlockX() + ",Y:" + location.getBlockY() + ",Z:" + location.getBlockZ() + "の採掘ができませんでした。");
+                                        pos.x++;
+                                    } else {
+                                        final Block nextBlock = block.getWorld().getBlockAt(location);
+                                        final ItemStack useTool;
+                                        if (nextBlock.isPreferredTool(Objects.requireNonNull(pickaxe)) && pickaxe.getType() != Material.AIR) {
+                                            useTool = pickaxe;
+                                            Bukkit.getLogger().info("pickaxe");
+                                        } else if (nextBlock.isPreferredTool(Objects.requireNonNull(shovel))) {
+                                            useTool = shovel;
+                                            Bukkit.getLogger().info("shovel");
+                                        } else {
+                                            useTool = new ItemStack(Material.AIR);
+                                        }
+                                        double multiply = 5;
+                                        if (nextBlock.isValidTool(useTool)) {
+                                            multiply = 1.5;
+                                        }
+                                        final int delay;
+                                        if (nextBlock.getType().getHardness() * 30 <= nextBlock.getDestroySpeed(useTool)) {
+                                            delay = 0;
+                                        } else {
+                                            delay = (int) (nextBlock.getType().getHardness() * multiply / nextBlock.getDestroySpeed(useTool) * 20 + 6);
+                                        }
+
+                                        final ParticleUtil particleUtil = new ParticleUtil();
+                                        particleUtil.addBlockLine(nextBlock, null);
+                                        ParticleScheduler.addQueue(particleUtil);
+                                        particleDrillingMap.put(block, particleUtil);
+
+                                        DrillingScheduler newTask = new DrillingScheduler(block, vector3D);
+                                        newTask.runTaskLater(MetaversePlugin.getInstance(), delay);
+                                        drillingTaskMap.remove(block);
+                                        drillingTaskMap.put(block, newTask);
+                                    }
                                 }
-                            }
-                        }
-
-                        pos = Objects.requireNonNull((Vector3D) block.getMetadata("metaverse-drilling__vector2").get(0).value());
-                        if (pos.x > vector3D.x-1) {
-                            pos.x = 0;
-                            pos.z++;
-                        }
-                        if (pos.z > vector3D.z-1) {
-                            pos.z = 0;
-                            pos.y++;
-                        }
-                        if (pos.y > vector3D.y-1) {
-                            ParticleScheduler.removeQueue(particleDrillingMap.get(block));
-                            particleDrillingMap.remove(block);
-                            ChatUtil.success(p, "採掘が正常に完了しました。");
-                            drillingTaskMap.remove(block);
-                            ok = false;
-                            r.cancel();
-                        }
-                        if(ok){
-                            ParticleScheduler.removeQueue(particleDrillingMap.get(block));
-                            particleDrillingMap.remove(block);
-                            final ItemStack pickaxe = (ItemStack) block.getMetadata("metaverse-drilling__pickaxe").get(0).value();
-                            final ItemStack shovel = (ItemStack) block.getMetadata("metaverse-drilling__shovel").get(0).value();
-                            final Location location = block.getLocation();
-                            location.add(pos.x+1,pos.y,pos.z);
-
-                            LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
-                            RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-                            RegionQuery query = container.createQuery();
-                            final StateFlag.State canBreak = query.queryState(BukkitAdapter.adapt(location), localPlayer, Flags.BLOCK_BREAK);
-
-                            if (canBreak == StateFlag.State.DENY && !p.isOp()) {
-                                ChatUtil.warning(p,"保護区域のため、X:"+location.getBlockX()+",Y:"+location.getBlockY()+",Z:"+location.getBlockZ()+"の採掘ができませんでした。");
-                                pos.x++;
-                            } else {
-                                final Block nextBlock = block.getWorld().getBlockAt(location);
-                                final ItemStack useTool;
-                                if(nextBlock.isPreferredTool(Objects.requireNonNull(pickaxe)) && pickaxe.getType() != Material.AIR){
-                                    useTool = pickaxe;
-                                    Bukkit.getLogger().info("pickaxe");
-                                } else if(nextBlock.isPreferredTool(Objects.requireNonNull(shovel))){
-                                    useTool = shovel;
-                                    Bukkit.getLogger().info("shovel");
-                                } else {
-                                    useTool = new ItemStack(Material.AIR);
-                                }
-                                double multiply = 5;
-                                if(nextBlock.isValidTool(useTool)){
-                                    multiply = 1.5;
-                                }
-                                final int delay;
-                                if(nextBlock.getType().getHardness()*30<=nextBlock.getDestroySpeed(useTool)){
-                                    delay = 0;
-                                } else {
-                                    delay = (int) (nextBlock.getType().getHardness()*multiply/nextBlock.getDestroySpeed(useTool)*20+6);
-                                }
-
-                                final ParticleUtil particleUtil = new ParticleUtil();
-                                particleUtil.addBlockLine(nextBlock,null);
-                                ParticleScheduler.addQueue(particleUtil);
-                                particleDrillingMap.put(block,particleUtil);
-
-                                DrillingScheduler newTask = new DrillingScheduler(block, vector3D);
-                                newTask.runTaskLater(MetaversePlugin.getInstance(), delay);
-                                drillingTaskMap.remove(block);
-                                drillingTaskMap.put(block, newTask);
-                            }
-                        }
-                    }, 0, 1);
+                            }, 0, 1);
+                }
+            }
             default -> {
                 if(id > 26){
                     e.setCancelled(false);
