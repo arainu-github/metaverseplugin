@@ -30,7 +30,6 @@ public class DrillingScheduler extends BukkitRunnable {
     @Override
     public void run() {
         Vector3D vector3D = Objects.requireNonNull((Vector3D) block.getMetadata("metaverse-drilling__vector2").get(0).value());
-        if (vector3D.y < maxVector3D.y) {
             final Location location = block.getLocation();
             location.add(vector3D.x + 1, vector3D.y, vector3D.z);
             final Block breakBlock = block.getWorld().getBlockAt(location);
@@ -39,8 +38,5 @@ public class DrillingScheduler extends BukkitRunnable {
             }
             vector3D.x++;
             ended = 1;
-        } else {
-            ended = 2;
-        }
     }
 }

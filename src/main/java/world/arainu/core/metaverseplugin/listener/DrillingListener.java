@@ -10,6 +10,7 @@ import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -64,6 +65,14 @@ public class DrillingListener implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
         if (e.getBlock().hasMetadata("metaverse-drilling")) {
+            final ItemStack pickaxe = (ItemStack) e.getBlock().getMetadata("metaverse-drilling__pickaxe").get(0).value();
+            final ItemStack shovel = (ItemStack) e.getBlock().getMetadata("metaverse-drilling__shovel").get(0).value();
+            if(Objects.requireNonNull(pickaxe).getType() != Material.AIR){
+                e.getPlayer().getInventory().addItem(pickaxe);
+            }
+            if(Objects.requireNonNull(shovel).getType() != Material.AIR){
+                e.getPlayer().getInventory().addItem(shovel);
+            }
             sqlUtil.removeDrillingBlock(e.getBlock().getLocation());
             e.getBlock().removeMetadata("metaverse-drilling", MetaversePlugin.getInstance());
             e.getBlock().removeMetadata("metaverse-drilling__vector", MetaversePlugin.getInstance());
@@ -71,6 +80,10 @@ public class DrillingListener implements Listener {
             e.getBlock().removeMetadata("metaverse-drilling__shovel", MetaversePlugin.getInstance());
             ParticleScheduler.removeQueue(particleMap.get(e.getBlock()));
             particleMap.remove(e.getBlock());
+            particleDrillingMap.remove(e.getBlock());
+            if(drillingTaskMap.containsKey(e.getBlock())){
+                drillingTaskMap.get(e.getBlock()).ended = 4;
+            }
         }
     }
 
@@ -82,7 +95,7 @@ public class DrillingListener implements Listener {
             final ItemStack air = new ItemStack(Material.AIR);
             final Vector3D vector3D = new Vector3D(5, 1, 5);
             sqlUtil.addDrillingBlock(e.getBlockPlaced().getLocation());
-            e.getBlockPlaced().setMetadata("metaverse-drilling", new FixedMetadataValue(MetaversePlugin.getInstance(), p.getUniqueId()));
+            e.getBlockPlaced().setMetadata("metaverse-drilling", new FixedMetadataValue(MetaversePlugin.getInstance(), p));
             e.getBlockPlaced().setMetadata("metaverse-drilling__vector", new FixedMetadataValue(MetaversePlugin.getInstance(), vector3D));
             e.getBlockPlaced().setMetadata("metaverse-drilling__pickaxe", new FixedMetadataValue(MetaversePlugin.getInstance(), air));
             e.getBlockPlaced().setMetadata("metaverse-drilling__shovel", new FixedMetadataValue(MetaversePlugin.getInstance(), air));
@@ -118,9 +131,11 @@ public class DrillingListener implements Listener {
         inv.clear();
         List<String> loc = Arrays.asList("X", "Y", "Z");
         int count = 0;
-        Vector3D vector3D = Objects.requireNonNull((Vector3D) block.getMetadata("metaverse-drilling__vector").get(0).value());
-        ItemStack pickaxe = Objects.requireNonNull((ItemStack) block.getMetadata("metaverse-drilling__pickaxe").get(0).value());
-        ItemStack shovel = Objects.requireNonNull((ItemStack) block.getMetadata("metaverse-drilling__shovel").get(0).value());
+        final Vector3D vector3D = Objects.requireNonNull((Vector3D) block.getMetadata("metaverse-drilling__vector").get(0).value());
+        final ItemStack pickaxe = Objects.requireNonNull((ItemStack) block.getMetadata("metaverse-drilling__pickaxe").get(0).value());
+        final ItemStack shovel = Objects.requireNonNull((ItemStack) block.getMetadata("metaverse-drilling__shovel").get(0).value());
+        final Vector3D startPos = Objects.requireNonNull((Vector3D) block.getMetadata("metaverse-drilling__vector2").get(0).value());
+        Economy econ = MetaversePlugin.getEcon();
 
         final ItemStack partition = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta itemMeta = partition.getItemMeta();
@@ -182,11 +197,14 @@ public class DrillingListener implements Listener {
             startButton = new ItemStack(Material.REDSTONE);
             itemMeta = startButton.getItemMeta();
             itemMeta.displayName(Component.text("採掘を開始する").color(NamedTextColor.GREEN));
+            if(startPos.x+startPos.y+ startPos.z == 0){
+                itemMeta.lore(Arrays.asList(
+                        Component.text((int) (vector3D.x* vector3D.y* vector3D.z)+"ブロック分"),
+                        Component.text(econ.format(vector3D.x* vector3D.y* vector3D.z*10)+"が銀行から引き下ろされます。")));
+            }
         }
         startButton.setItemMeta(itemMeta);
         inv.setItem(16, new ItemStack(startButton));
-//        Economy econ = MetaversePlugin.getEcon();
-//        final int drillingAmount = (int) (vector3D.x * vector3D.y * vector3D.z);
         ParticleScheduler.removeQueue(particleMap.get(block));
         particleMap.remove(block);
         createCube(block, vector3D);
@@ -200,11 +218,15 @@ public class DrillingListener implements Listener {
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Block block = Objects.requireNonNull(e.getClickedBlock());
             if (!block.getMetadata("metaverse-drilling").isEmpty()) {
-                e.setCancelled(true);
-                Inventory inv = Bukkit.createInventory(null, 27, Component.text("採掘マシーン"));
-                update(inv, block);
-                e.getPlayer().openInventory(inv);
-                invList.put(inv, block);
+                if(block.getMetadata("metaverse-drilling").get(0).value() == e.getPlayer()) {
+                    e.setCancelled(true);
+                    Inventory inv = Bukkit.createInventory(null, 27, Component.text("採掘マシーン"));
+                    update(inv, block);
+                    e.getPlayer().openInventory(inv);
+                    invList.put(inv, block);
+                } else {
+                    ChatUtil.error(e.getPlayer(),"他のプレイヤーの採掘マシーンを操作することはできません！");
+                }
             }
         }
     }
@@ -291,106 +313,122 @@ public class DrillingListener implements Listener {
                 }
             case 16 -> {
                 e.getInventory().close();
+                invList.remove(e.getInventory());
                 SoundUtil.playClickSound(p);
                 if(drillingTaskMap.containsKey(block)){
                     drillingTaskMap.get(block).ended = 3;
                 } else {
-                    ChatUtil.success(p, "採掘を開始しました。");
-                    invList.remove(e.getInventory());
-                    Bukkit.getScheduler().runTaskTimer(MetaversePlugin.getInstance(),
-                            (r) -> {
-                                boolean ok = true;
-                                final Vector3D pos;
-                                if (drillingTaskMap.containsKey(block)) {
-                                    switch (drillingTaskMap.get(block).ended) {
-                                        case 0 -> ok = false;
-                                        case 2 -> {
-                                            ParticleScheduler.removeQueue(particleDrillingMap.get(block));
-                                            particleDrillingMap.remove(block);
-                                            ChatUtil.success(p, "採掘が正常に完了しました。");
-                                            drillingTaskMap.remove(block);
-                                            ok = false;
-                                            r.cancel();
-                                        }
-                                        case 3 -> {
-                                            ParticleScheduler.removeQueue(particleDrillingMap.get(block));
-                                            particleDrillingMap.remove(block);
-                                            ChatUtil.warning(p, "採掘を一時停止しました。");
-                                            drillingTaskMap.remove(block);
-                                            ok = false;
-                                            r.cancel();
+                    final Vector3D startPos = Objects.requireNonNull((Vector3D) block.getMetadata("metaverse-drilling__vector2").get(0).value());
+                    boolean drillingOk = true;
+                    if(startPos.x+startPos.y+startPos.z == 0){
+                        Economy econ = MetaversePlugin.getEcon();
+                        final int drillingAmount = (int) (vector3D.x * vector3D.y * vector3D.z * 10);
+                        if(econ.has(p,drillingAmount)){
+                            ChatUtil.success(p, econ.format(drillingAmount)+"を徴収し、採掘を開始しました。");
+                            econ.withdrawPlayer(p,drillingAmount);
+                        } else {
+                            ChatUtil.error(p,"あなたはそこまでお金を持っていません！\n残高: "+econ.format(econ.getBalance(p))+"\n必要料金: "+econ.format(drillingAmount));
+                            drillingOk = false;
+                        }
+                    } else {
+                        ChatUtil.success(p, "採掘を再度開始しました。");
+                    }
+                    if(drillingOk){
+                        Bukkit.getScheduler().runTaskTimer(MetaversePlugin.getInstance(),
+                                (r) -> {
+                                    boolean ok = true;
+                                    final Vector3D pos = Objects.requireNonNull((Vector3D) block.getMetadata("metaverse-drilling__vector2").get(0).value());
+                                    if (drillingTaskMap.containsKey(block)) {
+                                        switch (drillingTaskMap.get(block).ended) {
+                                            case 0 -> ok = false;
+                                            case 3 -> {
+                                                ParticleScheduler.removeQueue(particleDrillingMap.get(block));
+                                                particleDrillingMap.remove(block);
+                                                ChatUtil.warning(p, "採掘を一時停止しました。");
+                                                drillingTaskMap.remove(block);
+                                                ok = false;
+                                                r.cancel();
+                                            }
+                                            case 4 -> {
+                                                ParticleScheduler.removeQueue(particleDrillingMap.get(block));
+                                                particleDrillingMap.remove(block);
+                                                ChatUtil.warning(p, "採掘マシーンが破壊されたため採掘を強制終了しました。");
+                                                drillingTaskMap.remove(block);
+                                                ok = false;
+                                                r.cancel();
+                                            }
                                         }
                                     }
-                                }
 
-                                pos = Objects.requireNonNull((Vector3D) block.getMetadata("metaverse-drilling__vector2").get(0).value());
-                                if (pos.x > vector3D.x - 1) {
-                                    pos.x = 0;
-                                    pos.z++;
-                                }
-                                if (pos.z > vector3D.z - 1) {
-                                    pos.z = 0;
-                                    pos.y++;
-                                }
-                                if (pos.y > vector3D.y - 1) {
-                                    ParticleScheduler.removeQueue(particleDrillingMap.get(block));
-                                    particleDrillingMap.remove(block);
-                                    ChatUtil.success(p, "採掘が正常に完了しました。");
-                                    drillingTaskMap.remove(block);
-                                    ok = false;
-                                    r.cancel();
-                                }
-                                if (ok) {
-                                    ParticleScheduler.removeQueue(particleDrillingMap.get(block));
-                                    particleDrillingMap.remove(block);
-                                    final ItemStack pickaxe = (ItemStack) block.getMetadata("metaverse-drilling__pickaxe").get(0).value();
-                                    final ItemStack shovel = (ItemStack) block.getMetadata("metaverse-drilling__shovel").get(0).value();
-                                    final Location location = block.getLocation();
-                                    location.add(pos.x + 1, pos.y, pos.z);
-
-                                    LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
-                                    RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-                                    RegionQuery query = container.createQuery();
-                                    final StateFlag.State canBreak = query.queryState(BukkitAdapter.adapt(location), localPlayer, Flags.BLOCK_BREAK);
-
-                                    if (canBreak == StateFlag.State.DENY && !p.isOp()) {
-                                        ChatUtil.warning(p, "保護区域のため、X:" + location.getBlockX() + ",Y:" + location.getBlockY() + ",Z:" + location.getBlockZ() + "の採掘ができませんでした。");
-                                        pos.x++;
-                                    } else {
-                                        final Block nextBlock = block.getWorld().getBlockAt(location);
-                                        final ItemStack useTool;
-                                        if (nextBlock.isPreferredTool(Objects.requireNonNull(pickaxe)) && pickaxe.getType() != Material.AIR) {
-                                            useTool = pickaxe;
-                                            Bukkit.getLogger().info("pickaxe");
-                                        } else if (nextBlock.isPreferredTool(Objects.requireNonNull(shovel))) {
-                                            useTool = shovel;
-                                            Bukkit.getLogger().info("shovel");
-                                        } else {
-                                            useTool = new ItemStack(Material.AIR);
-                                        }
-                                        double multiply = 5;
-                                        if (nextBlock.isValidTool(useTool)) {
-                                            multiply = 1.5;
-                                        }
-                                        final int delay;
-                                        if (nextBlock.getType().getHardness() * 30 <= nextBlock.getDestroySpeed(useTool)) {
-                                            delay = 0;
-                                        } else {
-                                            delay = (int) (nextBlock.getType().getHardness() * multiply / nextBlock.getDestroySpeed(useTool) * 20 + 6);
-                                        }
-
-                                        final ParticleUtil particleUtil = new ParticleUtil();
-                                        particleUtil.addBlockLine(nextBlock, null);
-                                        ParticleScheduler.addQueue(particleUtil);
-                                        particleDrillingMap.put(block, particleUtil);
-
-                                        DrillingScheduler newTask = new DrillingScheduler(block, vector3D);
-                                        newTask.runTaskLater(MetaversePlugin.getInstance(), delay);
+                                    if (pos.x > vector3D.x - 1) {
+                                        pos.x = 0;
+                                        pos.z++;
+                                    }
+                                    if (pos.z > vector3D.z - 1) {
+                                        pos.z = 0;
+                                        pos.y++;
+                                    }
+                                    if (pos.y > vector3D.y - 1) {
+                                        ParticleScheduler.removeQueue(particleDrillingMap.get(block));
+                                        particleDrillingMap.remove(block);
+                                        ChatUtil.success(p, "採掘が正常に完了しました。");
                                         drillingTaskMap.remove(block);
-                                        drillingTaskMap.put(block, newTask);
+                                        pos.x = 0;
+                                        pos.y = 0;
+                                        pos.z = 0;
+                                        ok = false;
+                                        r.cancel();
                                     }
-                                }
-                            }, 0, 1);
+                                    if (ok) {
+                                        ParticleScheduler.removeQueue(particleDrillingMap.get(block));
+                                        particleDrillingMap.remove(block);
+                                        final ItemStack pickaxe = (ItemStack) block.getMetadata("metaverse-drilling__pickaxe").get(0).value();
+                                        final ItemStack shovel = (ItemStack) block.getMetadata("metaverse-drilling__shovel").get(0).value();
+                                        final Location location = block.getLocation();
+                                        location.add(pos.x + 1, pos.y, pos.z);
+
+                                        LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
+                                        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+                                        RegionQuery query = container.createQuery();
+                                        final StateFlag.State canBreak = query.queryState(BukkitAdapter.adapt(location), localPlayer, Flags.BLOCK_BREAK);
+
+                                        if (canBreak == StateFlag.State.DENY && !p.isOp()) {
+                                            ChatUtil.warning(p, "保護区域のため、X:" + location.getBlockX() + ",Y:" + location.getBlockY() + ",Z:" + location.getBlockZ() + "の採掘ができませんでした。");
+                                            pos.x++;
+                                        } else {
+                                            final Block nextBlock = block.getWorld().getBlockAt(location);
+                                            final ItemStack useTool;
+                                            if (nextBlock.isPreferredTool(Objects.requireNonNull(pickaxe)) && pickaxe.getType() != Material.AIR) {
+                                                useTool = pickaxe;
+                                            } else if (nextBlock.isPreferredTool(Objects.requireNonNull(shovel))) {
+                                                useTool = shovel;
+                                            } else {
+                                                useTool = new ItemStack(Material.AIR);
+                                            }
+                                            double multiply = 5;
+                                            if (nextBlock.isValidTool(useTool)) {
+                                                multiply = 1.5;
+                                            }
+                                            final int delay;
+                                            if (nextBlock.getType().getHardness() * 30 <= nextBlock.getDestroySpeed(useTool,true)) {
+                                                delay = 0;
+                                            } else {
+                                                delay = (int) (nextBlock.getType().getHardness() * multiply / nextBlock.getDestroySpeed(useTool,true) * 20 + 6);
+                                            }
+
+                                            final ParticleUtil particleUtil = new ParticleUtil();
+                                            particleUtil.addBlockLine(nextBlock, null);
+                                            ParticleScheduler.addQueue(particleUtil);
+                                            particleDrillingMap.put(block, particleUtil);
+
+                                            DrillingScheduler newTask = new DrillingScheduler(block, vector3D);
+                                            newTask.runTaskLater(MetaversePlugin.getInstance(), delay);
+                                            drillingTaskMap.remove(block);
+                                            drillingTaskMap.put(block, newTask);
+                                        }
+                                    }
+                                }, 0, 1);
+                    }
                 }
             }
             default -> {
