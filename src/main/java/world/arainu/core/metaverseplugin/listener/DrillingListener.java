@@ -344,10 +344,12 @@ public class DrillingListener implements Listener {
                             } else {
                                 final Block nextBlock = block.getWorld().getBlockAt(location);
                                 final ItemStack useTool;
-                                if(nextBlock.isPreferredTool(Objects.requireNonNull(pickaxe))){
+                                if(nextBlock.isPreferredTool(Objects.requireNonNull(pickaxe)) && pickaxe.getType() != Material.AIR){
                                     useTool = pickaxe;
+                                    Bukkit.getLogger().info("pickaxe");
                                 } else if(nextBlock.isPreferredTool(Objects.requireNonNull(shovel))){
                                     useTool = shovel;
+                                    Bukkit.getLogger().info("shovel");
                                 } else {
                                     useTool = new ItemStack(Material.AIR);
                                 }
