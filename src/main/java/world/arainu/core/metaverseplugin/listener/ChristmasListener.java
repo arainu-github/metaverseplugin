@@ -5,6 +5,8 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -43,5 +45,6 @@ public class ChristmasListener implements Listener {
         merryChristmas = merryChristmas.append(Component.text("https://www.arainu.world/archives/499").color(NamedTextColor.RED).decorate(TextDecoration.UNDERLINED));
         e.getPlayer().sendMessage(merryChristmas);
         e.joinMessage(generateChristmasText("[クリスマスイベ開催中] "+e.getPlayer().getName()+"がゲームに参加しました"));
+        Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(),"execute at "+e.getPlayer().getName()+" run summon firework_rocket ~ ~ ~ {LifeTime:40,FireworksItem:{id:firework_rocket,Count:1,tag:{Fireworks:{Explosions:[{Type:1,Trail:1,Colors:[I;11743532],FadeColors:[I;4312372]}],Flight:2}}}}");
     }
 }
