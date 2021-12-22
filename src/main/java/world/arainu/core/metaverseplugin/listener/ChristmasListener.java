@@ -6,12 +6,19 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.time.Duration;
+import java.util.Collections;
 
 public class ChristmasListener implements Listener {
     private Component generateChristmasText(String text){
@@ -38,6 +45,8 @@ public class ChristmasListener implements Listener {
                 皆さん、クリスマスですよクリスマス！
                 ということで、いよいよあらいぬサーバーの閉鎖当日になってしまいました。
                 しかし、最終日も楽しんでもらいたい！ということで運営からささやかなプレゼントを用意いたしました！
+                インベントリを見てみましょう。見慣れないシュルカーボックスがあるでしょ？
+                中になにか入っているかもしれませんよ？
                 お役に立てることができたら幸いです♪
                 
                 """));
@@ -46,5 +55,19 @@ public class ChristmasListener implements Listener {
         e.getPlayer().sendMessage(merryChristmas);
         e.joinMessage(generateChristmasText("[クリスマスイベ開催中] "+e.getPlayer().getName()+"がゲームに参加しました"));
         Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(),"execute at "+e.getPlayer().getName()+" run summon firework_rocket ~ ~ ~ {LifeTime:40,FireworksItem:{id:firework_rocket,Count:1,tag:{Fireworks:{Explosions:[{Type:1,Trail:1,Colors:[I;11743532],FadeColors:[I;4312372]}],Flight:2}}}}");
+
+        ItemStack item = new ItemStack(Material.LIME_SHULKER_BOX);
+        BlockStateMeta bsm = (BlockStateMeta) item.getItemMeta();
+        ShulkerBox shulkerBox = (ShulkerBox) bsm.getBlockState();
+        ItemStack pickaxe = new ItemStack(Material.GOLDEN_PICKAXE);
+        ItemMeta pickaxeMeta = pickaxe.getItemMeta();
+        pickaxeMeta.displayName(Component.text("ぼくがかんがえたさいきょうのつるはし"));
+        pickaxeMeta.lore(Collections.singletonList(Component.text("あらいぬ鯖クリスマスイベント2021")));
+        pickaxe.setItemMeta(pickaxeMeta);
+        pickaxe.addUnsafeEnchantment(Enchantment.DIG_SPEED, 10000);
+        shulkerBox.getInventory().setItem(13,pickaxe);
+        bsm.setBlockState(shulkerBox);
+        item.setItemMeta(bsm);
+        e.getPlayer().getInventory().addItem(item);
     }
 }
