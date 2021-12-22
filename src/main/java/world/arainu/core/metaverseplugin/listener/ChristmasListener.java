@@ -28,7 +28,7 @@ public class ChristmasListener implements Listener {
             if(i%2 == 0){
                 christmasText = christmasText.append(Component.text(text.charAt(i)).color(NamedTextColor.RED));
             } else {
-                christmasText = christmasText.append(Component.text(text.charAt(i)).color(NamedTextColor.GREEN));
+                christmasText = christmasText.append(Component.text(text.charAt(i)).color(NamedTextColor.DARK_GREEN));
             }
         }
         return christmasText;
@@ -37,7 +37,7 @@ public class ChristmasListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e){
         final boolean alreadyGot = Objects.requireNonNull(sqlUtil.getChristmas()).contains(e.getPlayer().getUniqueId());
-        Component merryChristmas = generateChristmasText("Merry Christmas!").decorate(TextDecoration.ITALIC).decorate(TextDecoration.UNDERLINED);
+        Component merryChristmas = generateChristmasText("Merry Christmas!").decorate(TextDecoration.BOLD).decorate(TextDecoration.ITALIC).decorate(TextDecoration.UNDERLINED);
         e.getPlayer().showTitle(Title.title(merryChristmas,Component.empty(), Title.Times.of(Duration.ofMillis(500),Duration.ofMillis(5000),Duration.ofMillis(500))));
         merryChristmas = Component.empty().append(merryChristmas);
         merryChristmas = merryChristmas.append(Component.text("\nメリークリスマス！").color(TextColor.color(NamedTextColor.RED)));
