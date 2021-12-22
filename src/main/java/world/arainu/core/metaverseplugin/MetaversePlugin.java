@@ -116,8 +116,9 @@ public final class MetaversePlugin extends JavaPlugin {
         commands.clear();
         Gui.resetInstance();
         getServer().getMessenger().unregisterOutgoingPluginChannel(this);
-        getLogger().info("メタバースプラグインが無効になりました。");
+        DrillingListener.getInstance().saveData();
         sqlUtil.disconnect();
+        getLogger().info("メタバースプラグインが無効になりました。");
     }
 
     private void loadGuis() {

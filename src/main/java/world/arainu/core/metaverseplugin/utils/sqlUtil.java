@@ -5,13 +5,13 @@ import org.apache.commons.lang.SerializationUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
-import org.dynmap.utils.Vector3D;
+import org.bukkit.util.Vector;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -84,7 +84,7 @@ public class sqlUtil {
 
     private static void create_drilling_table() {
         try {
-            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `drilling` ( `location` BLOB NOT NULL) ");
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `drilling` ( `location` BLOB NOT NULL, `player` VARCHAR(36) NOT NULL, `vector` BLOB NOT NULL, `pickaxe` BLOB NOT NULL, `shovel` BLOB NOT NULL, `vector2` BLOB NOT NULL) ");
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -338,14 +338,21 @@ public class sqlUtil {
         }
     }
 
-    public static List<Location> getDrillingBlocks() {
+    public static List<returnDrilling> getDrillingBlocks() {
         try {
             create_drilling_table();
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM `drilling`");
             ResultSet rs = ps.executeQuery();
-            List<Location> r = new ArrayList<>();
+            List<returnDrilling> r = new ArrayList<>();
             while (rs.next())
-                r.add(Location.deserialize(Objects.requireNonNull((HashMap<String, Object>) getBinary(rs, 1))));
+                r.add(new returnDrilling(
+                        Location.deserialize(Objects.requireNonNull((HashMap<String, Object>) getBinary(rs, 1))),
+                        UUID.fromString(rs.getString(2)),
+                        Vector.deserialize((HashMap<String, Object>) Objects.requireNonNull(getBinary(rs, 3))),
+                        ItemStack.deserialize(Objects.requireNonNull((HashMap<String, Object>) getBinary(rs, 4))),
+                        ItemStack.deserialize(Objects.requireNonNull((HashMap<String, Object>) getBinary(rs, 5))),
+                        Vector.deserialize((HashMap<String, Object>) Objects.requireNonNull(getBinary(rs, 6)))
+                ));
             rs.close();
             ps.close();
             return r;
@@ -355,14 +362,21 @@ public class sqlUtil {
         }
     }
 
-    record returnDrilling(UUID uuid, Vector3D vector3D, ItemStack pickaxe, ItemStack shovel) {
+    public record returnDrilling(Location location, UUID player, Vector vector3D, ItemStack pickaxe,
+                                 ItemStack shovel,
+                                 Vector vector3D2) {
     }
 
-    public static void addDrillingBlock(Location location) {
+    public static void addDrillingBlock(Location location, UUID player, Vector vector3D, ItemStack pickaxe, ItemStack shovel, Vector vector3D2) {
         try {
             create_drilling_table();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO drilling VALUES(?)");
-            ps.setBytes(1, SerializationUtils.serialize((Serializable) location.serialize()));
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO drilling VALUES(?,?,?,?,?,?)");
+            ps.setBytes(1, serialize((location.serialize())));
+            ps.setString(2, player.toString());
+            ps.setBytes(3, serialize(vector3D.serialize()));
+            ps.setBytes(4, serialize(pickaxe.serialize()));
+            ps.setBytes(5, serialize(shovel.serialize()));
+            ps.setBytes(6, serialize(vector3D2.serialize()));
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -370,17 +384,26 @@ public class sqlUtil {
         }
     }
 
-    public static void removeDrillingBlock(Location location) {
+    private static byte[] serialize(Object object) {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             BukkitObjectOutputStream oos = new BukkitObjectOutputStream(bos)) {
+            oos.writeObject(object);
+            return bos.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void truncateDrillingBlock() {
         try {
             create_drilling_table();
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM `drilling` WHERE `location` LIKE ?");
-            ps.setBytes(1, SerializationUtils.serialize((Serializable) location.serialize()));
+            PreparedStatement ps = conn.prepareStatement("TRUNCATE TABLE `drilling`");
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-    }
+        }    }
 
     @Getter
     private final static String db_name = MetaversePlugin.getConfiguration().getString("mysql.db_name");
