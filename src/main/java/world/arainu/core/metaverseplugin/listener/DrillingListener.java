@@ -16,6 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,6 +28,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataType;
@@ -42,9 +44,11 @@ import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
 
 public class DrillingListener implements Listener {
@@ -399,8 +403,8 @@ public class DrillingListener implements Listener {
                                     if (ok) {
                                         ParticleScheduler.removeQueue(particleDrillingMap.get(block));
                                         particleDrillingMap.remove(block);
-                                        final ItemStack pickaxe = (ItemStack) block.getMetadata("metaverse-drilling__pickaxe").get(0).value();
-                                        final ItemStack shovel = (ItemStack) block.getMetadata("metaverse-drilling__shovel").get(0).value();
+                                        final ItemStack pickaxe = Objects.requireNonNull((ItemStack) block.getMetadata("metaverse-drilling__pickaxe").get(0).value());
+                                        final ItemStack shovel = Objects.requireNonNull((ItemStack) block.getMetadata("metaverse-drilling__shovel").get(0).value());
                                         final Location location = block.getLocation();
                                         location.add(pos.getX() + 1, pos.getY(), pos.getZ());
 
@@ -414,32 +418,28 @@ public class DrillingListener implements Listener {
                                             pos.add(new Vector(1, 0, 0));
                                         } else {
                                             final Block nextBlock = block.getWorld().getBlockAt(location);
-                                            final ItemStack useTool;
-                                            if (nextBlock.isPreferredTool(Objects.requireNonNull(pickaxe)) && pickaxe.getType() != Material.AIR) {
-                                                useTool = pickaxe;
-                                            } else if (nextBlock.isPreferredTool(Objects.requireNonNull(shovel))) {
-                                                useTool = shovel;
-                                            } else {
-                                                useTool = new ItemStack(Material.AIR);
-                                            }
-                                            double multiply = 5;
-                                            if (nextBlock.isValidTool(useTool)) {
-                                                multiply = 1.5;
-                                            }
-                                            final int delay;
-                                            if (nextBlock.getType().getHardness() * 30 <= nextBlock.getDestroySpeed(useTool, true)) {
-                                                delay = 0;
-                                            } else {
-                                                delay = (int) (nextBlock.getType().getHardness() * multiply / nextBlock.getDestroySpeed(useTool, true) * 20 + 6);
+                                            List<Integer> delayList = Arrays.asList(getDelay(nextBlock,pickaxe),getDelay(nextBlock,shovel),getDelay(nextBlock,new ItemStack(Material.AIR)));
+                                            int minDelay = Collections.min(delayList);
+                                            int index = delayList.indexOf(minDelay);
+                                            if(index != 2){
+                                                if(minDelay >= delayList.get(2)){
+                                                    index = 2;
+                                                    minDelay = delayList.get(2);
+                                                }
                                             }
 
+                                            if(index == 0){
+                                                removeDurability(pickaxe);
+                                            } else if(index == 1){
+                                                removeDurability(shovel);
+                                            }
                                             final ParticleUtil particleUtil = new ParticleUtil();
                                             particleUtil.addBlockLine(nextBlock, null);
                                             ParticleScheduler.addQueue(particleUtil);
                                             particleDrillingMap.put(block, particleUtil);
 
                                             DrillingScheduler newTask = new DrillingScheduler(block);
-                                            newTask.runTaskLater(MetaversePlugin.getInstance(), delay);
+                                            newTask.runTaskLater(MetaversePlugin.getInstance(), minDelay);
                                             drillingTaskMap.remove(block);
                                             drillingTaskMap.put(block, newTask);
                                         }
@@ -456,6 +456,32 @@ public class DrillingListener implements Listener {
                 }
             }
         }
+    }
+
+    private void removeDurability(ItemStack item){
+        if(item.getItemMeta() instanceof Damageable meta){
+            final int level = item.getEnchantments().getOrDefault(Enchantment.DURABILITY, 0);
+            Random random = new Random();
+            int randomValue = random.nextInt(100);
+            if(randomValue < 100/(level+1)) {
+                meta.setDamage(meta.getDamage() + 1);
+                item.setItemMeta(meta);
+            }
+        }
+    }
+
+    private int getDelay(Block block,ItemStack item){
+        double multiply = 5;
+        if (block.isValidTool(item)) {
+            multiply = 1.5;
+        }
+        final int delay;
+        if (block.getType().getHardness() * 30 <= block.getDestroySpeed(item, true)) {
+            delay = 0;
+        } else {
+            delay = (int) (block.getType().getHardness() * multiply / block.getDestroySpeed(item, true) * 20 + 6);
+        }
+        return delay;
     }
 
     public void saveData() {
