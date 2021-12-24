@@ -465,7 +465,11 @@ public class DrillingListener implements Listener {
             int randomValue = random.nextInt(100);
             if(randomValue < 100/(level+1)) {
                 meta.setDamage(meta.getDamage() + 1);
-                item.setItemMeta(meta);
+                if(meta.getDamage() == item.getType().getMaxDurability()){
+                    item.setType(Material.AIR);
+                } else {
+                    item.setItemMeta(meta);
+                }
             }
         }
     }
@@ -476,10 +480,16 @@ public class DrillingListener implements Listener {
             multiply = 1.5;
         }
         final int delay;
-        if (block.getType().getHardness() * 30 <= block.getDestroySpeed(item, true)) {
+        float blockDestroySpeed;
+        try {
+            blockDestroySpeed = block.getDestroySpeed(item, true);
+        } catch(NullPointerException e){
+            blockDestroySpeed = 1;
+        }
+        if (block.getType().getHardness() * 30 <= blockDestroySpeed) {
             delay = 0;
         } else {
-            delay = (int) (block.getType().getHardness() * multiply / block.getDestroySpeed(item, true) * 20 + 6);
+            delay = (int) (block.getType().getHardness() * multiply / blockDestroySpeed * 20 + 6);
         }
         return delay;
     }
