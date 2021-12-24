@@ -91,6 +91,15 @@ public class sqlUtil {
         }
     }
 
+    private static void create_christmas_table() {
+        try {
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS christmas (uuid VARCHAR(36) NOT NULL ,PRIMARY KEY (`uuid`)) ");
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * 何かしらのタイプとUUIDを紐付ける関数。
      *
@@ -250,7 +259,6 @@ public class sqlUtil {
      *
      * @param uuid 文字通りUUID
      */
-
     public static void addWhitelist(UUID uuid) {
         try {
             create_whitelist_table();
@@ -288,6 +296,35 @@ public class sqlUtil {
             create_whitelist_table();
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM whitelist");
+            List<UUID> uuidList = new ArrayList<>();
+            while (rs.next()) {
+                uuidList.add(UUID.fromString(rs.getString("uuid")));
+            }
+            rs.close();
+            stmt.close();
+            return uuidList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void addChristmas(UUID uuid) {
+        try {
+            create_christmas_table();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO christmas (`uuid`) VALUES('" + uuid + "')");
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<UUID> getChristmas() {
+        try {
+            create_christmas_table();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM christmas");
             List<UUID> uuidList = new ArrayList<>();
             while (rs.next()) {
                 uuidList.add(UUID.fromString(rs.getString("uuid")));
