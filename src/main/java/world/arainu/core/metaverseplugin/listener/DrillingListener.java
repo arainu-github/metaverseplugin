@@ -244,15 +244,15 @@ public class DrillingListener implements Listener {
 
         final ItemStack itemButton;
         if (isItem) {
-            itemButton = new ItemStack(Material.STRUCTURE_VOID);
-            itemMeta = itemButton.getItemMeta();
-            itemMeta.displayName(Component.text("掘るだけモードにする"));
-            itemMeta.lore(Arrays.asList(Component.text("採掘したアイテムは取得できなくなります。"), Component.text("費用は低くなります。")));
-        } else {
             itemButton = new ItemStack(Material.CHEST);
             itemMeta = itemButton.getItemMeta();
-            itemMeta.displayName(Component.text("アイテムももらえるモードにする"));
+            itemMeta.displayName(Component.text("アイテムももらえるモード"));
             itemMeta.lore(Arrays.asList(Component.text("採掘したアイテムを取得することができます。"), Component.text("マシーンの上にチェストを置く必要があります。"), Component.text("費用は高くなります。")));
+        } else {
+            itemButton = new ItemStack(Material.STRUCTURE_VOID);
+            itemMeta = itemButton.getItemMeta();
+            itemMeta.displayName(Component.text("掘るだけモード"));
+            itemMeta.lore(Arrays.asList(Component.text("採掘したアイテムは取得できません。"), Component.text("費用は低くなります。")));
         }
         itemButton.setItemMeta(itemMeta);
         inv.setItem(17, new ItemStack(itemButton));
