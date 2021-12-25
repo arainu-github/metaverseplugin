@@ -39,6 +39,7 @@ import world.arainu.core.metaverseplugin.iphone.Drilling;
 import world.arainu.core.metaverseplugin.scheduler.DrillingScheduler;
 import world.arainu.core.metaverseplugin.scheduler.ParticleScheduler;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
+import world.arainu.core.metaverseplugin.utils.ItemUtil;
 import world.arainu.core.metaverseplugin.utils.ParticleUtil;
 import world.arainu.core.metaverseplugin.utils.SoundUtil;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
@@ -66,13 +67,13 @@ public class DrillingListener implements Listener {
         for (sqlUtil.returnDrilling i : Objects.requireNonNull(sqlUtil.getDrillingBlocks())) {
             Block block = i.location().getWorld().getBlockAt(i.location());
             if (block.getType() == Material.CHEST) {
-                Inventory inv = ((Chest)block.getState()).getInventory();
+                Inventory inv = ((Chest) block.getState()).getInventory();
                 ItemStack pickaxe = inv.getItem(0);
-                if(pickaxe == null){
+                if (pickaxe == null) {
                     pickaxe = new ItemStack(Material.AIR);
                 }
                 ItemStack shovel = inv.getItem(1);
-                if(shovel == null){
+                if (shovel == null) {
                     shovel = new ItemStack(Material.AIR);
                 }
                 block.removeMetadata("metaverse-drilling", MetaversePlugin.getInstance());
@@ -100,10 +101,10 @@ public class DrillingListener implements Listener {
             final ItemStack pickaxe = (ItemStack) e.getBlock().getMetadata("metaverse-drilling__pickaxe").get(0).value();
             final ItemStack shovel = (ItemStack) e.getBlock().getMetadata("metaverse-drilling__shovel").get(0).value();
             if (Objects.requireNonNull(pickaxe).getType() != Material.AIR) {
-                e.getPlayer().getInventory().addItem(pickaxe);
+                ItemUtil.addItem(pickaxe,e.getPlayer().getInventory(),e.getPlayer());
             }
             if (Objects.requireNonNull(shovel).getType() != Material.AIR) {
-                e.getPlayer().getInventory().addItem(shovel);
+                ItemUtil.addItem(shovel,e.getPlayer().getInventory(),e.getPlayer());
             }
             locationList.remove(e.getBlock().getLocation());
             e.getBlock().removeMetadata("metaverse-drilling", MetaversePlugin.getInstance());
@@ -133,6 +134,7 @@ public class DrillingListener implements Listener {
             e.getBlockPlaced().setMetadata("metaverse-drilling__pickaxe", new FixedMetadataValue(MetaversePlugin.getInstance(), air));
             e.getBlockPlaced().setMetadata("metaverse-drilling__shovel", new FixedMetadataValue(MetaversePlugin.getInstance(), air));
             e.getBlockPlaced().setMetadata("metaverse-drilling__vector2", new FixedMetadataValue(MetaversePlugin.getInstance(), new Vector(0, 0, 0)));
+            e.getBlockPlaced().setMetadata("metaverse-drilling__item", new FixedMetadataValue(MetaversePlugin.getInstance(), false));
             createCube(e.getBlockPlaced(), vector3D);
         }
     }
@@ -168,6 +170,7 @@ public class DrillingListener implements Listener {
         final ItemStack pickaxe = Objects.requireNonNull((ItemStack) block.getMetadata("metaverse-drilling__pickaxe").get(0).value());
         final ItemStack shovel = Objects.requireNonNull((ItemStack) block.getMetadata("metaverse-drilling__shovel").get(0).value());
         final Vector startPos = Objects.requireNonNull((Vector) block.getMetadata("metaverse-drilling__vector2").get(0).value());
+        final boolean isItem = block.getMetadata("metaverse-drilling__item").get(0).asBoolean();
         Economy econ = MetaversePlugin.getEcon();
 
         final ItemStack partition = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
@@ -238,6 +241,21 @@ public class DrillingListener implements Listener {
         }
         startButton.setItemMeta(itemMeta);
         inv.setItem(16, new ItemStack(startButton));
+
+        final ItemStack itemButton;
+        if (isItem) {
+            itemButton = new ItemStack(Material.STRUCTURE_VOID);
+            itemMeta = itemButton.getItemMeta();
+            itemMeta.displayName(Component.text("掘るだけモードにする"));
+            itemMeta.lore(Arrays.asList(Component.text("採掘したアイテムは取得できなくなります。"), Component.text("費用は低くなります。")));
+        } else {
+            itemButton = new ItemStack(Material.CHEST);
+            itemMeta = itemButton.getItemMeta();
+            itemMeta.displayName(Component.text("アイテムももらえるモードにする"));
+            itemMeta.lore(Arrays.asList(Component.text("採掘したアイテムを取得することができます。"), Component.text("マシーンの上にチェストを置く必要があります。"), Component.text("費用は高くなります。")));
+        }
+        itemButton.setItemMeta(itemMeta);
+        inv.setItem(17, new ItemStack(itemButton));
         ParticleScheduler.removeQueue(particleMap.get(block));
         particleMap.remove(block);
         createCube(block, vector3D);
@@ -429,27 +447,31 @@ public class DrillingListener implements Listener {
                                             pos.add(new Vector(1, 0, 0));
                                         } else {
                                             final Block nextBlock = block.getWorld().getBlockAt(location);
-                                            List<Integer> delayList = Arrays.asList(getDelay(nextBlock,pickaxe),getDelay(nextBlock,shovel),getDelay(nextBlock,new ItemStack(Material.AIR)));
+                                            List<Integer> delayList = Arrays.asList(getDelay(nextBlock, pickaxe), getDelay(nextBlock, shovel), getDelay(nextBlock, new ItemStack(Material.AIR)));
                                             int minDelay = Collections.min(delayList);
                                             int index = delayList.indexOf(minDelay);
-                                            if(index != 2){
-                                                if(minDelay >= delayList.get(2)){
+                                            if (index != 2) {
+                                                if (minDelay >= delayList.get(2)) {
                                                     index = 2;
                                                     minDelay = delayList.get(2);
                                                 }
                                             }
 
-                                            if(index == 0){
-                                                removeDurability(pickaxe);
-                                            } else if(index == 1){
-                                                removeDurability(shovel);
+                                            final ItemStack useTool;
+                                            if (index == 0) {
+                                                useTool = pickaxe;
+                                            } else if (index == 1) {
+                                                useTool = shovel;
+                                            } else {
+                                                useTool = new ItemStack(Material.AIR);
                                             }
+                                            removeDurability(useTool);
                                             final ParticleUtil particleUtil = new ParticleUtil();
                                             particleUtil.addBlockLine(nextBlock, null);
                                             ParticleScheduler.addQueue(particleUtil);
                                             particleDrillingMap.put(block, particleUtil);
 
-                                            DrillingScheduler newTask = new DrillingScheduler(block);
+                                            DrillingScheduler newTask = new DrillingScheduler(block, useTool);
                                             newTask.runTaskLater(MetaversePlugin.getInstance(), minDelay);
                                             drillingTaskMap.remove(block);
                                             drillingTaskMap.put(block, newTask);
@@ -458,6 +480,15 @@ public class DrillingListener implements Listener {
                                 }, 0, 1);
                     }
                 }
+            }
+            case 17 -> {
+                SoundUtil.playClickSound(p);
+                final boolean isItem = block.getMetadata("metaverse-drilling__item").get(0).asBoolean();
+                if (isItem)
+                    block.setMetadata("metaverse-drilling__item", new FixedMetadataValue(MetaversePlugin.getInstance(), false));
+                else
+                    block.setMetadata("metaverse-drilling__item", new FixedMetadataValue(MetaversePlugin.getInstance(), true));
+                update(e.getInventory(), block);
             }
             default -> {
                 if (id > 26) {
@@ -469,14 +500,14 @@ public class DrillingListener implements Listener {
         }
     }
 
-    private void removeDurability(ItemStack item){
-        if(item.getItemMeta() instanceof Damageable meta){
+    private void removeDurability(ItemStack item) {
+        if (item.getItemMeta() instanceof Damageable meta) {
             final int level = item.getEnchantments().getOrDefault(Enchantment.DURABILITY, 0);
             Random random = new Random();
             int randomValue = random.nextInt(100);
-            if(randomValue < 100/(level+1)) {
+            if (randomValue < 100 / (level + 1)) {
                 meta.setDamage(meta.getDamage() + 1);
-                if(meta.getDamage() == item.getType().getMaxDurability()){
+                if (meta.getDamage() == item.getType().getMaxDurability()) {
                     item.setType(Material.AIR);
                 } else {
                     item.setItemMeta(meta);
@@ -485,7 +516,7 @@ public class DrillingListener implements Listener {
         }
     }
 
-    private int getDelay(Block block,ItemStack item){
+    private int getDelay(Block block, ItemStack item) {
         double multiply = 5;
         if (block.isValidTool(item)) {
             multiply = 1.5;
@@ -494,7 +525,7 @@ public class DrillingListener implements Listener {
         float blockDestroySpeed;
         try {
             blockDestroySpeed = block.getDestroySpeed(item, true);
-        } catch(NullPointerException e){
+        } catch (NullPointerException e) {
             blockDestroySpeed = 1;
         }
         if (block.getType().getHardness() * 30 <= blockDestroySpeed) {
