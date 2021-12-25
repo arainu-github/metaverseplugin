@@ -27,8 +27,15 @@ import world.arainu.core.metaverseplugin.listener.VillagerListener;
 import world.arainu.core.metaverseplugin.store.BankStore;
 import world.arainu.core.metaverseplugin.utils.BankNotice;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
+import world.arainu.core.metaverseplugin.utils.ItemUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -73,7 +80,7 @@ public class Bank extends iPhoneBase {
      * @param yen    換金する額
      */
     public static void addMoneyForPlayer(Player player, int yen) {
-        addMoneyForInventory(player.getInventory(), yen);
+        addMoneyForInventory(player.getInventory(), yen,player);
     }
 
     /**
@@ -82,14 +89,14 @@ public class Bank extends iPhoneBase {
      * @param inv 対象のインベントリ
      * @param yen 換金する額
      */
-    public static void addMoneyForInventory(Inventory inv, int yen) {
+    public static void addMoneyForInventory(Inventory inv, int yen,Player p) {
         int log_money = (int) Math.log(yen);
         if (log_money > 5) {
             log_money = 5;
         }
         for (int i = log_money; i >= 0; i--) {
             ItemStack moneyStack = getPluginMoneyEmerald((int) Math.pow(10, i), (int) (yen / Math.pow(10, i)));
-            inv.addItem(moneyStack);
+            ItemUtil.addItem(moneyStack,inv,p);
             yen %= (int) Math.pow(10, i);
         }
     }
