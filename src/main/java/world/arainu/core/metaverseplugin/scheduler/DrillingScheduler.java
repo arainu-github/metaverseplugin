@@ -1,6 +1,5 @@
 package world.arainu.core.metaverseplugin.scheduler;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -8,7 +7,6 @@ import org.bukkit.block.Chest;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-import world.arainu.core.metaverseplugin.utils.ChatUtil;
 import world.arainu.core.metaverseplugin.utils.ItemUtil;
 
 import java.util.Objects;
@@ -38,7 +36,6 @@ public class DrillingScheduler extends BukkitRunnable {
         location.add(vector3D);
         final Block breakBlock = location.getBlock();
         if (breakBlock.getType() != Material.BEDROCK) {
-            Bukkit.getLogger().info(String.valueOf(isItem));
             if(isItem){
                 Location chestLocation = block.getLocation();
                 chestLocation.add(0,1,0);
