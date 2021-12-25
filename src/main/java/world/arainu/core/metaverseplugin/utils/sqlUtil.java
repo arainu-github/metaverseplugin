@@ -1,10 +1,16 @@
 package world.arainu.core.metaverseplugin.utils;
 
 import lombok.Getter;
+import org.apache.commons.lang.SerializationUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.util.Vector;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -12,7 +18,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -24,7 +32,7 @@ public class sqlUtil {
     /**
      * SQLに接続する
      */
-    public static void connect(){
+    public static void connect() {
         try {
             conn = DriverManager.getConnection(url_connection, user, pass);
         } catch (SQLException e) {
@@ -35,7 +43,7 @@ public class sqlUtil {
     /**
      * SQLから切断する
      */
-    public static void disconnect(){
+    public static void disconnect() {
         try {
             conn.close();
         } catch (SQLException e) {
@@ -46,7 +54,7 @@ public class sqlUtil {
     /**
      * SQLからconnectionを切断されないようにpingを送る関数
      */
-    public static void ping(){
+    public static void ping() {
         try {
             PreparedStatement ps = conn.prepareStatement("/* ping */ SELECT 1");
             ps.execute();
@@ -55,18 +63,27 @@ public class sqlUtil {
         }
     }
 
-    private static void create_uuidtype_table(){
+    private static void create_uuidtype_table() {
         try {
             PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `uuidtype` ( `uuid` VARCHAR(36) NOT NULL , `type` VARCHAR(64) NOT NULL , PRIMARY KEY (`uuid`)) ");
             ps.executeUpdate();
-        } catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private static void create_playerpos_table(){
+    private static void create_playerpos_table() {
         try {
             PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `playerpos` ( `uuid` VARCHAR(36) NOT NULL ,  `world` VARCHAR(36) NOT NULL , `x` INT NOT NULL , `y` SMALLINT NOT NULL ,`z` INT NOT NULL ,PRIMARY KEY (`uuid`)) ");
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void create_drilling_table() {
+        try {
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `drilling` ( `location` BLOB NOT NULL, `player` VARCHAR(36) NOT NULL, `vector` BLOB NOT NULL, `vector2` BLOB NOT NULL, `item` BOOLEAN NOT NULL, `starting` BOOLEAN NOT NULL ) ");
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -106,10 +123,10 @@ public class sqlUtil {
      * @param uuid UUID
      * @param type type
      */
-    public static void setuuidtype(UUID uuid, String type){
+    public static void setuuidtype(UUID uuid, String type) {
         try {
             create_uuidtype_table();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO `uuidtype` (`uuid`, `type`) VALUES('" + uuid + "', '" + type + "')");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO `uuidtype` VALUES('" + uuid + "', '" + type + "')");
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -123,13 +140,13 @@ public class sqlUtil {
      * @param type type
      * @return UUID
      */
-    public static List<UUID> getuuidsbytype(String type){
+    public static List<UUID> getuuidsbytype(String type) {
         try {
             create_uuidtype_table();
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM `uuidtype` WHERE `type` LIKE '"+type+"'");
+            ResultSet rs = stmt.executeQuery("SELECT * FROM `uuidtype` WHERE `type` LIKE '" + type + "'");
             List<UUID> uuidList = new ArrayList<>();
-            while(rs.next()){
+            while (rs.next()) {
                 uuidList.add(UUID.fromString(rs.getString("uuid")));
             }
             rs.close();
@@ -147,11 +164,11 @@ public class sqlUtil {
      * @param uuid UUID
      * @return 存在するか
      */
-    public static Boolean hasuuid(UUID uuid){
+    public static Boolean hasuuid(UUID uuid) {
         try {
             create_uuidtype_table();
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT count(*) AS cnt FROM `uuidtype` WHERE `uuid` LIKE '"+uuid+"'");
+            ResultSet rs = stmt.executeQuery("SELECT count(*) AS cnt FROM `uuidtype` WHERE `uuid` LIKE '" + uuid + "'");
             rs.next();
             final Boolean ret = rs.getInt("cnt") != 0;
             rs.close();
@@ -166,13 +183,13 @@ public class sqlUtil {
     /**
      * プレイヤーの座標をSQLに保存する関数
      *
-     * @param uuid UUID
+     * @param uuid     UUID
      * @param location 座標
      */
-    public static void setplayerpos(UUID uuid, Location location){
+    public static void setplayerpos(UUID uuid, Location location) {
         try {
             create_playerpos_table();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO `playerpos` (`uuid`, `world`, `x`, `y`, `z`) VALUES('" + uuid + "', '" + location.getWorld().getUID() + "',"+(int) location.getX()+","+(int) location.getY()+","+(int) location.getZ()+")");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO `playerpos` VALUES('" + uuid + "', '" + location.getWorld().getUID() + "'," + (int) location.getX() + "," + (int) location.getY() + "," + (int) location.getZ() + ")");
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -186,13 +203,13 @@ public class sqlUtil {
      * @param uuid UUID
      * @return UUID
      */
-    public static Location getplayerpos(UUID uuid){
+    public static Location getplayerpos(UUID uuid) {
         try {
             create_playerpos_table();
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM `playerpos` WHERE `uuid` LIKE '"+uuid+"'");
+            ResultSet rs = stmt.executeQuery("SELECT * FROM `playerpos` WHERE `uuid` LIKE '" + uuid + "'");
             rs.next();
-            Location loc = new Location(Bukkit.getWorld(UUID.fromString(rs.getString("world"))),rs.getInt("x"),rs.getInt("y"),rs.getInt("z"));
+            Location loc = new Location(Bukkit.getWorld(UUID.fromString(rs.getString("world"))), rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
             rs.close();
             stmt.close();
             return loc;
@@ -207,10 +224,10 @@ public class sqlUtil {
      *
      * @param uuid UUID
      */
-    public static void deleteplayerpos(UUID uuid){
+    public static void deleteplayerpos(UUID uuid) {
         try {
             create_playerpos_table();
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM `playerpos` WHERE `uuid` LIKE '"+uuid+"'");
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM `playerpos` WHERE `uuid` LIKE '" + uuid + "'");
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -220,9 +237,10 @@ public class sqlUtil {
 
     /**
      * kickcountを増やす関数
+     *
      * @param uuid UUID
      */
-    public static void addkickcount(UUID uuid){
+    public static void addkickcount(UUID uuid) {
         try {
             create_kickcount_table();
             PreparedStatement ps = conn.prepareStatement("INSERT INTO `kickcount` (`uuid`, `count`) VALUES('" + uuid + "', 1) ON DUPLICATE KEY UPDATE count = count+1");
@@ -235,14 +253,15 @@ public class sqlUtil {
 
     /**
      * kickcountを取得する関数
+     *
      * @param uuid UUID
      * @return kick count
      */
-    public static Integer getkickcount(UUID uuid){
+    public static Integer getkickcount(UUID uuid) {
         try {
             create_kickcount_table();
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM `kickcount` WHERE `uuid` LIKE '"+uuid+"'");
+            ResultSet rs = stmt.executeQuery("SELECT * FROM `kickcount` WHERE `uuid` LIKE '" + uuid + "'");
             rs.next();
             int count = rs.getInt("count");
             rs.close();
@@ -262,7 +281,7 @@ public class sqlUtil {
     public static void addWhitelist(UUID uuid) {
         try {
             create_whitelist_table();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO whitelist (`uuid`) VALUES('" + uuid + "')");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO whitelist VALUES('" + uuid + "')");
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -272,6 +291,7 @@ public class sqlUtil {
 
     /**
      * ホワイトリストをSQLから削除する
+     *
      * @param uuid UUID
      */
     public static void removeWhitelist(UUID uuid) {
@@ -309,6 +329,41 @@ public class sqlUtil {
         }
     }
 
+    private static Object getBinary(ResultSet rs, int index) {
+        try {
+            InputStream is = rs.getBinaryStream(index);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] bs = new byte[1024];
+            int size;
+            while ((size = is.read(bs)) != -1) {
+                baos.write(bs, 0, size);
+            }
+            return SerializationUtils.deserialize(baos.toByteArray());
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static List<returnDrilling> getDrillingBlocks() {
+        try {
+            create_drilling_table();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM `drilling`");
+            ResultSet rs = ps.executeQuery();
+            List<returnDrilling> r = new ArrayList<>();
+            while (rs.next()) {
+                r.add(new returnDrilling(
+                        Location.deserialize(Objects.requireNonNull((HashMap<String, Object>) getBinary(rs, 1))),
+                        UUID.fromString(rs.getString(2)),
+                        Vector.deserialize((HashMap<String, Object>) Objects.requireNonNull(getBinary(rs, 3))),
+                        Vector.deserialize((HashMap<String, Object>) Objects.requireNonNull(getBinary(rs, 4))),
+                        rs.getBoolean(5),
+                        rs.getBoolean(6)
+                ));
+            }
+            rs.close();
+            ps.close();
+            return r;
     public static void addChristmas(UUID uuid) {
         try {
             create_christmas_table();
@@ -335,6 +390,48 @@ public class sqlUtil {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public record returnDrilling(Location location, UUID player, Vector vector3D, Vector vector3D2, boolean item, boolean starting) {
+    }
+
+    public static void addDrillingBlock(Location location, UUID player, Vector vector3D, Vector vector3D2, boolean item, boolean starting) {
+        try {
+            create_drilling_table();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO drilling VALUES(?,?,?,?,?,?)");
+            ps.setBytes(1, serialize((location.serialize())));
+            ps.setString(2, player.toString());
+            ps.setBytes(3, serialize(vector3D.serialize()));
+            ps.setBytes(4, serialize(vector3D2.serialize()));
+            ps.setBoolean(5, item);
+            ps.setBoolean(6, starting);
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static byte[] serialize(Object object) {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             BukkitObjectOutputStream oos = new BukkitObjectOutputStream(bos)) {
+            oos.writeObject(object);
+            return bos.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void truncateDrillingBlock() {
+        try {
+            create_drilling_table();
+            PreparedStatement ps = conn.prepareStatement("TRUNCATE TABLE `drilling`");
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 

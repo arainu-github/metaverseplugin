@@ -27,6 +27,7 @@ import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.store.BankStore;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
+import world.arainu.core.metaverseplugin.utils.ItemUtil;
 import world.arainu.core.metaverseplugin.utils.SoundUtil;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
@@ -174,7 +175,7 @@ public class VillagerListener implements Listener {
                                 Bank.addMoneyForPlayer((Player) p, returnMoney.total_money() - required_money);
                                 final ItemStack addItem = new ItemStack(item.getType());
                                 addItem.setAmount(item.getAmount());
-                                p.getInventory().addItem(addItem);
+                                ItemUtil.addItem(addItem,e.getInventory(), (Player) p);
                             }
                         }
                         if(okay){
@@ -277,7 +278,7 @@ public class VillagerListener implements Listener {
         for (int i = 18; i < inv.getSize(); i++) {
             ItemStack item = inv.getItem(i);
             if (item == null) continue;
-            e.getPlayer().getInventory().addItem(item);
+            ItemUtil.addItem(item,e.getPlayer().getInventory(), (Player) e.getPlayer());
         }
         invMap.remove(inv);
     }

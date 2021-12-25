@@ -23,17 +23,19 @@ import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.commands.CommandBase;
 import world.arainu.core.metaverseplugin.commands.CommandSpawn;
 import world.arainu.core.metaverseplugin.commands.CommandWhitelist;
+import world.arainu.core.metaverseplugin.commands.CommandiPhone;
+import world.arainu.core.metaverseplugin.gui.Gui;
+import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.iphone.Bank;
+import world.arainu.core.metaverseplugin.iphone.Drilling;
 import world.arainu.core.metaverseplugin.iphone.LinkDiscord;
 import world.arainu.core.metaverseplugin.iphone.MoveSurvival;
 import world.arainu.core.metaverseplugin.iphone.Municipal;
 import world.arainu.core.metaverseplugin.iphone.TrapTower;
 import world.arainu.core.metaverseplugin.iphone.Worldteleport;
 import world.arainu.core.metaverseplugin.iphone.iPhoneEnderDragon;
-import world.arainu.core.metaverseplugin.commands.CommandiPhone;
-import world.arainu.core.metaverseplugin.gui.Gui;
-import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.listener.BankListener;
+import world.arainu.core.metaverseplugin.listener.DrillingListener;
 import world.arainu.core.metaverseplugin.listener.ChristmasListener;
 import world.arainu.core.metaverseplugin.listener.MoneyListener;
 import world.arainu.core.metaverseplugin.listener.MunicipalCreateListener;
@@ -74,19 +76,19 @@ public final class MetaversePlugin extends JavaPlugin {
         configuration = getConfig();
         getLogger().info("メタバースプラグインが有効になりました。");
         Instance = this;
+        sqlUtil.connect();
+        ServerStore.setServerName(configuration.getString("servername"));
         loadCommands();
-        setListener();
         loadGuis();
         EnablePlugins();
+        setListener();
         setScheduler();
-        ServerStore.setServerName(configuration.getString("servername"));
-        sqlUtil.connect();
     }
 
     private void setScheduler() {
         new LateScheduler().runTaskTimer(this, 0, 20);
         new SqlScheduler().runTaskTimer(this, 0, 20 * 60 * 60);
-        new ParticleScheduler().runTaskTimer(this, 0, 10);
+        new ParticleScheduler().runTaskTimer(this, 0, 2);
         createStairsYml();
     }
 
@@ -115,8 +117,9 @@ public final class MetaversePlugin extends JavaPlugin {
         commands.clear();
         Gui.resetInstance();
         getServer().getMessenger().unregisterOutgoingPluginChannel(this);
-        getLogger().info("メタバースプラグインが無効になりました。");
+        DrillingListener.getInstance().saveData();
         sqlUtil.disconnect();
+        getLogger().info("メタバースプラグインが無効になりました。");
     }
 
     private void loadGuis() {
@@ -131,6 +134,7 @@ public final class MetaversePlugin extends JavaPlugin {
         traptowerMeta.lore(Collections.singletonList(Component.text("利用料金 200円/分").color(NamedTextColor.RED)));
         traptowerItem.setItemMeta(traptowerMeta);
         iPhoneStore.addGuiItem(new MenuItem("トラップタワーに行く", new TrapTower()::executeGui, true, traptowerItem), (p) -> !p.getWorld().getName().equals(configuration.getString("world.traptower")) && Objects.equals(ServerStore.getServerName(), "survival"));
+        iPhoneStore.addGuiItem(new MenuItem("自動採掘をする", new Drilling()::executeGui, true, Material.BRICKS), (p) -> !p.getWorld().getName().equals(configuration.getString("world.traptower")) && Objects.equals(ServerStore.getServerName(), "survival"));
         iPhoneStore.addGuiItem(new MenuItem("サバイバルサーバーに戻る", new MoveSurvival()::executeGui, true, Material.GRASS_BLOCK), (p) -> p.getWorld().getName().equals(configuration.getString("world.traptower")));
         iPhoneStore.addGuiItem(new MenuItem("エンドラを復活させる", new iPhoneEnderDragon()::executeGui, true, Material.END_STONE), (p) -> !Gui.isEnderDragonLiving(p) && Gui.isPlayerInEnd(p));
         iPhoneStore.addGuiItem(new MenuItem("自治体", new Municipal()::executeGui, true, Material.END_STONE), (p) -> Objects.equals(ServerStore.getServerName(), "survival"));
@@ -151,6 +155,7 @@ public final class MetaversePlugin extends JavaPlugin {
         PM.registerEvents(new CommandWhitelist(), this);
         PM.registerEvents(new MunicipalCreateListener(), this);
         PM.registerEvents(new MoneyListener(), this);
+        PM.registerEvents(new DrillingListener(), this);
         PM.registerEvents(new ChristmasListener(), this);
         DiscordSRV.api.subscribe(this);
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
@@ -216,7 +221,7 @@ public final class MetaversePlugin extends JavaPlugin {
         FileConfiguration stairsConfig = YamlConfiguration.loadConfiguration(stairsYml);
 
         try {
-            stairsConfig.save(stairsYml);
+            if(!stairsYml.exists()) stairsConfig.save(stairsYml);
         } catch (Exception e) {
             e.printStackTrace();
         }

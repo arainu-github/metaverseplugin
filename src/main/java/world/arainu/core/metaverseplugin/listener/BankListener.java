@@ -21,6 +21,7 @@ import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.store.BankStore;
 import world.arainu.core.metaverseplugin.utils.BankNotice;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
+import world.arainu.core.metaverseplugin.utils.ItemUtil;
 import world.arainu.core.metaverseplugin.utils.SoundUtil;
 
 import java.util.ArrayList;
@@ -74,7 +75,7 @@ public class BankListener implements Listener {
                             player_inv.remove(i);
                         }
                     }
-                    Bank.addMoneyForInventory(inv, returnMoney.total_money());
+                    Bank.addMoneyForInventory(inv, returnMoney.total_money(),p);
                 }
             }
             if (id < 9) e.setCancelled(true);
@@ -124,7 +125,7 @@ public class BankListener implements Listener {
             Inventory newInv = p.getInventory();
             for (ItemStack item : items) {
                 // アイテムを入れる
-                newInv.addItem(item);
+                ItemUtil.addItem(item,newInv,p);
             }
 
             gui_hashmap.remove(p.getUniqueId());
