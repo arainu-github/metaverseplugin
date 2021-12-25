@@ -36,7 +36,6 @@ import world.arainu.core.metaverseplugin.iphone.Worldteleport;
 import world.arainu.core.metaverseplugin.iphone.iPhoneEnderDragon;
 import world.arainu.core.metaverseplugin.listener.BankListener;
 import world.arainu.core.metaverseplugin.listener.DrillingListener;
-import world.arainu.core.metaverseplugin.listener.ChristmasListener;
 import world.arainu.core.metaverseplugin.listener.MoneyListener;
 import world.arainu.core.metaverseplugin.listener.MunicipalCreateListener;
 import world.arainu.core.metaverseplugin.listener.PublicListener;
@@ -156,7 +155,6 @@ public final class MetaversePlugin extends JavaPlugin {
         PM.registerEvents(new MunicipalCreateListener(), this);
         PM.registerEvents(new MoneyListener(), this);
         PM.registerEvents(new DrillingListener(), this);
-        PM.registerEvents(new ChristmasListener(), this);
         DiscordSRV.api.subscribe(this);
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     }
