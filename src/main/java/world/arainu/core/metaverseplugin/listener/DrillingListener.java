@@ -15,6 +15,7 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.enchantments.Enchantment;
@@ -94,7 +95,7 @@ public class DrillingListener implements Listener {
                 locationList.add(i.location());
 
                 if(i.starting()){
-                    startDrilling(block,Bukkit.getPlayer(i.player()),i.vector3D());
+                    startDrilling(block,Bukkit.getOfflinePlayer(i.player()),i.vector3D());
                 }
             } else {
                 Bukkit.getLogger().warning("drilling block " + i + " is not found.removed.");
@@ -456,7 +457,7 @@ public class DrillingListener implements Listener {
         }
     }
 
-    private void startDrilling(Block block,Player p,Vector vector3D){
+    private void startDrilling(Block block, OfflinePlayer p, Vector vector3D){
         block.removeMetadata("metaverse-drilling__starting",MetaversePlugin.getInstance());
         block.setMetadata("metaverse-drilling__starting", new FixedMetadataValue(MetaversePlugin.getInstance(), true));
         Bukkit.getScheduler().runTaskTimer(MetaversePlugin.getInstance(),
@@ -470,7 +471,9 @@ public class DrillingListener implements Listener {
                                 case 3 -> {
                                     ParticleScheduler.removeQueue(particleDrillingMap.get(block));
                                     particleDrillingMap.remove(block);
-                                    ChatUtil.warning(p, "採掘を一時停止しました。");
+                                    if(p.isOnline()) {
+                                        ChatUtil.warning((Player) p, "採掘を一時停止しました。");
+                                    }
                                     drillingTaskMap.remove(block);
                                     ok = false;
                                     block.removeMetadata("metaverse-drilling__starting",MetaversePlugin.getInstance());
@@ -491,7 +494,9 @@ public class DrillingListener implements Listener {
                         if (pos.getY() > vector3D.getY() - 1) {
                             ParticleScheduler.removeQueue(particleDrillingMap.get(block));
                             particleDrillingMap.remove(block);
-                            ChatUtil.success(p, "採掘が正常に完了しました。");
+                            if(p.isOnline()) {
+                                ChatUtil.success((Player) p, "採掘が正常に完了しました。");
+                            }
                             drillingTaskMap.remove(block);
                             pos.zero();
                             ok = false;
@@ -505,13 +510,15 @@ public class DrillingListener implements Listener {
                             final Location location = block.getLocation();
                             location.add(pos.getX() + 1, pos.getY(), pos.getZ());
 
-                            LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
+                            LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer((Player) p);
                             RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
                             RegionQuery query = container.createQuery();
                             final StateFlag.State canBreak = query.queryState(BukkitAdapter.adapt(location), localPlayer, Flags.BLOCK_BREAK);
 
                             if (canBreak == StateFlag.State.DENY && !p.isOp()) {
-                                ChatUtil.warning(p, "保護区域のため、X:" + location.getBlockX() + ",Y:" + location.getBlockY() + ",Z:" + location.getBlockZ() + "の採掘ができませんでした。");
+                                if(p.isOnline()) {
+                                    ChatUtil.warning((Player) p, "保護区域のため、X:" + location.getBlockX() + ",Y:" + location.getBlockY() + ",Z:" + location.getBlockZ() + "の採掘ができませんでした。");
+                                }
                                 pos.add(new Vector(1, 0, 0));
                             } else {
                                 final Block nextBlock = block.getWorld().getBlockAt(location);
