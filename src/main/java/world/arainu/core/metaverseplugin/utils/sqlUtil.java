@@ -83,7 +83,7 @@ public class sqlUtil {
 
     private static void create_drilling_table() {
         try {
-            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `drilling` ( `location` BLOB NOT NULL, `player` VARCHAR(36) NOT NULL, `vector` BLOB NOT NULL, `vector2` BLOB NOT NULL, `item` BOOLEAN NOT NULL ) ");
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `drilling` ( `location` BLOB NOT NULL, `player` VARCHAR(36) NOT NULL, `vector` BLOB NOT NULL, `vector2` BLOB NOT NULL, `item` BOOLEAN NOT NULL, `starting` BOOLEAN NOT NULL ) ");
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -349,7 +349,8 @@ public class sqlUtil {
                         UUID.fromString(rs.getString(2)),
                         Vector.deserialize((HashMap<String, Object>) Objects.requireNonNull(getBinary(rs, 3))),
                         Vector.deserialize((HashMap<String, Object>) Objects.requireNonNull(getBinary(rs, 4))),
-                        rs.getBoolean(5)
+                        rs.getBoolean(5),
+                        rs.getBoolean(6)
                 ));
             }
             rs.close();
@@ -361,18 +362,19 @@ public class sqlUtil {
         }
     }
 
-    public record returnDrilling(Location location, UUID player, Vector vector3D, Vector vector3D2, boolean item) {
+    public record returnDrilling(Location location, UUID player, Vector vector3D, Vector vector3D2, boolean item, boolean starting) {
     }
 
-    public static void addDrillingBlock(Location location, UUID player, Vector vector3D, Vector vector3D2, boolean item) {
+    public static void addDrillingBlock(Location location, UUID player, Vector vector3D, Vector vector3D2, boolean item, boolean starting) {
         try {
             create_drilling_table();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO drilling VALUES(?,?,?,?,?)");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO drilling VALUES(?,?,?,?,?,?)");
             ps.setBytes(1, serialize((location.serialize())));
             ps.setString(2, player.toString());
             ps.setBytes(3, serialize(vector3D.serialize()));
             ps.setBytes(4, serialize(vector3D2.serialize()));
             ps.setBoolean(5, item);
+            ps.setBoolean(6, starting);
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
