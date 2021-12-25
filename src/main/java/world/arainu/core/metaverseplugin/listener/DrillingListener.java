@@ -16,6 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -64,7 +65,16 @@ public class DrillingListener implements Listener {
         instance = this;
         for (sqlUtil.returnDrilling i : Objects.requireNonNull(sqlUtil.getDrillingBlocks())) {
             Block block = i.location().getWorld().getBlockAt(i.location());
-            if (block.getType() == Material.BRICKS) {
+            if (block.getType() == Material.CHEST) {
+                Inventory inv = ((Chest)block.getState()).getInventory();
+                ItemStack pickaxe = inv.getItem(0);
+                if(pickaxe == null){
+                    pickaxe = new ItemStack(Material.AIR);
+                }
+                ItemStack shovel = inv.getItem(1);
+                if(shovel == null){
+                    shovel = new ItemStack(Material.AIR);
+                }
                 block.removeMetadata("metaverse-drilling", MetaversePlugin.getInstance());
                 block.removeMetadata("metaverse-drilling__vector", MetaversePlugin.getInstance());
                 block.removeMetadata("metaverse-drilling__pickaxe", MetaversePlugin.getInstance());
@@ -72,9 +82,10 @@ public class DrillingListener implements Listener {
                 block.removeMetadata("metaverse-drilling__vector2", MetaversePlugin.getInstance());
                 block.setMetadata("metaverse-drilling", new FixedMetadataValue(MetaversePlugin.getInstance(), i.player()));
                 block.setMetadata("metaverse-drilling__vector", new FixedMetadataValue(MetaversePlugin.getInstance(), i.vector3D()));
-                block.setMetadata("metaverse-drilling__pickaxe", new FixedMetadataValue(MetaversePlugin.getInstance(), i.pickaxe()));
-                block.setMetadata("metaverse-drilling__shovel", new FixedMetadataValue(MetaversePlugin.getInstance(), i.shovel()));
+                block.setMetadata("metaverse-drilling__pickaxe", new FixedMetadataValue(MetaversePlugin.getInstance(), pickaxe));
+                block.setMetadata("metaverse-drilling__shovel", new FixedMetadataValue(MetaversePlugin.getInstance(), shovel));
                 block.setMetadata("metaverse-drilling__vector2", new FixedMetadataValue(MetaversePlugin.getInstance(), i.vector3D2()));
+                block.setType(Material.BRICKS);
                 createCube(block, Objects.requireNonNull(i.vector3D()));
                 locationList.add(i.location());
             } else {
@@ -505,7 +516,10 @@ public class DrillingListener implements Listener {
             ItemStack pickaxe = (ItemStack) block.getMetadata("metaverse-drilling__pickaxe").get(0).value();
             ItemStack shovel = (ItemStack) block.getMetadata("metaverse-drilling__shovel").get(0).value();
             Bukkit.getLogger().info(player + "," + vector3D + "," + vector3D2 + "," + pickaxe + "," + shovel);
-            sqlUtil.addDrillingBlock(i, Objects.requireNonNull(player), Objects.requireNonNull(vector3D), Objects.requireNonNull(pickaxe), Objects.requireNonNull(shovel), Objects.requireNonNull(vector3D2));
+            block.setType(Material.CHEST);
+            Chest chest = (Chest) block.getState();
+            chest.getInventory().addItem(Objects.requireNonNull(pickaxe), Objects.requireNonNull(shovel));
+            sqlUtil.addDrillingBlock(i, Objects.requireNonNull(player), Objects.requireNonNull(vector3D), Objects.requireNonNull(vector3D2));
         }
     }
 }
