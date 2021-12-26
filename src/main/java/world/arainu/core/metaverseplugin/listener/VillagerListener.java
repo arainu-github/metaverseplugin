@@ -113,7 +113,7 @@ public class VillagerListener implements Listener {
             // 管理インベントリでなければ無視
             if (!invMap.containsKey(inv)) return;
             final int id = e.getRawSlot();
-            if (id < 18 && id > 0) {
+            if (id < 18 && id >= 0) {
                 e.setCancelled(true);
                 switch (id) {
                     case 1 -> {
