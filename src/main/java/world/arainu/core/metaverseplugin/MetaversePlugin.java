@@ -42,6 +42,7 @@ import world.arainu.core.metaverseplugin.listener.PublicListener;
 import world.arainu.core.metaverseplugin.listener.ServerListener;
 import world.arainu.core.metaverseplugin.listener.SittingListener;
 import world.arainu.core.metaverseplugin.listener.VillagerListener;
+import world.arainu.core.metaverseplugin.scheduler.DiscordScheduler;
 import world.arainu.core.metaverseplugin.scheduler.LateScheduler;
 import world.arainu.core.metaverseplugin.scheduler.ParticleScheduler;
 import world.arainu.core.metaverseplugin.scheduler.SqlScheduler;
@@ -86,6 +87,7 @@ public final class MetaversePlugin extends JavaPlugin {
 
     private void setScheduler() {
         new LateScheduler().runTaskTimer(this, 0, 20);
+        new DiscordScheduler().runTaskTimer(this, 0, 20*10);
         new SqlScheduler().runTaskTimer(this, 0, 20 * 60 * 60);
         new ParticleScheduler().runTaskTimer(this, 0, 2);
         createStairsYml();
