@@ -108,6 +108,14 @@ public class sqlUtil {
         }
     }
 
+    private static void create_advancement_table() {
+        try {
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS advancement (id VARCHAR(255) NOT NULL ,title VARCHAR(255) NOT NULL,description VARCHAR(255) NOT NULL, children VARCHAR(65535) NOT NULL, PRIMARY KEY (`id`)) ");
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
     /**
      * 何かしらのタイプとUUIDを紐付ける関数。
      *
@@ -431,6 +439,42 @@ public class sqlUtil {
         try {
             create_drilling_table();
             PreparedStatement ps = conn.prepareStatement("TRUNCATE TABLE `drilling`");
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * web進捗に使うためのデータを保存する関数。
+     * @param id minecraftのネームスペース
+     * @param title 進捗名
+     * @param description 進捗の説明
+     * @param children この進捗の子のID群
+     */
+    public static void addAdvancement(String id, String title, String description, List<String> children) {
+        try {
+            create_advancement_table();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO advancement VALUES(?,?,?,?)");
+            ps.setString(1,id);
+            ps.setString(2,title);
+            ps.setString(3,description);
+            ps.setString(4,String.join(",",children));
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * web進捗のデータを全削除する関数。
+     */
+    public static void truncateAdvancement() {
+        try {
+            create_advancement_table();
+            PreparedStatement ps = conn.prepareStatement("TRUNCATE TABLE `advancement`");
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {

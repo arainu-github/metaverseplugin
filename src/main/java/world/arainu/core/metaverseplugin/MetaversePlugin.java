@@ -5,8 +5,10 @@ import github.scarsz.discordsrv.api.Subscribe;
 import github.scarsz.discordsrv.api.events.DiscordReadyEvent;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -53,7 +55,10 @@ import world.arainu.core.metaverseplugin.utils.sqlUtil;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * メタバースプラグインの基本クラス
@@ -74,7 +79,6 @@ public final class MetaversePlugin extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         configuration = getConfig();
-        getLogger().info("メタバースプラグインが有効になりました。");
         Instance = this;
         sqlUtil.connect();
         ServerStore.setServerName(configuration.getString("servername"));
@@ -83,6 +87,22 @@ public final class MetaversePlugin extends JavaPlugin {
         EnablePlugins();
         setListener();
         setScheduler();
+        getLogger().info("saving advancements data...");
+        sqlUtil.truncateAdvancement();
+        Bukkit.advancementIterator().forEachRemaining(e -> {
+            if(e.getDisplay() != null){
+                String id = e.getKey().getNamespace()+":"+e.getKey().getKey();
+                String title = ((TranslatableComponent) e.getDisplay().title()).key();
+                String description = ((TranslatableComponent) e.getDisplay().description()).key();
+                List<String> children = e.getChildren().stream().map(i -> i.getKey().getNamespace()+":"+i.getKey().getKey()).collect(Collectors.toList());
+                sqlUtil.addAdvancement(id,title,description,children);
+            }
+        });
+        getLogger().info("メタバースプラグインが有効になりました。");
+    }
+
+    static public @NotNull Logger logger(){
+        return getInstance().getLogger();
     }
 
     private void setScheduler() {

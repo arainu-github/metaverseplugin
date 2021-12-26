@@ -74,7 +74,6 @@ public class MoneyListener implements Listener {
     public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent e){
         Advancement advancement = e.getAdvancement();
         if(advancement.getDisplay() != null) {
-            Bukkit.getLogger().info("done");
             switch (Objects.requireNonNull(e.getAdvancement().getDisplay()).frame()){
                 case TASK -> addMoney(e.getPlayer(),100);
                 case GOAL -> addMoney(e.getPlayer(),500);
