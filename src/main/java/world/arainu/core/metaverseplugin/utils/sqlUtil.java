@@ -302,7 +302,6 @@ public class sqlUtil {
      *
      * @return ホワリスに入っているプレイヤーのUUIDをリストで返します。
      */
-
     public static List<UUID> getWhitelist() {
         try {
             create_whitelist_table();
@@ -321,6 +320,13 @@ public class sqlUtil {
         }
     }
 
+    /**
+     * Objectをrsから取得する関数。
+     *
+     * @param rs    SQLのResultSet
+     * @param index SQLのindex
+     * @return Object
+     */
     private static Object getBinary(ResultSet rs, int index) {
         try {
             InputStream is = rs.getBinaryStream(index);
@@ -337,6 +343,11 @@ public class sqlUtil {
         }
     }
 
+    /**
+     * 採掘マシーンのデータを取得する関数
+     *
+     * @return 採掘マシーンの各データ
+     */
     public static List<returnDrilling> getDrillingBlocks() {
         try {
             create_drilling_table();
@@ -362,9 +373,23 @@ public class sqlUtil {
         }
     }
 
-    public record returnDrilling(Location location, UUID player, Vector vector3D, Vector vector3D2, boolean item, boolean starting) {
+    /**
+     * Returnに使われる内部関数。
+     */
+    public record returnDrilling(Location location, UUID player, Vector vector3D, Vector vector3D2, boolean item,
+                                 boolean starting) {
     }
 
+    /**
+     * 採掘マシーンのデータを保存するのに使われる関数。
+     *
+     * @param location  採掘マシーンの場所
+     * @param player    使用しているプレイヤー
+     * @param vector3D  採掘の大きさ
+     * @param vector3D2 採掘している場所
+     * @param item      アイテム取得モードか
+     * @param starting  採掘中か
+     */
     public static void addDrillingBlock(Location location, UUID player, Vector vector3D, Vector vector3D2, boolean item, boolean starting) {
         try {
             create_drilling_table();
@@ -382,6 +407,12 @@ public class sqlUtil {
         }
     }
 
+    /**
+     * シリアル化する関数。
+     *
+     * @param object シリアル化するオブジェクト
+     * @return シリアルデータ
+     */
     private static byte[] serialize(Object object) {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              BukkitObjectOutputStream oos = new BukkitObjectOutputStream(bos)) {
@@ -393,6 +424,9 @@ public class sqlUtil {
         }
     }
 
+    /**
+     * 採掘マシーンのデータを全削除する関数。
+     */
     public static void truncateDrillingBlock() {
         try {
             create_drilling_table();
