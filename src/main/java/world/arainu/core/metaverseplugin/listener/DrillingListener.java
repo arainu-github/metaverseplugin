@@ -498,6 +498,8 @@ public class DrillingListener implements Listener {
                             if(p.isOnline()) {
                                 ChatUtil.success(p.getPlayer(), "採掘が正常に完了しました。");
                             }
+                            block.removeMetadata("metaverse-drilling__starting",MetaversePlugin.getInstance());
+                            block.setMetadata("metaverse-drilling__starting", new FixedMetadataValue(MetaversePlugin.getInstance(), false));
                             drillingTaskMap.remove(block);
                             pos.zero();
                             ok = false;
