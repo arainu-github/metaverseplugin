@@ -18,6 +18,7 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -472,7 +473,7 @@ public class DrillingListener implements Listener {
                                     ParticleScheduler.removeQueue(particleDrillingMap.get(block));
                                     particleDrillingMap.remove(block);
                                     if(p.isOnline()) {
-                                        ChatUtil.warning((Player) p, "採掘を一時停止しました。");
+                                        ChatUtil.warning(Objects.requireNonNull(p.getPlayer()), "採掘を一時停止しました。");
                                     }
                                     drillingTaskMap.remove(block);
                                     ok = false;
@@ -495,7 +496,7 @@ public class DrillingListener implements Listener {
                             ParticleScheduler.removeQueue(particleDrillingMap.get(block));
                             particleDrillingMap.remove(block);
                             if(p.isOnline()) {
-                                ChatUtil.success((Player) p, "採掘が正常に完了しました。");
+                                ChatUtil.success(p.getPlayer(), "採掘が正常に完了しました。");
                             }
                             drillingTaskMap.remove(block);
                             pos.zero();
@@ -510,14 +511,14 @@ public class DrillingListener implements Listener {
                             final Location location = block.getLocation();
                             location.add(pos.getX() + 1, pos.getY(), pos.getZ());
 
-                            LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer((Player) p);
+                            LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p.getPlayer());
                             RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
                             RegionQuery query = container.createQuery();
                             final StateFlag.State canBreak = query.queryState(BukkitAdapter.adapt(location), localPlayer, Flags.BLOCK_BREAK);
 
                             if (canBreak == StateFlag.State.DENY && !p.isOp()) {
                                 if(p.isOnline()) {
-                                    ChatUtil.warning((Player) p, "保護区域のため、X:" + location.getBlockX() + ",Y:" + location.getBlockY() + ",Z:" + location.getBlockZ() + "の採掘ができませんでした。");
+                                    ChatUtil.warning(Objects.requireNonNull(p.getPlayer()), "保護区域のため、X:" + location.getBlockX() + ",Y:" + location.getBlockY() + ",Z:" + location.getBlockZ() + "の採掘ができませんでした。");
                                 }
                                 pos.add(new Vector(1, 0, 0));
                             } else {
