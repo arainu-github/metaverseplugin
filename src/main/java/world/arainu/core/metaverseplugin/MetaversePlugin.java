@@ -73,7 +73,8 @@ public final class MetaversePlugin extends JavaPlugin {
     private static MetaversePlugin Instance;
     @Getter
     private static FileConfiguration configuration;
-    @Getter private static DynmapAPI dynmap;
+    @Getter
+    private static DynmapAPI dynmap;
     private final HashMap<String, CommandBase> commands = new HashMap<>();
 
     @Override
@@ -88,27 +89,32 @@ public final class MetaversePlugin extends JavaPlugin {
         EnablePlugins();
         setListener();
         setScheduler();
-        getLogger().info("saving advancements data...");
-        sqlUtil.truncateAdvancement();
-        Bukkit.advancementIterator().forEachRemaining(e -> {
-            if(e.getDisplay() != null){
-                String id = e.getKey().getNamespace()+":"+e.getKey().getKey();
-                String title = ((TranslatableComponent) e.getDisplay().title()).key();
-                String description = ((TranslatableComponent) e.getDisplay().description()).key();
-                List<String> children = e.getChildren().stream().map(i -> i.getKey().getNamespace()+":"+i.getKey().getKey()).collect(Collectors.toList());
-                sqlUtil.addAdvancement(id,title,description,children);
-            }
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+            getLogger().info("saving advancements data...");
+            sqlUtil.truncateAdvancement();
+            Bukkit.advancementIterator().forEachRemaining(e -> {
+                if (e.getDisplay() != null) {
+                    String id = e.getKey().getNamespace() + ":" + e.getKey().getKey();
+                    String title = ((TranslatableComponent) e.getDisplay().title()).key();
+                    String description = ((TranslatableComponent) e.getDisplay().description()).key();
+                    List<String> children = e.getChildren().stream().map(i -> i.getKey().getNamespace() + ":" + i.getKey().getKey()).collect(Collectors.toList());
+                    String icon = e.getDisplay().icon().getType().name().toLowerCase();
+                    String type = e.getDisplay().frame().name();
+                    sqlUtil.addAdvancement(id, title, description, children, icon,type);
+                }
+            });
+            getLogger().info("saved");
         });
         getLogger().info("メタバースプラグインが有効になりました。");
     }
 
-    static public @NotNull Logger logger(){
+    static public @NotNull Logger logger() {
         return getInstance().getLogger();
     }
 
     private void setScheduler() {
         new LateScheduler().runTaskTimer(this, 0, 20);
-        new DiscordScheduler().runTaskTimer(this, 0, 20*10);
+        new DiscordScheduler().runTaskTimer(this, 0, 20 * 10);
         new SqlScheduler().runTaskTimer(this, 0, 20 * 60 * 60);
         new ParticleScheduler().runTaskTimer(this, 0, 2);
         createStairsYml();
@@ -243,7 +249,7 @@ public final class MetaversePlugin extends JavaPlugin {
         FileConfiguration stairsConfig = YamlConfiguration.loadConfiguration(stairsYml);
 
         try {
-            if(!stairsYml.exists()) stairsConfig.save(stairsYml);
+            if (!stairsYml.exists()) stairsConfig.save(stairsYml);
         } catch (Exception e) {
             e.printStackTrace();
         }

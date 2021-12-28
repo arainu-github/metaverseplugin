@@ -110,7 +110,7 @@ public class sqlUtil {
 
     private static void create_advancement_table() {
         try {
-            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS advancement (id VARCHAR(256) NOT NULL ,title TEXT(256) NOT NULL,description TEXT(256) NOT NULL, children TEXT NOT NULL, PRIMARY KEY (`id`) ) CHARSET utf8mb4");
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS advancement (id VARCHAR(256) NOT NULL ,title TEXT(256) NOT NULL,description TEXT(256) NOT NULL, children TEXT NOT NULL, icon VARCHAR(256) NOT NULL, type VARCHAR(9) NOT NULL, PRIMARY KEY (`id`) ) CHARSET utf8mb4");
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -461,15 +461,19 @@ public class sqlUtil {
      * @param title 進捗名
      * @param description 進捗の説明
      * @param children この進捗の子のID群
+     * @param icon アイコンのファイル名
+     * @param type 進捗の種類
      */
-    public static void addAdvancement(String id, String title, String description, List<String> children) {
+    public static void addAdvancement(String id, String title, String description, List<String> children,String icon,String type) {
         try {
             create_advancement_table();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO advancement VALUES(?,?,?,?)");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO advancement VALUES(?,?,?,?,?,?)");
             ps.setString(1,id);
             ps.setString(2,title);
             ps.setString(3,description);
             ps.setString(4,String.join(",",children));
+            ps.setString(5,icon);
+            ps.setString(6,type);
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
