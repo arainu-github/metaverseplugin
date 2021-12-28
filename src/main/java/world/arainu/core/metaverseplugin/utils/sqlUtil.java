@@ -110,7 +110,16 @@ public class sqlUtil {
 
     private static void create_advancement_table() {
         try {
-            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS advancement (id VARCHAR(255) NOT NULL ,title VARCHAR(255) NOT NULL,description VARCHAR(255) NOT NULL, children VARCHAR(65535) NOT NULL, PRIMARY KEY (`id`)) ");
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS advancement (id VARCHAR(256) NOT NULL ,title TEXT(256) NOT NULL,description TEXT(256) NOT NULL, children TEXT NOT NULL, PRIMARY KEY (`id`) ) CHARSET utf8mb4");
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void create_playeradvancement_table() {
+        try {
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS playeradvancement (uuid VARCHAR(36) NOT NULL ,id VARCHAR(256) NOT NULL,awarded TEXT NOT NULL, remaining TEXT NOT NULL,PRIMARY KEY (uuid,id))");
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -482,6 +491,44 @@ public class sqlUtil {
         }
     }
 
+    /**
+     * プレイヤーの進捗データを保存する関数。
+     * awardedとremainingに関しては、固有のものが存在するのでその関数を使用すること。
+     * @param uuid プレイヤーUUID
+     * @param id 進捗の固有ID
+     * @param awarded 既に取得している基準のリスト
+     * @param remaining まだ取得していない基準のリスト
+     */
+    public static void addPlayerAdvancement(UUID uuid, String id, List<String> awarded, List<String> remaining) {
+        try {
+            create_playeradvancement_table();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO playeradvancement VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE awarded = VALUES(awarded), remaining = VALUES(remaining)");
+            ps.setString(1,uuid.toString());
+            ps.setString(2,id);
+            ps.setString(3,String.join(",",awarded));
+            ps.setString(4,String.join(",",remaining));
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * web進捗のデータを全削除する関数。
+     * @param uuid プレイヤーUUID
+     */
+    public static void removePlayerAdvancement(UUID uuid) {
+        try {
+            create_playeradvancement_table();
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM `playeradvancement` WHERE `uuid` LIKE '" + uuid + "'");
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Getter
     private final static String db_name = MetaversePlugin.getConfiguration().getString("mysql.db_name");
     @Getter
@@ -494,6 +541,6 @@ public class sqlUtil {
     private final static int port = MetaversePlugin.getConfiguration().getInt("mysql.port");
     @Getter
     private final static String url = MetaversePlugin.getConfiguration().getString("mysql.url");
-    private final static String url_connection = "jdbc:mysql://" + url + ":" + port + "/" + db_name + "?autoReconnect=true&maxReconnects=3&useSSL=false";
+    private final static String url_connection = "jdbc:mysql://" + url + ":" + port + "/" + db_name + "?useUnicode=true&characterEncoding=utf8&autoReconnect=true&maxReconnects=3&useSSL=false";
     private static Connection conn;
 }
