@@ -68,7 +68,7 @@ public class HappyNewYearScheduler extends BukkitRunnable {
             } else if (newYear <= 60) {
                 e.showTitle(Title.title(Component.text(newYear).decorate(TextDecoration.BOLD).color(NamedTextColor.GOLD), Component.empty(), Title.Times.of(Duration.ZERO, Duration.ofSeconds(1), Duration.ZERO)));
             } else {
-                e.showTitle(Title.title(Component.empty(), Component.empty().append(Component.text("のこり").color(NamedTextColor.GREEN)).append(Component.text(newYear).decorate(TextDecoration.BOLD)).append(Component.text("秒").color(NamedTextColor.GOLD)), Title.Times.of(Duration.ZERO, Duration.ofSeconds(1), Duration.ZERO)));
+                e.sendActionBar(Component.empty().append(Component.text("のこり").color(NamedTextColor.GREEN)).append(Component.text(newYear).decorate(TextDecoration.BOLD)).append(Component.text("秒").color(NamedTextColor.GOLD)));
             }
         });
     }
