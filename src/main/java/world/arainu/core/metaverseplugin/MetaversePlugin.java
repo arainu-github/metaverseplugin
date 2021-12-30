@@ -89,22 +89,24 @@ public final class MetaversePlugin extends JavaPlugin {
         EnablePlugins();
         setListener();
         setScheduler();
-        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-            getLogger().info("saving advancements data...");
-            sqlUtil.truncateAdvancement();
-            Bukkit.advancementIterator().forEachRemaining(e -> {
-                if (e.getDisplay() != null) {
-                    String id = e.getKey().getNamespace() + ":" + e.getKey().getKey();
-                    String title = ((TranslatableComponent) e.getDisplay().title()).key();
-                    String description = ((TranslatableComponent) e.getDisplay().description()).key();
-                    List<String> children = e.getChildren().stream().map(i -> i.getKey().getNamespace() + ":" + i.getKey().getKey()).collect(Collectors.toList());
-                    String icon = e.getDisplay().icon().getType().name().toLowerCase();
-                    String type = e.getDisplay().frame().name();
-                    sqlUtil.addAdvancement(id, title, description, children, icon,type);
-                }
+        if(Objects.equals(ServerStore.getServerName(), "survival")) {
+            Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+                getLogger().info("saving advancements data...");
+                sqlUtil.truncateAdvancement();
+                Bukkit.advancementIterator().forEachRemaining(e -> {
+                    if (e.getDisplay() != null) {
+                        String id = e.getKey().getNamespace() + ":" + e.getKey().getKey();
+                        String title = ((TranslatableComponent) e.getDisplay().title()).key();
+                        String description = ((TranslatableComponent) e.getDisplay().description()).key();
+                        List<String> children = e.getChildren().stream().map(i -> i.getKey().getNamespace() + ":" + i.getKey().getKey()).collect(Collectors.toList());
+                        String icon = e.getDisplay().icon().getType().name().toLowerCase();
+                        String type = e.getDisplay().frame().name();
+                        sqlUtil.addAdvancement(id, title, description, children, icon, type);
+                    }
+                });
+                getLogger().info("saved");
             });
-            getLogger().info("saved");
-        });
+        }
         getLogger().info("メタバースプラグインが有効になりました。");
     }
 
@@ -184,7 +186,9 @@ public final class MetaversePlugin extends JavaPlugin {
         PM.registerEvents(new MunicipalCreateListener(), this);
         PM.registerEvents(new MoneyListener(), this);
         PM.registerEvents(new DrillingListener(), this);
-        PM.registerEvents(new AdvancementListener(), this);
+        if(Objects.equals(ServerStore.getServerName(), "survival")) {
+            PM.registerEvents(new AdvancementListener(), this);
+        }
         DiscordSRV.api.subscribe(this);
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     }
