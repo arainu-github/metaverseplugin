@@ -119,7 +119,7 @@ public class sqlUtil {
 
     private static void create_playeradvancement_table() {
         try {
-            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS playeradvancement (uuid VARCHAR(36) NOT NULL ,id VARCHAR(256) NOT NULL,awarded TEXT NOT NULL, remaining TEXT NOT NULL,PRIMARY KEY (uuid,id))");
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS playeradvancement (uuid VARCHAR(36) NOT NULL ,id VARCHAR(256) NOT NULL,awarded TEXT NOT NULL, remaining TEXT NOT NULL, done BIT NOT NULL,PRIMARY KEY (uuid,id))");
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -503,14 +503,15 @@ public class sqlUtil {
      * @param awarded 既に取得している基準のリスト
      * @param remaining まだ取得していない基準のリスト
      */
-    public static void addPlayerAdvancement(UUID uuid, String id, List<String> awarded, List<String> remaining) {
+    public static void addPlayerAdvancement(UUID uuid, String id, List<String> awarded, List<String> remaining,boolean done) {
         try {
             create_playeradvancement_table();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO playeradvancement VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE awarded = VALUES(awarded), remaining = VALUES(remaining)");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO playeradvancement VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE awarded = VALUES(awarded), remaining = VALUES(remaining),done = VALUES(done)");
             ps.setString(1,uuid.toString());
             ps.setString(2,id);
             ps.setString(3,String.join(",",awarded));
             ps.setString(4,String.join(",",remaining));
+            ps.setBoolean(5,done);
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {

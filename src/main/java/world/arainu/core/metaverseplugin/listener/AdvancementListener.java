@@ -20,7 +20,7 @@ public class AdvancementListener implements Listener {
             AdvancementProgress advancementProgress = p.getAdvancementProgress(advancement);
             List<String> awarded = advancementProgress.getAwardedCriteria().stream().toList();
             List<String> remaining = advancementProgress.getRemainingCriteria().stream().toList();
-            sqlUtil.addPlayerAdvancement(p.getUniqueId(), id, awarded, remaining);
+            sqlUtil.addPlayerAdvancement(p.getUniqueId(), id, awarded, remaining, advancementProgress.isDone());
         }
     }
 
