@@ -3,6 +3,7 @@ package world.arainu.core.metaverseplugin.listener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import world.arainu.core.metaverseplugin.gui.casino.SlotMachine;
 import world.arainu.core.metaverseplugin.iphone.MoveSurvival;
 
 /**
@@ -18,6 +19,7 @@ public class PublicListener implements Listener {
      */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
+//        SlotMachine.start(e.getPlayer());
         MoveSurvival.Move(e.getPlayer(),"公共施設使用時にサーバーから退出したため、サバイバルサーバーへ強制送還しました。");
     }
 }
