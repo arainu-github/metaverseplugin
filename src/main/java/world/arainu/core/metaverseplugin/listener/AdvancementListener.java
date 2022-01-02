@@ -21,7 +21,6 @@ public class AdvancementListener implements Listener {
             List<String> awarded = advancementProgress.getAwardedCriteria().stream().toList();
             List<String> remaining = advancementProgress.getRemainingCriteria().stream().toList();
             sqlUtil.addPlayerAdvancement(p.getUniqueId(), id, awarded, remaining);
-            MetaversePlugin.logger().info("added "+id);
         }
     }
 
