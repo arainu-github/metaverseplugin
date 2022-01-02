@@ -1,7 +1,9 @@
 name: 'artifacts cleanup'
 on:
   schedule:
-    - cron: '0 20 * * *' # UTC
+    - cron: '0 15 * * *' # UTC
+  
+  workflow_dispatch:
 
 jobs:
   delete-artifacts:
