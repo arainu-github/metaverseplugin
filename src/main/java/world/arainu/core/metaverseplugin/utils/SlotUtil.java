@@ -21,7 +21,6 @@ public class SlotUtil {
     private static final ItemStack netherite = new ItemStack(Material.NETHERITE_INGOT);
     private static final ItemStack dragonHead = new ItemStack(Material.DRAGON_HEAD);
     private static final ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-    public static boolean isSlotStarted = false;
 
     public static List<ItemStack> getAll() {
         SkullMeta meta = (SkullMeta) head.getItemMeta();
@@ -38,16 +37,7 @@ public class SlotUtil {
 
     public static class SlotListeners {
 
-        private final List<Consumer<SlotType>> buttonPressListeners = new ArrayList<>();
         private final List<Consumer<StopMethod>> slotFinishListeners = new ArrayList<>();
-
-        public void addButtonPressListener(Consumer<SlotType> press) {
-            buttonPressListeners.add(press);
-        }
-
-        public void buttonPressTrigger(SlotType slotType) {
-            buttonPressListeners.forEach((listener) -> listener.accept(slotType));
-        }
 
         public void addSlotFinishListener(Consumer<StopMethod> consumer) {
             slotFinishListeners.add(consumer);
@@ -56,21 +46,12 @@ public class SlotUtil {
         public void slotFinishTrigger(StopMethod stopMethod) {
             slotFinishListeners.forEach((listener) -> listener.accept(stopMethod));
         }
-
-        public void clearButtonPressListeners() {
-            buttonPressListeners.clear();
-        }
-
         public void clearSlotFinishListeners() {
             slotFinishListeners.clear();
         }
 
         public enum StopMethod {
             INDIVIDUAL, ALL
-        }
-
-        public enum SlotType {
-            ONE, TWO, THREE, ALL
         }
     }
 }

@@ -40,181 +40,18 @@ public class SlotMachine implements Listener {
 
 
     /**
-     * とりあえずリスナーとスロットのコードを同じクラスにまとめました。
-     *
-     * @param event イベント
-     */
-    @EventHandler
-    public void onInventoryClose(InventoryCloseEvent event) {
-        if (event.getView().getTitle().equalsIgnoreCase(ChatColor.GOLD + "Slot Machine")) {
-            SlotUtil.isSlotStarted = false;
-            listeners.buttonPressTrigger(SlotUtil.SlotListeners.SlotType.ALL);
-        }
-    }
-
-    @EventHandler
-    public void inventoryClick(InventoryClickEvent event) {
-        ItemStack eventStack = event.getCurrentItem();
-        if (event.getView().getTitle().equalsIgnoreCase(ChatColor.GOLD + "Slot Machine") && SlotUtil.isSlotStarted) {
-            switch (Objects.requireNonNull(eventStack).getType()) {
-                case WARPED_BUTTON -> {
-                    final String displayName = Objects.requireNonNull(Objects.requireNonNull(event.getCurrentItem()).getItemMeta()).getDisplayName();
-                    if (displayName.contains("Stop slot")) {
-                        listeners.buttonPressTrigger(intToSlotType(Integer.parseInt(displayName.split(" ")[2])));
-                    }
-                }
-                case GREEN_STAINED_GLASS_PANE -> {
-                    tasks.add(Bukkit.getScheduler().runTaskTimer(MetaversePlugin.getInstance(), () -> {
-                        ItemStack newSlot = SlotUtil.getRandom();
-                        inventory.setItem(28, inventory.getItem(19));
-                        inventory.setItem(19, inventory.getItem(10));
-                        inventory.setItem(10, newSlot);
-                    }, 0, 20));
-
-                    tasks.add(Bukkit.getScheduler().runTaskTimer(MetaversePlugin.getInstance(), () -> {
-                        ItemStack newSlot = SlotUtil.getRandom();
-                        inventory.setItem(29, inventory.getItem(20));
-                        inventory.setItem(20, inventory.getItem(11));
-                        inventory.setItem(11, newSlot);
-                    }, 0, 20));
-                    tasks.add(Bukkit.getScheduler().runTaskTimer(MetaversePlugin.getInstance(), () -> {
-                        ItemStack newSlot = SlotUtil.getRandom();
-                        inventory.setItem(30, inventory.getItem(21));
-                        inventory.setItem(21, inventory.getItem(12));
-                        inventory.setItem(12, newSlot);
-                    }, 0, 20));
-
-                    final ItemStack stopAllButton = new ItemStack(Material.RED_STAINED_GLASS_PANE);
-                    final ItemMeta stopAllButtonMeta = stopAllButton.getItemMeta();
-                    assert stopAllButtonMeta != null;
-                    stopAllButtonMeta.setDisplayName(ChatColor.RED + "Stop");
-                    stopAllButton.setItemMeta(stopAllButtonMeta);
-                    inventory.setItem(24, stopAllButton);
-                }
-                case RED_STAINED_GLASS_PANE -> {
-                    tasks.forEach(BukkitTask::cancel);
-                    listeners.slotFinishTrigger(SlotUtil.SlotListeners.StopMethod.ALL);
-                    inventory.remove(Material.RED_STAINED_GLASS_PANE);
-                }
-            }
-            event.setCancelled(true);
-        } else {
-            ChatUtil.warning(event.getWhoClicked(), "エラーが発生しました。");
-        }
-
-    }
-
-    /**
      * スロットマシーンを開く関数
      *
      * @param player スロットのguiを表示させたいプレイヤー
      */
     public static void start(Player player) {
-        if (!Gui.isBedrock(player) && !SlotUtil.isSlotStarted) {
-            SlotUtil.isSlotStarted = true;
+        if (!Gui.isBedrock(player)) {
             new AnvilGUI.Builder()
                     .title("賭ける金額を入力してください。")
-                    .onClose(p -> ChatUtil.warning(p, "賭ける金額の入力を取りやめました。"))
                     .onComplete(slotMechanic())
+                    .itemLeft(new ItemStack(Material.PAPER))
                     .open(player);
         }
-    }
-
-    /**
-     * @return 賭ける金額のAnvilGuiを閉じたときの処理（カジノの処理でもあるョ）
-     */
-    public static BiFunction<Player, String, AnvilGUI.Response> slotMechanic() {
-        return (player, s) -> {
-            listeners.clearButtonPressListeners();
-            listeners.clearSlotFinishListeners();
-            tasks.clear();
-            //数字かどうか確認
-            if (Pattern.compile("-?\\d+(\\.\\d+)?").matcher(s).matches()) {
-                final int bet = Integer.parseInt(s);
-                final List<ItemStack> possible = SlotUtil.getAll();
-
-                if (MetaversePlugin.getEcon().has(player, bet)) {
-                    if (possible.size() == 9) {
-                        final ItemStack around = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
-                        final int[] aroundPattern = {0, 1, 2, 3, 4, 9, 13, 18, 22, 27, 31, 36, 37, 38, 39, 40};
-                        for (int i : aroundPattern) {
-                            inventory.setItem(i, around);
-                        }
-
-                        final int[] possiblePattern = {10, 11, 12, 19, 20, 21, 28, 29, 30};
-                        for (int i = 0; i < possible.size(); i++) {
-                            inventory.setItem(possiblePattern[i], possible.get(i));
-                        }
-
-                        final ItemStack startButton = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
-                        final ItemMeta startButtonMeta = startButton.getItemMeta();
-                        assert startButtonMeta != null;
-                        startButtonMeta.setDisplayName(ChatColor.GREEN + "Start");
-                        startButton.setItemMeta(startButtonMeta);
-                        inventory.setItem(24, startButton);
-
-
-                        final int[] stopButtonPattern = {46, 47, 48};
-
-                        for (int j : stopButtonPattern) {
-                            ItemStack stopButton = new ItemStack(Material.WARPED_BUTTON);
-                            ItemMeta stopButtonMeta = stopButton.getItemMeta();
-                            assert stopButtonMeta != null;
-                            stopButtonMeta.setDisplayName(ChatColor.RED + ((j - 45) + "番目のスロットを止める"));
-                            stopButton.setItemMeta(stopButtonMeta);
-                            inventory.setItem(j, stopButton);
-                        }
-                        player.openInventory(inventory);
-
-                        listeners.addSlotFinishListener((stopMethod) -> {
-                            int prize = (int) Math.round(getWinMoney(getPattern(), stopMethod, bet));
-                            /*
-                             * @todo prize変数にあるだけプレイヤーにお金を口座に直接入金するコードを書く
-                             */
-                        });
-
-                        listeners.addButtonPressListener((slotType) -> {
-                            switch (slotType) {
-                                case ONE -> tasks.get(0).cancel();
-                                case TWO -> tasks.get(1).cancel();
-                                case THREE -> tasks.get(2).cancel();
-                                case ALL -> tasks.forEach(BukkitTask::cancel);
-                            }
-
-                            if (tasks.get(0).isCancelled() && tasks.get(1).isCancelled() && tasks.get(2).isCancelled()) {
-                                listeners.slotFinishTrigger(SlotUtil.SlotListeners.StopMethod.INDIVIDUAL);
-                            }
-                        });
-                    } else {
-                        throw new Error("スロット内のアイテムは９個でなければいけません。SlotUtilを確認してください。");
-                    }
-                } else {
-                    ChatUtil.warning(player, "あなたはそこまでお金を持っていません");
-                }
-            } else {
-                ChatUtil.error(player, "数字以外のものが含まれているか無効な数字です！");
-            }
-            return AnvilGUI.Response.close();
-        };
-    }
-
-    /**
-     * スロット内の９つのアイテムを取得する関数
-     *
-     * @return アイテムの状態
-     */
-    public static List<Material> getPattern() {
-        return Arrays.asList(Objects.requireNonNull(
-                        Objects.requireNonNull(inventory.getItem(10)).getType()),
-                Objects.requireNonNull(inventory.getItem(11)).getType(),
-                Objects.requireNonNull(inventory.getItem(12)).getType(),
-                Objects.requireNonNull(inventory.getItem(19)).getType(),
-                Objects.requireNonNull(inventory.getItem(20)).getType(),
-                Objects.requireNonNull(inventory.getItem(21)).getType(),
-                Objects.requireNonNull(inventory.getItem(28)).getType(),
-                Objects.requireNonNull(inventory.getItem(29)).getType(),
-                Objects.requireNonNull(inventory.getItem(30)).getType()
-        );
     }
 
     /**
@@ -311,25 +148,158 @@ public class SlotMachine implements Listener {
             winMoney = winMoney * 2;
         }
 
-        return winMoney;
+        //かける金額と賞金が同じなら賞金は０
+        return bet == winMoney ? 0 : winMoney;
     }
 
+    /**
+     * @return 賭ける金額のAnvilGuiを閉じたときの処理（カジノの処理でもあるョ）
+     */
+    public static BiFunction<Player, String, AnvilGUI.Response> slotMechanic() {
+        return (player, s) -> {
+            listeners.clearSlotFinishListeners();
+            tasks.clear();
+            //数字かどうか確認
+            if (Pattern.compile("-?\\d+(\\.\\d+)?").matcher(s).matches()) {
+                final int bet = Integer.parseInt(s);
+                final List<ItemStack> possible = SlotUtil.getAll();
 
-    public SlotUtil.SlotListeners.SlotType intToSlotType(int i) {
-        switch (i) {
-            case 1 -> {
-                return SlotUtil.SlotListeners.SlotType.ONE;
+                if (MetaversePlugin.getEcon().has(player, bet)) {
+                    if (possible.size() == 9) {
+                        final ItemStack around = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
+                        final int[] aroundPattern = {0, 1, 2, 3, 4, 9, 13, 18, 22, 27, 31, 36, 37, 38, 39, 40};
+                        for (int i : aroundPattern) {
+                            inventory.setItem(i, around);
+                        }
+
+                        final int[] possiblePattern = {10, 11, 12, 19, 20, 21, 28, 29, 30};
+                        for (int i = 0; i < possible.size(); i++) {
+                            inventory.setItem(possiblePattern[i], possible.get(i));
+                        }
+
+                        final ItemStack startButton = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
+                        final ItemMeta startButtonMeta = startButton.getItemMeta();
+                        assert startButtonMeta != null;
+                        startButtonMeta.setDisplayName(ChatColor.GREEN + "Start");
+                        startButton.setItemMeta(startButtonMeta);
+                        inventory.setItem(24, startButton);
+
+
+                        final int[] stopButtonPattern = {46, 47, 48};
+
+                        for (int j : stopButtonPattern) {
+                            ItemStack stopButton = new ItemStack(Material.WARPED_BUTTON);
+                            ItemMeta stopButtonMeta = stopButton.getItemMeta();
+                            assert stopButtonMeta != null;
+                            stopButtonMeta.setDisplayName(ChatColor.RED + ((j - 45) + "番目のスロットを止める"));
+                            stopButton.setItemMeta(stopButtonMeta);
+                            inventory.setItem(j, stopButton);
+                        }
+                        player.openInventory(inventory);
+
+                        listeners.addSlotFinishListener((stopMethod) -> {
+                            int prize = (int) Math.round(getWinMoney(getPattern(), stopMethod, bet));
+                            /*
+                             * @todo prize変数にあるだけプレイヤーにお金を口座に直接入金するコードを書く
+                             */
+                        });
+                    } else {
+                        throw new Error("スロット内のアイテムは９個でなければいけません。SlotUtilを確認してください。");
+                    }
+                } else {
+                    ChatUtil.warning(player, "あなたはそこまでお金を持っていません");
+                }
+            } else {
+                ChatUtil.error(player, "数字以外のものが含まれているか無効な数字です！");
             }
-            case 2 -> {
-                return SlotUtil.SlotListeners.SlotType.TWO;
-            }
-            case 3 -> {
-                return SlotUtil.SlotListeners.SlotType.THREE;
-            }
-            default -> {
-                return SlotUtil.SlotListeners.SlotType.ALL;
-            }
+            return AnvilGUI.Response.close();
+        };
+    }
+
+    /**
+     * スロット内の９つのアイテムを取得する関数
+     *
+     * @return アイテムの状態
+     */
+    public static List<Material> getPattern() {
+        return Arrays.asList(Objects.requireNonNull(
+                        Objects.requireNonNull(inventory.getItem(10)).getType()),
+                Objects.requireNonNull(inventory.getItem(11)).getType(),
+                Objects.requireNonNull(inventory.getItem(12)).getType(),
+                Objects.requireNonNull(inventory.getItem(19)).getType(),
+                Objects.requireNonNull(inventory.getItem(20)).getType(),
+                Objects.requireNonNull(inventory.getItem(21)).getType(),
+                Objects.requireNonNull(inventory.getItem(28)).getType(),
+                Objects.requireNonNull(inventory.getItem(29)).getType(),
+                Objects.requireNonNull(inventory.getItem(30)).getType()
+        );
+    }
+
+    /**
+     * とりあえずリスナーとスロットのコードを同じクラスにまとめました。
+     *
+     * @param event イベント
+     */
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (event.getView().getTitle().equalsIgnoreCase(ChatColor.GOLD + "Slot Machine")) {
+            tasks.forEach(BukkitTask::cancel);
         }
     }
 
+    @EventHandler
+    public void inventoryClick(InventoryClickEvent event) {
+        ItemStack eventStack = event.getCurrentItem();
+        if (event.getView().getTitle().equalsIgnoreCase(ChatColor.GOLD + "Slot Machine") && eventStack != null) {
+            switch (Objects.requireNonNull(eventStack).getType()) {
+                case WARPED_BUTTON -> {
+                    final String displayName = Objects.requireNonNull(Objects.requireNonNull(event.getCurrentItem()).getItemMeta()).getDisplayName();
+                    int type = Integer.parseInt(displayName.split("番")[0].replace("§c", ""));
+                    tasks.get(type - 1).cancel();
+                    inventory.clear(type + 45);
+                    inventory.clear(33);
+                    if (tasks.get(0).isCancelled() && tasks.get(1).isCancelled() && tasks.get(2).isCancelled()) {
+                        listeners.slotFinishTrigger(SlotUtil.SlotListeners.StopMethod.INDIVIDUAL);
+                    }
+                }
+                case GREEN_STAINED_GLASS_PANE -> {
+                    tasks.add(Bukkit.getScheduler().runTaskTimer(MetaversePlugin.getInstance(), () -> {
+                        ItemStack newSlot = SlotUtil.getRandom();
+                        inventory.setItem(28, inventory.getItem(19));
+                        inventory.setItem(19, inventory.getItem(10));
+                        inventory.setItem(10, newSlot);
+                    }, 0, 5));
+
+                    tasks.add(Bukkit.getScheduler().runTaskTimer(MetaversePlugin.getInstance(), () -> {
+                        ItemStack newSlot = SlotUtil.getRandom();
+                        inventory.setItem(29, inventory.getItem(20));
+                        inventory.setItem(20, inventory.getItem(11));
+                        inventory.setItem(11, newSlot);
+                    }, 0, 5));
+                    tasks.add(Bukkit.getScheduler().runTaskTimer(MetaversePlugin.getInstance(), () -> {
+                        ItemStack newSlot = SlotUtil.getRandom();
+                        inventory.setItem(30, inventory.getItem(21));
+                        inventory.setItem(21, inventory.getItem(12));
+                        inventory.setItem(12, newSlot);
+                    }, 0, 5));
+
+                    final ItemStack stopAllButton = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+                    final ItemMeta stopAllButtonMeta = stopAllButton.getItemMeta();
+                    assert stopAllButtonMeta != null;
+                    stopAllButtonMeta.setDisplayName(ChatColor.RED + "Stop");
+                    stopAllButton.setItemMeta(stopAllButtonMeta);
+                    inventory.setItem(24, stopAllButton);
+                }
+                case RED_STAINED_GLASS_PANE -> {
+                    tasks.forEach(BukkitTask::cancel);
+                    listeners.slotFinishTrigger(SlotUtil.SlotListeners.StopMethod.ALL);
+                    inventory.remove(Material.RED_STAINED_GLASS_PANE);
+                }
+            }
+            event.setCancelled(true);
+        } else {
+            ChatUtil.warning(event.getWhoClicked(), "エラーが発生しました。");
+        }
+
+    }
 }
