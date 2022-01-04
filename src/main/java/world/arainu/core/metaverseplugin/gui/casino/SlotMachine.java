@@ -100,10 +100,7 @@ public class SlotMachine implements Listener {
                 }
             }
             event.setCancelled(true);
-        } else {
-            ChatUtil.warning(event.getWhoClicked(), "エラーが発生しました。");
         }
-
     }
 
     /**
