@@ -1,11 +1,9 @@
 package world.arainu.core.metaverseplugin.listener;
 
-import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.advancement.Advancement;
@@ -74,7 +72,6 @@ public class MoneyListener implements Listener {
     public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent e){
         Advancement advancement = e.getAdvancement();
         if(advancement.getDisplay() != null) {
-            Bukkit.getLogger().info("done");
             switch (Objects.requireNonNull(e.getAdvancement().getDisplay()).frame()){
                 case TASK -> addMoney(e.getPlayer(),100);
                 case GOAL -> addMoney(e.getPlayer(),500);

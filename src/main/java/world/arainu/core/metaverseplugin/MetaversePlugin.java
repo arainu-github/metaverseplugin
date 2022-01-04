@@ -5,8 +5,10 @@ import github.scarsz.discordsrv.api.Subscribe;
 import github.scarsz.discordsrv.api.events.DiscordReadyEvent;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -34,6 +36,7 @@ import world.arainu.core.metaverseplugin.iphone.Municipal;
 import world.arainu.core.metaverseplugin.iphone.TrapTower;
 import world.arainu.core.metaverseplugin.iphone.Worldteleport;
 import world.arainu.core.metaverseplugin.iphone.iPhoneEnderDragon;
+import world.arainu.core.metaverseplugin.listener.AdvancementListener;
 import world.arainu.core.metaverseplugin.listener.BankListener;
 import world.arainu.core.metaverseplugin.listener.DrillingListener;
 import world.arainu.core.metaverseplugin.listener.MoneyListener;
@@ -53,7 +56,10 @@ import world.arainu.core.metaverseplugin.utils.sqlUtil;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * メタバースプラグインの基本クラス
@@ -67,14 +73,14 @@ public final class MetaversePlugin extends JavaPlugin {
     private static MetaversePlugin Instance;
     @Getter
     private static FileConfiguration configuration;
-    @Getter private static DynmapAPI dynmap;
+    @Getter
+    private static DynmapAPI dynmap;
     private final HashMap<String, CommandBase> commands = new HashMap<>();
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         configuration = getConfig();
-        getLogger().info("メタバースプラグインが有効になりました。");
         Instance = this;
         sqlUtil.connect();
         ServerStore.setServerName(configuration.getString("servername"));
@@ -83,11 +89,34 @@ public final class MetaversePlugin extends JavaPlugin {
         EnablePlugins();
         setListener();
         setScheduler();
+        if(Objects.equals(ServerStore.getServerName(), "survival")) {
+            Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+                getLogger().info("saving advancements data...");
+                sqlUtil.truncateAdvancement();
+                Bukkit.advancementIterator().forEachRemaining(e -> {
+                    if (e.getDisplay() != null) {
+                        String id = e.getKey().getNamespace() + ":" + e.getKey().getKey();
+                        String title = ((TranslatableComponent) e.getDisplay().title()).key();
+                        String description = ((TranslatableComponent) e.getDisplay().description()).key();
+                        List<String> children = e.getChildren().stream().map(i -> i.getKey().getNamespace() + ":" + i.getKey().getKey()).collect(Collectors.toList());
+                        String icon = e.getDisplay().icon().getType().name().toLowerCase();
+                        String type = e.getDisplay().frame().name();
+                        sqlUtil.addAdvancement(id, title, description, children, icon, type);
+                    }
+                });
+                getLogger().info("saved");
+            });
+        }
+        getLogger().info("メタバースプラグインが有効になりました。");
+    }
+
+    static public @NotNull Logger logger() {
+        return getInstance().getLogger();
     }
 
     private void setScheduler() {
         new LateScheduler().runTaskTimer(this, 0, 20);
-        new DiscordScheduler().runTaskTimer(this, 0, 20*10);
+        new DiscordScheduler().runTaskTimer(this, 0, 20 * 10);
         new SqlScheduler().runTaskTimer(this, 0, 20 * 60 * 60);
         new ParticleScheduler().runTaskTimer(this, 0, 2);
         createStairsYml();
@@ -157,6 +186,9 @@ public final class MetaversePlugin extends JavaPlugin {
         PM.registerEvents(new MunicipalCreateListener(), this);
         PM.registerEvents(new MoneyListener(), this);
         PM.registerEvents(new DrillingListener(), this);
+        if(Objects.equals(ServerStore.getServerName(), "survival")) {
+            PM.registerEvents(new AdvancementListener(), this);
+        }
         DiscordSRV.api.subscribe(this);
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     }
@@ -221,7 +253,7 @@ public final class MetaversePlugin extends JavaPlugin {
         FileConfiguration stairsConfig = YamlConfiguration.loadConfiguration(stairsYml);
 
         try {
-            if(!stairsYml.exists()) stairsConfig.save(stairsYml);
+            if (!stairsYml.exists()) stairsConfig.save(stairsYml);
         } catch (Exception e) {
             e.printStackTrace();
         }

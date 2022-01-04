@@ -99,7 +99,7 @@ public class DrillingListener implements Listener {
                     startDrilling(block,Bukkit.getOfflinePlayer(i.player()),i.vector3D());
                 }
             } else {
-                Bukkit.getLogger().warning("drilling block " + i + " is not found.removed.");
+                MetaversePlugin.logger().warning("drilling block " + i + " is not found.removed.");
             }
         }
     }
@@ -598,8 +598,8 @@ public class DrillingListener implements Listener {
     }
 
     public void saveData() {
+        MetaversePlugin.logger().info("saving drilling data...");
         sqlUtil.truncateDrillingBlock();
-        Bukkit.getLogger().info(String.valueOf(locationList));
         for (Location i : locationList) {
             Block block = i.getWorld().getBlockAt(i);
             UUID player = (UUID) block.getMetadata("metaverse-drilling").get(0).value();
@@ -609,7 +609,6 @@ public class DrillingListener implements Listener {
             ItemStack shovel = (ItemStack) block.getMetadata("metaverse-drilling__shovel").get(0).value();
             boolean item = block.getMetadata("metaverse-drilling__item").get(0).asBoolean();
             boolean starting = block.getMetadata("metaverse-drilling__starting").get(0).asBoolean();
-            Bukkit.getLogger().info(player + "," + vector3D + "," + vector3D2 + "," + pickaxe + "," + shovel);
             block.setType(Material.CHEST);
             Chest chest = (Chest) block.getState();
             chest.getInventory().addItem(Objects.requireNonNull(pickaxe), Objects.requireNonNull(shovel));
