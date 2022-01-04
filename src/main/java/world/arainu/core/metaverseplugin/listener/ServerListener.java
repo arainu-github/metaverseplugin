@@ -124,7 +124,7 @@ public class ServerListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         final String url = "https://data.arainu.world/advancements/?uuid="+e.getPlayer().getUniqueId();
-        e.getPlayer().sendMessage(Component.text("以下のサイトからあなたの進捗の達成度を確認できるようになりました！\n").append(Component.text(url).clickEvent(ClickEvent.openUrl(url)).decorate(TextDecoration.UNDERLINED)));
+        e.getPlayer().sendMessage(Component.text("あなたの進捗の達成度を確認できるようになりました！\n").append(Component.text(url).clickEvent(ClickEvent.openUrl(url)).decorate(TextDecoration.UNDERLINED)));
     }
 
     private final HashMap<UUID, TimeAndMsg> last_log_map = new HashMap<>();
