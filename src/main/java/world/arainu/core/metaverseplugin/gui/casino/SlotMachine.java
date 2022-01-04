@@ -1,9 +1,7 @@
 package world.arainu.core.metaverseplugin.gui.casino;
 
 import net.wesjd.anvilgui.AnvilGUI;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -129,15 +127,26 @@ public class SlotMachine implements Listener {
      * @param bet     　賭ける金額
      * @return 賞金
      */
-    public static double getWinMoney(List<Material> pattern, SlotUtil.SlotListeners.StopMethod method, int bet) {
+    public static SlotUtil.SlotResult getWinMoney(List<Material> pattern, SlotUtil.SlotListeners.StopMethod method, int bet) {
         /*
         賞金にかける倍数をconfig.ymlに保存
          */
+        SlotUtil.SlotResult slotResult = new SlotUtil.SlotResult();
+        slotResult.setStopMethod(method);
         double winMoney = bet;
         final FileConfiguration configuration = MetaversePlugin.getInstance().getConfig();
 
         if ((pattern.get(0) == pattern.get(4) && pattern.get(0) == pattern.get(8))) {
-
+            /*
+            X00
+            0X0
+            00X
+            又は
+            00X
+            0X0
+            X00
+            だった場合の処理
+             */
             switch (pattern.get(4)) {
                 case BIRCH_WOOD -> winMoney = bet * configuration.getDouble("casino.diagonal.birchWood");
                 case APPLE -> winMoney = bet * configuration.getDouble("casino.diagonal.apple");
@@ -150,6 +159,8 @@ public class SlotMachine implements Listener {
                 case PLAYER_HEAD -> winMoney = bet * configuration.getDouble("casino.diagonal.head");
             }
 
+            slotResult.setPatterns(SlotUtil.SlotResult.Patterns.DIAGONAL);
+            slotResult.setMaterial(pattern.get(4));
             /*
              * X0X
              * 0X0
@@ -158,6 +169,8 @@ public class SlotMachine implements Listener {
              */
             if ((pattern.get(0) == pattern.get(4) && pattern.get(0) == pattern.get(8)) && (pattern.get(2) == pattern.get(4) && pattern.get(2) == pattern.get(6))) {
                 winMoney = winMoney * 2;
+                slotResult.setPatterns(SlotUtil.SlotResult.Patterns.X);
+                slotResult.setMaterial(pattern.get(0));
             }
         } else if ((pattern.get(3) == pattern.get(4)) && (pattern.get(3) == pattern.get(5))) {
             /*
@@ -177,12 +190,18 @@ public class SlotMachine implements Listener {
                 case DRAGON_HEAD -> winMoney = bet * configuration.getDouble("casino.horizontal.middle.dragonHead");
                 case PLAYER_HEAD -> winMoney = bet * configuration.getDouble("casino.horizontal.middle.head");
             }
+
+            slotResult.setPatterns(SlotUtil.SlotResult.Patterns.MIDDLE_HORIZONTAL);
+            slotResult.setMaterial(pattern.get(4));
         } else if (pattern.stream().distinct().limit(2).count() <= 1) {
             /*
             スロット内のアイテムがすべて同じだったら、賞金二十倍
             多分無いと思うけど
              */
             winMoney = winMoney * 20;
+
+            slotResult.setPatterns(SlotUtil.SlotResult.Patterns.ALL);
+            slotResult.setMaterial(pattern.get(0));
         } else if ((pattern.get(0) == pattern.get(1) && pattern.get(0) == pattern.get(2)) || (pattern.get(6) == pattern.get(7) && pattern.get(6) == pattern.get(8))) {
             /*
             XXX
@@ -205,6 +224,9 @@ public class SlotMachine implements Listener {
                 case DRAGON_HEAD -> winMoney = bet * configuration.getDouble("casino.horizontal.else.dragonHead");
                 case PLAYER_HEAD -> winMoney = bet * configuration.getDouble("casino.horizontal.else.head");
             }
+
+            slotResult.setPatterns(SlotUtil.SlotResult.Patterns.ELSE_HORIZONTAL);
+            slotResult.setMaterial(pattern.get(4));
         }
 
 
@@ -215,8 +237,10 @@ public class SlotMachine implements Listener {
             winMoney = winMoney * 2;
         }
 
+        slotResult.setPrize(winMoney == bet ? 0 : (int) Math.round(winMoney));
+
         //かける金額と賞金が同じなら賞金は０
-        return bet == winMoney ? 0 : winMoney;
+        return slotResult;
     }
 
     /**
@@ -265,10 +289,48 @@ public class SlotMachine implements Listener {
                         player.openInventory(inventory);
 
                         listeners.addSlotFinishListener((stopMethod) -> {
-                            int prize = (int) Math.round(getWinMoney(getPattern(), stopMethod, bet));
+                            SlotUtil.SlotResult result = getWinMoney(getPattern(), stopMethod, bet);
+                            if (result.getPrize() != 0) {
+                                String itemNameJapanese = "";
+                                String method = "";
+                                player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.PLAYERS, 1F, 0.5F);
+
+                                switch (result.getMaterial()) {
+                                    case BIRCH_WOOD -> itemNameJapanese = "シラカバの木";
+                                    case APPLE -> itemNameJapanese = "リンゴ";
+                                    case BREAD -> itemNameJapanese = "パン";
+                                    case IRON_INGOT -> itemNameJapanese = "銀インゴット";
+                                    case GOLD_INGOT -> itemNameJapanese = "金インゴット";
+                                    case DIAMOND -> itemNameJapanese = "ダイヤモンド";
+                                    case NETHERITE_INGOT -> itemNameJapanese = "ネザライトインゴット";
+                                    case DRAGON_HEAD -> itemNameJapanese = "ドラゴンの頭";
+                                    case PLAYER_HEAD -> itemNameJapanese = "いぬたぬきの生首";
+                                }
+                                ChatUtil.success(player, "おめでとうございます！" + itemNameJapanese + "が");
+
+                                switch (result.getPatterns()) {
+                                    case ALL -> ChatUtil.success(player, "\nXXX\nXXX\nXXX");
+                                    case X -> ChatUtil.success(player, "\nX-X\n-X-\nX-X");
+                                    case DIAGONAL -> ChatUtil.success(player, "\nX--\n-X-\n--X\n又は\n--X\n-X-\nX--");
+                                    case ELSE_HORIZONTAL -> ChatUtil.success(player, "\nXXX\n---\n---\n又は\n---\n---\nXXX");
+                                    case MIDDLE_HORIZONTAL -> ChatUtil.success(player, "\n---\nXXX\n---");
+                                }
+
+                                switch (result.getStopMethod()) {
+                                    case ALL -> method = "同時に";
+                                    case INDIVIDUAL -> method = "一つずつ";
+                                }
+
+                                ChatUtil.success(player, "のような模様で揃い、スロットが" + method + "止められたので、" + result.getPrize() + "円ゲットです！");
+                            } else {
+                                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, SoundCategory.PLAYERS, 1F, 0.5F);
+                                ChatUtil.error(player, "残念！あなたは" + bet + "円負けました。");
+                            }
+
                             /*
-                             * @todo prize変数にあるだけプレイヤーにお金を口座に直接入金するコードを書く
+                             * @todo result.getPrize()にあるだけプレイヤーにお金を口座に直接入金するコードを書く
                              */
+
                         });
                     } else {
                         throw new Error("スロット内のアイテムは９個でなければいけません。SlotUtilを確認してください。");

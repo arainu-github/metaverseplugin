@@ -46,12 +46,56 @@ public class SlotUtil {
         public void slotFinishTrigger(StopMethod stopMethod) {
             slotFinishListeners.forEach((listener) -> listener.accept(stopMethod));
         }
+
         public void clearSlotFinishListeners() {
             slotFinishListeners.clear();
         }
 
         public enum StopMethod {
             INDIVIDUAL, ALL
+        }
+    }
+
+    public static class SlotResult {
+        private int prize;
+        private Material material;
+        private Patterns patterns;
+        private SlotListeners.StopMethod stopMethod;
+
+        public int getPrize() {
+            return prize;
+        }
+
+        public void setPrize(int prize) {
+            this.prize = prize;
+        }
+
+        public Material getMaterial() {
+            return material;
+        }
+
+        public void setMaterial(Material material) {
+            this.material = material;
+        }
+
+        public Patterns getPatterns() {
+            return patterns;
+        }
+
+        public void setPatterns(Patterns patterns) {
+            this.patterns = patterns;
+        }
+
+        public SlotListeners.StopMethod getStopMethod() {
+            return stopMethod;
+        }
+
+        public void setStopMethod(SlotListeners.StopMethod stopMethod) {
+            this.stopMethod = stopMethod;
+        }
+
+        public enum Patterns {
+            DIAGONAL, X, MIDDLE_HORIZONTAL, ELSE_HORIZONTAL, ALL
         }
     }
 }
