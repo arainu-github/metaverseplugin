@@ -73,9 +73,9 @@ public class MoneyListener implements Listener {
         Advancement advancement = e.getAdvancement();
         if(advancement.getDisplay() != null) {
             switch (Objects.requireNonNull(e.getAdvancement().getDisplay()).frame()){
-                case TASK -> addMoney(e.getPlayer(),100);
-                case GOAL -> addMoney(e.getPlayer(),500);
-                case CHALLENGE -> addMoney(e.getPlayer(),1500);
+                case TASK -> addMoney(e.getPlayer(),500);
+                case GOAL -> addMoney(e.getPlayer(),1500);
+                case CHALLENGE -> addMoney(e.getPlayer(),5000);
             }
         }
     }
