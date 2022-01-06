@@ -22,6 +22,8 @@ public class SlotUtil {
     private static final ItemStack dragonHead = new ItemStack(Material.DRAGON_HEAD);
     private static final ItemStack head = new ItemStack(Material.PLAYER_HEAD);
 
+    public static boolean isSlotStarted = false;
+
     public static List<ItemStack> getAll() {
         SkullMeta meta = (SkullMeta) head.getItemMeta();
         assert meta != null;

@@ -45,6 +45,7 @@ public class SlotMachine implements Listener {
     public void onInventoryClose(InventoryCloseEvent event) {
         if (event.getView().getTitle().equalsIgnoreCase(ChatColor.GOLD + "Slot Machine")) {
             tasks.forEach(BukkitTask::cancel);
+            SlotUtil.isSlotStarted = false;
         }
     }
 
@@ -54,16 +55,20 @@ public class SlotMachine implements Listener {
         if (event.getView().getTitle().equalsIgnoreCase(ChatColor.GOLD + "Slot Machine") && eventStack != null) {
             switch (Objects.requireNonNull(eventStack).getType()) {
                 case WARPED_BUTTON -> {
-                    final String displayName = Objects.requireNonNull(Objects.requireNonNull(event.getCurrentItem()).getItemMeta()).getDisplayName();
-                    int type = Integer.parseInt(displayName.split("番")[0].replace("§c", ""));
-                    tasks.get(type - 1).cancel();
-                    inventory.clear(type + 45);
-                    inventory.clear(33);
-                    if (tasks.get(0).isCancelled() && tasks.get(1).isCancelled() && tasks.get(2).isCancelled()) {
-                        listeners.slotFinishTrigger(SlotUtil.SlotListeners.StopMethod.INDIVIDUAL);
+                    if (SlotUtil.isSlotStarted) {
+                        final String displayName = Objects.requireNonNull(Objects.requireNonNull(event.getCurrentItem()).getItemMeta()).getDisplayName();
+                        int type = Integer.parseInt(displayName.split("番")[0].replace("§c", ""));
+                        tasks.get(type - 1).cancel();
+                        inventory.clear(type + 45);
+                        inventory.clear(33);
+                        if (tasks.get(0).isCancelled() && tasks.get(1).isCancelled() && tasks.get(2).isCancelled()) {
+                            listeners.slotFinishTrigger(SlotUtil.SlotListeners.StopMethod.INDIVIDUAL);
+                            SlotUtil.isSlotStarted = false;
+                        }
                     }
                 }
                 case GREEN_STAINED_GLASS_PANE -> {
+                    SlotUtil.isSlotStarted = true;
                     tasks.add(Bukkit.getScheduler().runTaskTimer(MetaversePlugin.getInstance(), () -> {
                         ItemStack newSlot = SlotUtil.getRandom();
                         inventory.setItem(28, inventory.getItem(19));
@@ -92,9 +97,13 @@ public class SlotMachine implements Listener {
                     inventory.setItem(24, stopAllButton);
                 }
                 case RED_STAINED_GLASS_PANE -> {
-                    tasks.forEach(BukkitTask::cancel);
-                    listeners.slotFinishTrigger(SlotUtil.SlotListeners.StopMethod.ALL);
-                    inventory.remove(Material.RED_STAINED_GLASS_PANE);
+                    if (SlotUtil.isSlotStarted) {
+                        tasks.forEach(BukkitTask::cancel);
+                        listeners.slotFinishTrigger(SlotUtil.SlotListeners.StopMethod.ALL);
+                        inventory.remove(Material.RED_STAINED_GLASS_PANE);
+
+                        SlotUtil.isSlotStarted = false;
+                    }
                 }
             }
             event.setCancelled(true);
