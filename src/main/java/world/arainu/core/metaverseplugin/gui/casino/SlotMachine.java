@@ -1,7 +1,12 @@
 package world.arainu.core.metaverseplugin.gui.casino;
 
+import net.kyori.adventure.text.Component;
 import net.wesjd.anvilgui.AnvilGUI;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,7 +33,11 @@ public class SlotMachine implements Listener {
 
     final private static ArrayList<BukkitTask> tasks = new ArrayList<>();
     final private static SlotUtil.SlotListeners listeners = new SlotUtil.SlotListeners();
-    static Inventory inventory = Bukkit.createInventory(null, 54, ChatColor.GOLD + "Slot Machine");
+    static Inventory inventory = Bukkit.createInventory(null, 54, Component.text(ChatColor.GOLD + "Slot Machine"));
+
+    public SlotMachine() {
+        MetaversePlugin.getInstance().getServer().getPluginManager().registerEvents(this,MetaversePlugin.getInstance());
+    }
 
     /**
      * とりあえずリスナーとスロットのコードを同じクラスにまとめました。
@@ -37,7 +46,7 @@ public class SlotMachine implements Listener {
      */
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (event.getView().getTitle().equalsIgnoreCase(ChatColor.GOLD + "Slot Machine")) {
+        if (event.getInventory().equals(inventory)) {
             tasks.forEach(BukkitTask::cancel);
             SlotUtil.isSlotStarted = false;
         }
@@ -48,7 +57,7 @@ public class SlotMachine implements Listener {
      *
      * @param player スロットのguiを表示させたいプレイヤー
      */
-    public static void start(Player player) {
+    public void start(Player player) {
         if (!Gui.isBedrock(player)) {
             new AnvilGUI.Builder()
                     .title("賭ける金額を入力")
@@ -89,7 +98,7 @@ public class SlotMachine implements Listener {
                         final ItemStack startButton = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
                         final ItemMeta startButtonMeta = startButton.getItemMeta();
                         assert startButtonMeta != null;
-                        startButtonMeta.setDisplayName(ChatColor.GREEN + "スロットを回す");
+                        startButtonMeta.displayName(Component.text(ChatColor.GREEN + "スロットを回す"));
                         startButton.setItemMeta(startButtonMeta);
                         inventory.setItem(24, startButton);
 
@@ -100,7 +109,7 @@ public class SlotMachine implements Listener {
                             ItemStack stopButton = new ItemStack(Material.WARPED_BUTTON);
                             ItemMeta stopButtonMeta = stopButton.getItemMeta();
                             assert stopButtonMeta != null;
-                            stopButtonMeta.setDisplayName(ChatColor.RED + ((j - 45) + "番目のスロットを止める"));
+                            stopButtonMeta.displayName(Component.text(ChatColor.RED + ((j - 45) + "番目のスロットを止める")));
                             stopButton.setItemMeta(stopButtonMeta);
                             inventory.setItem(j, stopButton);
                         }
@@ -291,13 +300,12 @@ public class SlotMachine implements Listener {
     @EventHandler
     public void inventoryClick(InventoryClickEvent event) {
         ItemStack eventStack = event.getCurrentItem();
-        if (event.getView().getTitle().equalsIgnoreCase(ChatColor.GOLD + "Slot Machine") && eventStack != null) {
+        if (event.getInventory() == inventory && eventStack != null) {
             switch (Objects.requireNonNull(eventStack).getType()) {
                 case WARPED_BUTTON -> {
                     if (SlotUtil.isSlotStarted) {
                         inventory.remove(Material.RED_STAINED_GLASS_PANE);
-                        final String displayName = Objects.requireNonNull(Objects.requireNonNull(event.getCurrentItem()).getItemMeta()).getDisplayName();
-                        int type = Integer.parseInt(displayName.split("番")[0].replace("§c", ""));
+                        int type = event.getRawSlot()-45;
                         tasks.get(type - 1).cancel();
                         inventory.clear(type + 45);
                         inventory.clear(33);
@@ -332,7 +340,7 @@ public class SlotMachine implements Listener {
                     final ItemStack stopAllButton = new ItemStack(Material.RED_STAINED_GLASS_PANE);
                     final ItemMeta stopAllButtonMeta = stopAllButton.getItemMeta();
                     assert stopAllButtonMeta != null;
-                    stopAllButtonMeta.setDisplayName(ChatColor.RED + "同時に止める");
+                    stopAllButtonMeta.displayName(Component.text(ChatColor.RED + "同時に止める"));
                     stopAllButton.setItemMeta(stopAllButtonMeta);
                     inventory.setItem(24, stopAllButton);
                 }
