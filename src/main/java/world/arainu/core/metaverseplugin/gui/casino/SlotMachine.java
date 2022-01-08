@@ -2,12 +2,9 @@ package world.arainu.core.metaverseplugin.gui.casino;
 
 import net.kyori.adventure.text.Component;
 import net.wesjd.anvilgui.AnvilGUI;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
+import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -36,7 +33,7 @@ public class SlotMachine implements Listener {
     static Inventory inventory = Bukkit.createInventory(null, 54, Component.text(ChatColor.GOLD + "Slot Machine"));
 
     public SlotMachine() {
-        MetaversePlugin.getInstance().getServer().getPluginManager().registerEvents(this,MetaversePlugin.getInstance());
+        MetaversePlugin.getInstance().getServer().getPluginManager().registerEvents(this, MetaversePlugin.getInstance());
     }
 
     /**
@@ -159,6 +156,16 @@ public class SlotMachine implements Listener {
                              * @todo result.getPrize()にあるだけプレイヤーにお金を口座に直接入金するコードを書く
                              */
 
+                            final ItemStack againButton = new ItemStack(Material.SPECTRAL_ARROW);
+                            final ItemMeta againButtonMeta = againButton.getItemMeta();
+                            final List<Component> againButtonLore = new ArrayList<>();
+
+                            againButtonMeta.displayName(Component.text(ChatColor.GOLD + "もう一度!"));
+                            againButtonLore.add(Component.text("残高: " + (int) MetaversePlugin.getEcon().getBalance(player) + "円"));
+                            againButtonMeta.lore(againButtonLore);
+
+                            againButton.setItemMeta(againButtonMeta);
+                            inventory.setItem(24, againButton);
                         });
                     } else {
                         throw new Error("スロット内のアイテムは９個でなければいけません。SlotUtilを確認してください。");
@@ -305,7 +312,7 @@ public class SlotMachine implements Listener {
                 case WARPED_BUTTON -> {
                     if (SlotUtil.isSlotStarted) {
                         inventory.remove(Material.RED_STAINED_GLASS_PANE);
-                        int type = event.getRawSlot()-45;
+                        int type = event.getRawSlot() - 45;
                         tasks.get(type - 1).cancel();
                         inventory.clear(type + 45);
                         inventory.clear(33);
@@ -355,6 +362,11 @@ public class SlotMachine implements Listener {
                         inventory.clear(47);
                         inventory.clear(48);
                     }
+                }
+                case SPECTRAL_ARROW -> {
+                    HumanEntity entity = event.getWhoClicked();
+                    entity.closeInventory();
+                    start((Player) entity);
                 }
             }
             event.setCancelled(true);
