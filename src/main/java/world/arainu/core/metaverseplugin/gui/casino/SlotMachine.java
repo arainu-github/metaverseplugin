@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -364,9 +363,10 @@ public class SlotMachine implements Listener {
                     }
                 }
                 case SPECTRAL_ARROW -> {
-                    HumanEntity entity = event.getWhoClicked();
-                    entity.closeInventory();
-                    start((Player) entity);
+                    Player whoClicked = (Player) event.getWhoClicked();
+                    whoClicked.playSound(whoClicked.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.PLAYERS, 1F, 1F);
+                    whoClicked.closeInventory();
+                    start(whoClicked);
                 }
             }
             event.setCancelled(true);
