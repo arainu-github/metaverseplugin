@@ -37,6 +37,39 @@ traptower:
         y: 5
         z: -36
 
+casino:
+  diagonal:
+    birchWood: 1.02
+    apple: 1.04
+    bread: 1.06
+    iron: 1.20
+    gold: 1.25
+    diamond: 1.3
+    netherite: 1.4
+    dragonHead: 1.5
+    head: 1.6
+  horizontal:
+    middle:
+      birchWood: 1.1
+      apple: 1.12
+      bread: 1.14
+      iron: 1.3
+      gold: 1.35
+      diamond: 1.4
+      netherite: 1.5
+      dragonHead: 1.6
+      head: 1.7
+    else:
+      birchWood: 1.05
+      apple: 1.07
+      bread: 1.09
+      iron: 1.25
+      gold: 1.30
+      diamond: 1.35
+      netherite: 1.45
+      dragonHead: 1.55
+      head: 1.65
+
 discord:
   warn_channel: 875995533821505567
   okanemochi_role: 836923270359023647
