@@ -232,7 +232,8 @@ public class SlotMachine implements Listener {
                 slotResult.setPatterns(SlotUtil.SlotResult.Patterns.X);
                 slotResult.setMaterial(pattern.get(0));
             }
-        } else if ((pattern.get(3) == pattern.get(4)) && (pattern.get(3) == pattern.get(5))) {
+        }
+        if ((pattern.get(3) == pattern.get(4)) && (pattern.get(3) == pattern.get(5))) {
             /*
             000
             XXX
@@ -253,7 +254,9 @@ public class SlotMachine implements Listener {
 
             slotResult.setPatterns(SlotUtil.SlotResult.Patterns.MIDDLE_HORIZONTAL);
             slotResult.setMaterial(pattern.get(4));
-        } else if (pattern.stream().distinct().limit(2).count() <= 1) {
+        }
+
+        if (pattern.stream().distinct().limit(2).count() <= 1) {
             /*
             スロット内のアイテムがすべて同じだったら、賞金二十倍
             多分無いと思うけど
@@ -262,7 +265,9 @@ public class SlotMachine implements Listener {
 
             slotResult.setPatterns(SlotUtil.SlotResult.Patterns.ALL);
             slotResult.setMaterial(pattern.get(0));
-        } else if ((pattern.get(0) == pattern.get(1) && pattern.get(0) == pattern.get(2)) || (pattern.get(6) == pattern.get(7) && pattern.get(6) == pattern.get(8))) {
+        }
+
+        if ((pattern.get(0) == pattern.get(1) && pattern.get(0) == pattern.get(2)) || (pattern.get(6) == pattern.get(7) && pattern.get(6) == pattern.get(8))) {
             /*
             XXX
             000
