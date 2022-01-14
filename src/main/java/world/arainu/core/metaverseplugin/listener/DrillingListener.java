@@ -227,14 +227,14 @@ public class DrillingListener implements Listener {
 
         final ItemStack descriptionPaper1 = new ItemStack(Material.PAPER);
         itemMeta = descriptionPaper1.getItemMeta();
-        itemMeta.displayName(Component.text("下に採掘時に使用するシャベルを入れてください。"));
+        itemMeta.displayName(Component.text("下に採掘時に使用するツールを入れてください。"));
         descriptionPaper1.setItemMeta(itemMeta);
         inv.setItem(6, descriptionPaper1);
         inv.setItem(15, shovel);
 
         final ItemStack descriptionPaper2 = new ItemStack(Material.PAPER);
         itemMeta = descriptionPaper2.getItemMeta();
-        itemMeta.displayName(Component.text("下に採掘時に使用するツルハシを入れてください。"));
+        itemMeta.displayName(Component.text("下に採掘時に使用するツールを入れてください。"));
         descriptionPaper2.setItemMeta(itemMeta);
         inv.setItem(5, descriptionPaper2);
         inv.setItem(14, pickaxe);
