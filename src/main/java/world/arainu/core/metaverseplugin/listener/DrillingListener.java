@@ -105,6 +105,12 @@ public class DrillingListener implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
+        UUID playerUID = (UUID) e.getBlock().getMetadata("metaverse-drilling").get(0).value();
+        if (!Objects.requireNonNull(playerUID).equals(e.getPlayer().getUniqueId())) {
+            e.setCancelled(true);
+            ChatUtil.error(e.getPlayer(), "他のプレイヤーの採掘マシーンを破壊することはできません！");
+            return;
+        }
         if (e.getBlock().hasMetadata("metaverse-drilling")) {
             final ItemStack pickaxe = (ItemStack) e.getBlock().getMetadata("metaverse-drilling__pickaxe").get(0).value();
             final ItemStack shovel = (ItemStack) e.getBlock().getMetadata("metaverse-drilling__shovel").get(0).value();
@@ -124,10 +130,9 @@ public class DrillingListener implements Listener {
             e.getBlock().removeMetadata("metaverse-drilling__starting", MetaversePlugin.getInstance());
             ParticleScheduler.removeQueue(particleMap.get(e.getBlock()));
             particleMap.remove(e.getBlock());
+            ParticleScheduler.removeQueue(particleDrillingMap.get(e.getBlock()));
             particleDrillingMap.remove(e.getBlock());
             if (drillingTaskMap.containsKey(e.getBlock())) {
-                ParticleScheduler.removeQueue(particleDrillingMap.get(e.getBlock()));
-                particleDrillingMap.remove(e.getBlock());
                 ChatUtil.warning(e.getPlayer(), "採掘マシーンが破壊されたため採掘を強制終了しました。");
                 drillingTaskMap.get(e.getBlock()).cancel();
                 drillingTaskMap.remove(e.getBlock());
