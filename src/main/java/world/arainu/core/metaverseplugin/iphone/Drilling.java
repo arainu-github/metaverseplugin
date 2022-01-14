@@ -35,7 +35,7 @@ public class Drilling extends iPhoneBase {
         if(!p.getInventory().all(Material.BRICKS).values().stream().map(itemStack -> itemStack.getItemMeta().getPersistentDataContainer().has(key, PersistentDataType.INTEGER)).collect(Collectors.toList()).contains(true)) {
             ItemUtil.addItem(item,p.getInventory(),p);
             Component component = Component.text("採掘マシーン").color(NamedTextColor.LIGHT_PURPLE).decorate(TextDecoration.BOLD).decorate(TextDecoration.UNDERLINED);
-            component = component.append(Component.text("をインベントリ内に追加しました。\nこちらのブロックを採掘したい場所の中心に設置して専用画面を開きましょう。").color(NamedTextColor.WHITE)
+            component = component.append(Component.text("をインベントリ内に追加しました。\nこちらのブロックを採掘したい場所の端に設置して専用画面を開きましょう。").color(NamedTextColor.WHITE)
                     .decorations(new HashMap<>() {{
                         put(TextDecoration.BOLD, TextDecoration.State.FALSE);
                         put(TextDecoration.UNDERLINED, TextDecoration.State.FALSE);
