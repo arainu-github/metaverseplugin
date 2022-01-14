@@ -2,7 +2,11 @@ package world.arainu.core.metaverseplugin.gui.casino;
 
 import net.kyori.adventure.text.Component;
 import net.wesjd.anvilgui.AnvilGUI;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

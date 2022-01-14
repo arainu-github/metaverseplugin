@@ -18,7 +18,6 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
-import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -250,9 +249,15 @@ public class DrillingListener implements Listener {
             itemMeta = startButton.getItemMeta();
             itemMeta.displayName(Component.text("採掘を開始する").color(NamedTextColor.GREEN));
             if (startPos.getX() + startPos.getY() + startPos.getZ() == 0) {
+                final int drillingAmount;
+                if(isItem){
+                    drillingAmount = (int) (vector3D.getX() * vector3D.getY() * vector3D.getZ() * 30);
+                } else {
+                    drillingAmount = (int) (vector3D.getX() * vector3D.getY() * vector3D.getZ() * 10);
+                }
                 itemMeta.lore(Arrays.asList(
                         Component.text((int) (vector3D.getX() * vector3D.getY() * vector3D.getZ()) + "ブロック分"),
-                        Component.text(econ.format(vector3D.getX() * vector3D.getY() * vector3D.getZ() * 10) + "が銀行から引き下ろされます。")));
+                        Component.text(econ.format(drillingAmount) + "が銀行から徴収されます。")));
             }
         }
         startButton.setItemMeta(itemMeta);
@@ -305,6 +310,7 @@ public class DrillingListener implements Listener {
         final Player p = (Player) e.getWhoClicked();
         final int id = e.getRawSlot();
         final Block block = invList.get(e.getInventory());
+        final boolean isItem = block.getMetadata("metaverse-drilling__item").get(0).asBoolean();
         Vector vector3D = Objects.requireNonNull((Vector) block.getMetadata("metaverse-drilling__vector").get(0).value());
         e.setCancelled(true);
 
@@ -418,7 +424,12 @@ public class DrillingListener implements Listener {
                     boolean drillingOk = true;
                     if (startPos.getX() + startPos.getY() + startPos.getZ() == 0) {
                         Economy econ = MetaversePlugin.getEcon();
-                        final int drillingAmount = (int) (vector3D.getX() * vector3D.getY() * vector3D.getZ() * 10);
+                        final int drillingAmount;
+                        if(isItem){
+                            drillingAmount = (int) (vector3D.getX() * vector3D.getY() * vector3D.getZ() * 30);
+                        } else {
+                            drillingAmount = (int) (vector3D.getX() * vector3D.getY() * vector3D.getZ() * 10);
+                        }
                         if (econ.has(p, drillingAmount)) {
                             ChatUtil.success(p, econ.format(drillingAmount) + "を徴収し、採掘を開始しました。");
                             econ.withdrawPlayer(p, drillingAmount);
@@ -437,7 +448,6 @@ public class DrillingListener implements Listener {
             case 17 -> {
                 final Vector pos = Objects.requireNonNull((Vector) block.getMetadata("metaverse-drilling__vector2").get(0).value());
                 if (pos.getX() + pos.getY() + pos.getZ() == 0) {
-                    final boolean isItem = block.getMetadata("metaverse-drilling__item").get(0).asBoolean();
                     SoundUtil.playClickSound(p);
                     if (isItem)
                         block.setMetadata("metaverse-drilling__item", new FixedMetadataValue(MetaversePlugin.getInstance(), false));
