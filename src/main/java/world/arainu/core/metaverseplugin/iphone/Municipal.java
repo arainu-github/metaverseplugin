@@ -20,6 +20,10 @@ import world.arainu.core.metaverseplugin.utils.ItemUtil;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * iPhoneの自治体に関するプログラム群があるクラス
+ * @author kumitatepazuru
+ */
 public class Municipal extends iPhoneBase {
     @Override
     public void executeGui(MenuItem menuItem) {
@@ -32,6 +36,10 @@ public class Municipal extends iPhoneBase {
         }
     }
 
+    /**
+     * 自治体ブックを作成する関数。
+     * @return 自治体作成ブックのデータ
+     */
     public static ItemStack createItemStack(){
         final ItemStack item = new ItemStack(Material.ENCHANTED_BOOK);
         final ItemMeta itemMeta = item.getItemMeta();
@@ -42,7 +50,7 @@ public class Municipal extends iPhoneBase {
         return item;
     }
 
-    public void createMunicipal(MenuItem menuItem) {
+    private void createMunicipal(MenuItem menuItem) {
         Player player = menuItem.getClicker();
         Economy econ = MetaversePlugin.getEcon();
         if(econ.has(player, 2000)) {

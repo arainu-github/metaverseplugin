@@ -111,6 +111,10 @@ public final class MetaversePlugin extends JavaPlugin {
         getLogger().info("メタバースプラグインが有効になりました。");
     }
 
+    /**
+     * プラグインのLoggerを取得する関数。
+     * @return Logger
+     */
     static public @NotNull Logger logger() {
         return getInstance().getLogger();
     }

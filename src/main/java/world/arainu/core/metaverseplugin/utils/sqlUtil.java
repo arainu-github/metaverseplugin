@@ -502,6 +502,7 @@ public class sqlUtil {
      * @param id 進捗の固有ID
      * @param awarded 既に取得している基準のリスト
      * @param remaining まだ取得していない基準のリスト
+     * @param done 進捗が完了しているか
      */
     public static void addPlayerAdvancement(UUID uuid, String id, List<String> awarded, List<String> remaining,boolean done) {
         try {

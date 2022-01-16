@@ -19,9 +19,29 @@ public class ParticleUtil {
     @Getter
     private final ArrayList<Vector3D> thinLines = new ArrayList<>();
 
+    /**
+     * ParticleUtilで使用する専用のVector型。
+     * @param x1 x起点
+     * @param y1 y起点
+     * @param x2 x終点
+     * @param y2 y終点
+     * @param world 表示するワールド
+     * @param show_player 表示するプレイヤー
+     */
     public record Vector(double x1, double y1, double x2, double y2, World world, List<Player> show_player) {
     }
 
+    /**
+     * ParticleUtilで使用する専用のVector型。
+     * @param x1 x起点
+     * @param y1 y起点
+     * @param z1 z起点
+     * @param x2 x終点
+     * @param y2 y終点
+     * @param z2 z終点
+     * @param world 表示するワールド
+     * @param show_player 表示するプレイヤー
+     */
     public record Vector3D(double x1, double y1, double z1, double x2, double y2, double z2, World world,
                            List<Player> show_player) {
     }

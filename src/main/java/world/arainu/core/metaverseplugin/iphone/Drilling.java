@@ -19,6 +19,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+/**
+ * 採掘マシーンをプレイヤーのインベントリ内に入れるクラス。
+ * iPhoneから操作する部分。
+ * @author kumitatepazuru
+ */
 public class Drilling extends iPhoneBase {
     @Getter private static final NamespacedKey key = new NamespacedKey(MetaversePlugin.getInstance(), "metaverse-drilling");
 

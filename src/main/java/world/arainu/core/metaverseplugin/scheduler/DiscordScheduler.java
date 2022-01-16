@@ -18,6 +18,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
+/**
+ * Discord内のランクロール等を付与するスケジューラー。
+ * @author kumitatepazuru
+ */
 public class DiscordScheduler extends BukkitRunnable {
     @Override
     public void run() {

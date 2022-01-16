@@ -111,6 +111,10 @@ public class ServerListener implements Listener {
         }
     }
 
+    /**
+     * プレイヤーがログアウトしたときに内部プレイヤーデータを削除する関数。
+     * @param e イベント
+     */
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
         // GC
@@ -121,6 +125,10 @@ public class ServerListener implements Listener {
         }
     }
 
+    /**
+     * プレイヤーがログインしたときに新機能を通知する関数。
+     * @param e イベント
+     */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         final String url = "https://data.arainu.world/advancements/?uuid="+e.getPlayer().getUniqueId();

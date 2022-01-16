@@ -4,6 +4,10 @@ import github.scarsz.discordsrv.DiscordSRV;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
+/**
+ * iPhoneからMinecraftとDiscordを連携できるようにするクラス。
+ * @author kumitatepazuru
+ */
 public class LinkDiscord extends iPhoneBase{
     @Override
     public void executeGui(MenuItem menuItem) {

@@ -88,6 +88,7 @@ public class Bank extends iPhoneBase {
      *
      * @param inv 対象のインベントリ
      * @param yen 換金する額
+     * @param p 現金を入れるプレイヤー
      */
     public static void addMoneyForInventory(Inventory inv, int yen,Player p) {
         int log_money = (int) Math.log(yen);

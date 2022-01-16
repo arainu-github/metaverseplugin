@@ -18,8 +18,15 @@ import world.arainu.core.metaverseplugin.MetaversePlugin;
 import java.util.List;
 import java.util.Objects;
 
-
+/**
+ * プリエやーに報酬を与える関数群が集まったクラス。
+ * @author kumitatepazuru
+ */
 public class MoneyListener implements Listener {
+    /**
+     * プレイヤーがエンティティを倒したときに報酬を与える関数。
+     * @param e イベント
+     */
     @EventHandler
     public void onEntityDeath(EntityDeathEvent e){
         if(e.getEntity().getKiller() != null) {
@@ -68,6 +75,10 @@ public class MoneyListener implements Listener {
         }
     }
 
+    /**
+     * 進捗を達成したときにプレイヤーに報酬を与える関数。
+     * @param e イベント
+     */
     @EventHandler
     public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent e){
         Advancement advancement = e.getAdvancement();
@@ -80,7 +91,7 @@ public class MoneyListener implements Listener {
         }
     }
 
-    record money(EntityType type,int money){
+    private record money(EntityType type,int money){
     }
 
     private void addMoney(Player player, int money){

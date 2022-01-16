@@ -11,11 +11,26 @@ import world.arainu.core.metaverseplugin.utils.ItemUtil;
 
 import java.util.Objects;
 
+/**
+ * 採掘をするときに使用するスケジューラー。
+ * 一定時間経過後に採掘される。
+ * @author kumitatepazuru
+ */
 public class DrillingScheduler extends BukkitRunnable {
     private final Block block;
     private final ItemStack useTool;
+    /**
+     * 採掘が終了したかどうかの判定に使用するフラグ。
+     * 1: 正常終了
+     * 3: 一時停止（このスケジューラーがキャンセルされた）
+     */
     public int ended = 0;
 
+    /**
+     * 初期化
+     * @param block 採掘マシーンのブロックデータ
+     * @param useTool 使用するツール
+     */
     public DrillingScheduler(Block block, ItemStack useTool) {
         this.block = block;
         this.useTool = useTool;

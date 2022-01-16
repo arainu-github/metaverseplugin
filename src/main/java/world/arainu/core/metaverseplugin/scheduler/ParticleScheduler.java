@@ -7,6 +7,10 @@ import world.arainu.core.metaverseplugin.utils.ParticleUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 独自の線パーティクルなどを表示するスケジューラー。
+ * @author kumitatepazuru
+ */
 public class ParticleScheduler extends BukkitRunnable {
     private static final List<ParticleUtil> queue = new ArrayList<>();
 
@@ -43,10 +47,18 @@ public class ParticleScheduler extends BukkitRunnable {
         }
     }
 
+    /**
+     * パーティクルキューを追加する関数。
+     * @param particle 追加するパーティクル
+     */
     public static void addQueue(ParticleUtil particle){
         queue.add(particle);
     }
 
+    /**
+     * パーティクルキューを削除する関数。
+     * @param particle 削除するパーティクル
+     */
     public static void removeQueue(ParticleUtil particle){
         queue.remove(particle);
     }

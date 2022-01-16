@@ -54,15 +54,22 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
+/**
+ * 採掘マシーンを動かすクラス。
+ * @author kumitatepazuru
+ */
 public class DrillingListener implements Listener {
-    HashMap<Inventory, Block> invList = new HashMap<>();
-    HashMap<Block, ParticleUtil> particleMap = new HashMap<>();
-    HashMap<Block, ParticleUtil> particleDrillingMap = new HashMap<>();
-    HashMap<Block, DrillingScheduler> drillingTaskMap = new HashMap<>();
-    List<Location> locationList = new ArrayList<>();
+    private final HashMap<Inventory, Block> invList = new HashMap<>();
+    private final HashMap<Block, ParticleUtil> particleMap = new HashMap<>();
+    private final HashMap<Block, ParticleUtil> particleDrillingMap = new HashMap<>();
+    private final HashMap<Block, DrillingScheduler> drillingTaskMap = new HashMap<>();
+    private final List<Location> locationList = new ArrayList<>();
     @Getter
     private static DrillingListener instance;
 
+    /**
+     * データをSQLから読み込む関数。
+     */
     public DrillingListener() {
         instance = this;
         for (sqlUtil.returnDrilling i : Objects.requireNonNull(sqlUtil.getDrillingBlocks())) {
@@ -103,6 +110,10 @@ public class DrillingListener implements Listener {
         }
     }
 
+    /**
+     * ブロックを破壊したときにブロックデータを削除する関数。
+     * @param e　イベント
+     */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
         UUID playerUID = (UUID) e.getBlock().getMetadata("metaverse-drilling").get(0).value();
@@ -140,6 +151,10 @@ public class DrillingListener implements Listener {
         }
     }
 
+    /**
+     * 採掘マシーンが設置されたときにデータをブロック内に保存する関数。
+     * @param e イベント
+     */
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
         ItemStack item = e.getItemInHand();
@@ -287,6 +302,10 @@ public class DrillingListener implements Listener {
         createCube(block, vector3D);
     }
 
+    /**
+     * ブロックを右クリックしたときにGUIを開く関数。
+     * @param e イベント
+     */
     //○┏━━━━━━━━━┓
     // ┃ 整地箇所　┃　→+X方向
     // ┗━━━━━━━━━┛  ↓+Z方向
@@ -309,6 +328,10 @@ public class DrillingListener implements Listener {
         }
     }
 
+    /**
+     * 採掘マシーンのGUI操作を動かしている関数。
+     * @param e イベント
+     */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         if (!invList.containsKey(e.getInventory())) return;
@@ -612,6 +635,9 @@ public class DrillingListener implements Listener {
         return delay;
     }
 
+    /**
+     * 採掘マシーンのデータをワールドに保存する関数。
+     */
     public void saveData() {
         MetaversePlugin.logger().info("saving drilling data...");
         sqlUtil.truncateDrillingBlock();
