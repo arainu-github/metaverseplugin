@@ -117,7 +117,6 @@ public class SlotMachine implements Listener {
 
                         listeners.addSlotFinishListener((stopMethod) -> {
                             SlotUtil.SlotResult result = getWinMoney(getPattern(), stopMethod, bet);
-                            System.out.println(result);
                             if (result.getPrize() != 0) {
                                 String itemNameJapanese = "";
                                 String method = "";

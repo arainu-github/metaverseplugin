@@ -116,6 +116,9 @@ public class DrillingListener implements Listener {
      */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
+        if(e.getBlock().getMetadata("metaverse-drilling").size() == 0){
+            return;
+        }
         UUID playerUID = (UUID) e.getBlock().getMetadata("metaverse-drilling").get(0).value();
         if (!Objects.requireNonNull(playerUID).equals(e.getPlayer().getUniqueId())) {
             e.setCancelled(true);

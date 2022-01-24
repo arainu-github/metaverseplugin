@@ -24,6 +24,7 @@ import org.bukkit.persistence.PersistentDataType;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
+import world.arainu.core.metaverseplugin.gui.casino.SlotMachine;
 import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.store.BankStore;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
@@ -57,23 +58,28 @@ public class VillagerListener implements Listener {
         if (e.getRightClicked() instanceof Villager) {
             if (Boolean.TRUE.equals(sqlUtil.hasuuid(e.getRightClicked().getUniqueId()))) {
                 e.setCancelled(true);
-                Villager villager = (Villager) e.getRightClicked();
-                AtomicInteger i = new AtomicInteger(-1);
-                List<MenuItem> tradeitems = villager.getRecipes().stream().map((recipe) -> {
-                    i.getAndIncrement();
-                    return new Mapdata(recipe,i.get(),villager);
-                        })
-                        .map((recipe) -> new MenuItem(
-                                this::onClick,
-                                true,
-                                Bank.isMoney(recipe.recipe.getResult()) ? recipe.recipe.getIngredients().get(0) : recipe.recipe.getResult(),
-                                recipe,
-                                false,
-                                -1,
-                                -1))
-                        .collect(Collectors.toList());
+                if (Objects.requireNonNull(sqlUtil.getuuidsbytype("casino-villager")).contains(e.getRightClicked().getUniqueId())) {
+                    SlotMachine obj = new SlotMachine();
+                    obj.start(e.getPlayer());
+                } else {
+                    Villager villager = (Villager) e.getRightClicked();
+                    AtomicInteger i = new AtomicInteger(-1);
+                    List<MenuItem> tradeitems = villager.getRecipes().stream().map((recipe) -> {
+                                i.getAndIncrement();
+                                return new Mapdata(recipe, i.get(), villager);
+                            })
+                            .map((recipe) -> new MenuItem(
+                                    this::onClick,
+                                    true,
+                                    Bank.isMoney(recipe.recipe.getResult()) ? recipe.recipe.getIngredients().get(0) : recipe.recipe.getResult(),
+                                    recipe,
+                                    false,
+                                    -1,
+                                    -1))
+                            .collect(Collectors.toList());
 
-                Gui.getInstance().openMenu(e.getPlayer(), villager.getName(), tradeitems);
+                    Gui.getInstance().openMenu(e.getPlayer(), villager.getName(), tradeitems);
+                }
             }
         }
     }
