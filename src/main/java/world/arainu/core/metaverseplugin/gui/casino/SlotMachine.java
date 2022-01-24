@@ -17,6 +17,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitTask;
+import org.geysermc.cumulus.CustomForm;
+import org.geysermc.cumulus.response.CustomFormResponse;
+import org.geysermc.floodgate.api.FloodgateApi;
+import org.geysermc.floodgate.api.player.FloodgatePlayer;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
@@ -62,19 +66,29 @@ public class SlotMachine implements Listener {
             new AnvilGUI.Builder()
                     .title("賭ける金額を入力")
                     .onClose(p -> ChatUtil.warning(p, "賭ける金額の入力を取りやめました。"))
-                    .onComplete(slotMechanic())
+                    .onComplete(this::slotMechanic)
                     .itemLeft(new ItemStack(Material.PAPER))
                     .plugin(MetaversePlugin.getInstance())
-                    .text("半角数字で!:残高=" + MetaversePlugin.getEcon().getBalance(player) + "円")
+                    .text("半角数字で!残高=" + MetaversePlugin.getEcon().getBalance(player) + "円")
                     .open(player);
+        } else {
+            CustomForm.Builder builder = CustomForm.builder()
+                    .title("賭ける金額を入力")
+                    .input("送金する金額を入力", "半角数字で!残高=" + MetaversePlugin.getEcon().getBalance(player) + "円")
+                    .responseHandler((form, responseData) -> {
+                        CustomFormResponse response = form.parseResponse(responseData);
+                        if (!response.isCorrect()) ChatUtil.warning(player, "賭ける金額の入力を取りやめました。");
+                        else slotMechanic(player,response.getInput(0));
+                    });
+            final FloodgatePlayer fPlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
+            fPlayer.sendForm(builder);
         }
     }
 
     /**
      * @return 賭ける金額のAnvilGuiを閉じたときの処理（カジノの処理でもあるョ）
      */
-    public static BiFunction<Player, String, AnvilGUI.Response> slotMechanic() {
-        return (player, s) -> {
+    public AnvilGUI.Response slotMechanic(Player player,String s) {
             listeners.clearSlotFinishListeners();
             tasks.clear();
             //数字かどうか確認
@@ -179,7 +193,6 @@ public class SlotMachine implements Listener {
                 ChatUtil.error(player, "数字以外のものが含まれているか無効な数字です！");
             }
             return AnvilGUI.Response.close();
-        };
     }
 
     /**
