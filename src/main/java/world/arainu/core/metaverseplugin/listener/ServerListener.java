@@ -12,13 +12,16 @@ import me.leoko.advancedban.manager.TimeManager;
 import me.leoko.advancedban.utils.Punishment;
 import me.leoko.advancedban.utils.PunishmentType;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.store.ServerStore;
@@ -108,6 +111,10 @@ public class ServerListener implements Listener {
         }
     }
 
+    /**
+     * プレイヤーがログアウトしたときに内部プレイヤーデータを削除する関数。
+     * @param e イベント
+     */
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
         // GC
@@ -116,6 +123,16 @@ public class ServerListener implements Listener {
             markerData.remove(e.getPlayer());
             ServerStore.setMarkerData(markerData);
         }
+    }
+
+    /**
+     * プレイヤーがログインしたときに新機能を通知する関数。
+     * @param e イベント
+     */
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        final String url = "https://data.arainu.world/advancements/?uuid="+e.getPlayer().getUniqueId();
+        e.getPlayer().sendMessage(Component.text("あなたの進捗の達成度を確認できるようになりました！\n").append(Component.text(url).clickEvent(ClickEvent.openUrl(url)).decorate(TextDecoration.UNDERLINED)));
     }
 
     private final HashMap<UUID, TimeAndMsg> last_log_map = new HashMap<>();

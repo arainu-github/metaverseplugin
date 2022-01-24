@@ -45,8 +45,8 @@ public class TrapTower extends iPhoneBase {
         World world = Bukkit.getWorld(traptower_world_name);
         if (world != null) {
             if (!player.getWorld().getName().equals(traptower_world_name)) {
-                Bukkit.getLogger().info(player.getName() + "がトラップタワーに行こうとしています。");
-                Bukkit.getLogger().info("using_player_list: " + TrapTowerStore.getUsing_player_list());
+                MetaversePlugin.logger().info(player.getName() + "がトラップタワーに行こうとしています。");
+                MetaversePlugin.logger().info("using_player_list: " + TrapTowerStore.getUsing_player_list());
                 if (TrapTowerStore.getUsing_player_list().contains(null)) {
                     Economy econ = MetaversePlugin.getEcon();
                     if (econ.has(player, config.getInt("traptower.money"))) {
@@ -79,7 +79,7 @@ public class TrapTower extends iPhoneBase {
                         component = component.append(Component.text("トラップタワーからサバイバルサーバーに戻るとチェスト内のアイテムはすべて削除されます。"));
                         component = component.append(Component.text("また、一旦サーバーを抜けると強制的にサバイバルサーバーに転送されます。"));
                         component = component.append(Component.text("\n\n詳しくはこちら: ").color(NamedTextColor.WHITE));
-                        component = component.append(Component.text("https://www.arainu.world/minecraft/survival/public/traptower").decorate(TextDecoration.UNDERLINED).decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN).clickEvent(ClickEvent.openUrl("https://www.arainu.world/minecraft/survival/public/traptower")));
+                        component = component.append(Component.text("https://www.arainu.world/archives/212").decorate(TextDecoration.UNDERLINED).decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN).clickEvent(ClickEvent.openUrl("https://www.arainu.world/minecraft/survival/public/traptower")));
                         player.sendMessage(component);
                         new TrapTowerScheduler(player).runTaskTimer(MetaversePlugin.getInstance(), 0, 1200);
                     } else {
@@ -92,7 +92,7 @@ public class TrapTower extends iPhoneBase {
                 ChatUtil.error(player, "公共施設から直接公共施設へ行くことはできません！");
             }
         } else {
-            Bukkit.getLogger().severe("公共施設のワールドが見当たりません！configを確認してください！");
+            MetaversePlugin.logger().severe("公共施設のワールドが見当たりません！configを確認してください！");
         }
     }
 }

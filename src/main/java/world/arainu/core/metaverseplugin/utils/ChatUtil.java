@@ -3,12 +3,12 @@ package world.arainu.core.metaverseplugin.utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import world.arainu.core.metaverseplugin.MetaversePlugin;
 
 /**
  * プレイヤーとのやり取りに使用する機会が多いものを集めて便利にした関数群のクラス
@@ -23,7 +23,7 @@ public class ChatUtil {
      * @param message エラー内容
      */
     public static void error(Player p, String message) {
-        Bukkit.getLogger().warning(
+        MetaversePlugin.logger().warning(
                 ComponentUtil.toString(Component.text("[").append(p.displayName()).append(Component.text("] エラー>> " + message))));
         for (String msg : message.split("\n"))
             p.sendMessage(ChatColor.RED + "[メタバースプラグイン][エラー] " + msg);
@@ -40,7 +40,7 @@ public class ChatUtil {
         if (sender instanceof Player) {
             error((Player) sender, message);
         } else {
-            Bukkit.getLogger().warning(
+            MetaversePlugin.logger().warning(
                     ComponentUtil.toString(Component.text("[").append(Component.text(sender.getName())).append(Component.text("] エラー>> " + message))));
             for (String msg : message.split("\n"))
                 sender.sendMessage(ChatColor.RED + "[メタバースプラグイン][エラー] " + msg);
@@ -54,7 +54,7 @@ public class ChatUtil {
      * @param message 警告内容
      */
     public static void warning(Player p, String message) {
-        Bukkit.getLogger().info(
+        MetaversePlugin.logger().info(
                 ComponentUtil.toString(Component.text("[").append(p.displayName()).append(Component.text("] 警告>> " + message))));
         p.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] " + message);
     }
@@ -66,7 +66,7 @@ public class ChatUtil {
      * @param message 警告内容
      */
     public static void warning(CommandSender sender, String message) {
-        Bukkit.getLogger().info(ComponentUtil.toString(Component.text("[").append(Component.text(sender.getName())).append(Component.text("] 警告>> " + message))));
+        MetaversePlugin.logger().info(ComponentUtil.toString(Component.text("[").append(Component.text(sender.getName())).append(Component.text("] 警告>> " + message))));
         sender.sendMessage(ChatColor.GOLD + "[メタバースプラグイン] " + message);
     }
 
@@ -130,7 +130,7 @@ public class ChatUtil {
      * @param playsound 音を再生するか
      */
     public static void success(Player p, TextComponent message, Boolean playsound) {
-        Bukkit.getLogger().info(ComponentUtil.toString(
+        MetaversePlugin.logger().info(ComponentUtil.toString(
                 Component.text("[").append(p.displayName()).append(Component.text("] 成功>> ")).append(message)));
         p.sendMessage(Component.text("[メタバースプラグイン] ").append(message).color(NamedTextColor.GREEN));
         if (playsound) {
@@ -149,7 +149,7 @@ public class ChatUtil {
         if (sender instanceof Player) {
             success((Player) sender, message, playsound);
         } else {
-            Bukkit.getLogger().info(ComponentUtil.toString(
+            MetaversePlugin.logger().info(ComponentUtil.toString(
                     Component.text("[").append(Component.text(sender.getName())).append(Component.text("] 成功>> ")).append(message)));
             sender.sendMessage(Component.text("[メタバースプラグイン] ").append(message).color(NamedTextColor.GREEN));
         }

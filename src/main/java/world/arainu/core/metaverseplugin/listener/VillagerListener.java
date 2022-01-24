@@ -24,9 +24,11 @@ import org.bukkit.persistence.PersistentDataType;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
+import world.arainu.core.metaverseplugin.gui.casino.SlotMachine;
 import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.store.BankStore;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
+import world.arainu.core.metaverseplugin.utils.ItemUtil;
 import world.arainu.core.metaverseplugin.utils.SoundUtil;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
@@ -56,23 +58,28 @@ public class VillagerListener implements Listener {
         if (e.getRightClicked() instanceof Villager) {
             if (Boolean.TRUE.equals(sqlUtil.hasuuid(e.getRightClicked().getUniqueId()))) {
                 e.setCancelled(true);
-                Villager villager = (Villager) e.getRightClicked();
-                AtomicInteger i = new AtomicInteger(-1);
-                List<MenuItem> tradeitems = villager.getRecipes().stream().map((recipe) -> {
-                    i.getAndIncrement();
-                    return new Mapdata(recipe,i.get(),villager);
-                        })
-                        .map((recipe) -> new MenuItem(
-                                this::onClick,
-                                true,
-                                Bank.isMoney(recipe.recipe.getResult()) ? recipe.recipe.getIngredients().get(0) : recipe.recipe.getResult(),
-                                recipe,
-                                false,
-                                -1,
-                                -1))
-                        .collect(Collectors.toList());
+                if (Objects.requireNonNull(sqlUtil.getuuidsbytype("casino-villager")).contains(e.getRightClicked().getUniqueId())) {
+                    SlotMachine obj = new SlotMachine();
+                    obj.start(e.getPlayer());
+                } else {
+                    Villager villager = (Villager) e.getRightClicked();
+                    AtomicInteger i = new AtomicInteger(-1);
+                    List<MenuItem> tradeitems = villager.getRecipes().stream().map((recipe) -> {
+                                i.getAndIncrement();
+                                return new Mapdata(recipe, i.get(), villager);
+                            })
+                            .map((recipe) -> new MenuItem(
+                                    this::onClick,
+                                    true,
+                                    Bank.isMoney(recipe.recipe.getResult()) ? recipe.recipe.getIngredients().get(0) : recipe.recipe.getResult(),
+                                    recipe,
+                                    false,
+                                    -1,
+                                    -1))
+                            .collect(Collectors.toList());
 
-                Gui.getInstance().openMenu(e.getPlayer(), villager.getName(), tradeitems);
+                    Gui.getInstance().openMenu(e.getPlayer(), villager.getName(), tradeitems);
+                }
             }
         }
     }
@@ -112,7 +119,7 @@ public class VillagerListener implements Listener {
             // 管理インベントリでなければ無視
             if (!invMap.containsKey(inv)) return;
             final int id = e.getRawSlot();
-            if (id < 18 && id > 0) {
+            if (id < 18 && id >= 0) {
                 e.setCancelled(true);
                 switch (id) {
                     case 1 -> {
@@ -174,7 +181,7 @@ public class VillagerListener implements Listener {
                                 Bank.addMoneyForPlayer((Player) p, returnMoney.total_money() - required_money);
                                 final ItemStack addItem = new ItemStack(item.getType());
                                 addItem.setAmount(item.getAmount());
-                                p.getInventory().addItem(addItem);
+                                ItemUtil.addItem(addItem,e.getInventory(), (Player) p);
                             }
                         }
                         if(okay){
@@ -277,7 +284,7 @@ public class VillagerListener implements Listener {
         for (int i = 18; i < inv.getSize(); i++) {
             ItemStack item = inv.getItem(i);
             if (item == null) continue;
-            e.getPlayer().getInventory().addItem(item);
+            ItemUtil.addItem(item,e.getPlayer().getInventory(), (Player) e.getPlayer());
         }
         invMap.remove(inv);
     }

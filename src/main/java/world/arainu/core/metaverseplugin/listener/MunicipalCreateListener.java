@@ -40,7 +40,15 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+/**
+ * 自治体作成に使用されるリスナー。
+ * @author kumitatepazuru
+ */
 public class MunicipalCreateListener implements Listener {
+    /**
+     * 自治体作成ブックを使用したときに動く関数。
+     * @param e イベント
+     */
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e){
         ItemStack item = e.getPlayer().getInventory().getItemInMainHand();

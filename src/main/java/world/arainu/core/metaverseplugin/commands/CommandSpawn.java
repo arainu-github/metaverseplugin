@@ -86,6 +86,10 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
     public boolean execute(Player player, Command command, String label, String[] args) {
         if (args.length == 1) {
             switch (args[0]) {
+                case "casino-villager" -> {
+                    Villager villager = createVillager("スロットマン", Villager.Profession.MASON, player);
+                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
+                }
                 case "mason-villager" -> {
                     Villager villager = createVillager("鉱石店員", Villager.Profession.MASON, player);
                     sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
@@ -295,6 +299,6 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
                                       String[] args) {
-        return List.of("mason-villager", "stone-villager", "mason-villager-shop", "stone-villager-shop", "mob-villager","sandstone-villager","sandstone-villager-shop");
+        return List.of("casino-villager","mason-villager", "stone-villager", "mason-villager-shop", "stone-villager-shop", "mob-villager","sandstone-villager","sandstone-villager-shop");
     }
 }

@@ -15,10 +15,15 @@ import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.store.ServerStore;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
+import world.arainu.core.metaverseplugin.utils.ItemUtil;
 
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * iPhoneの自治体に関するプログラム群があるクラス
+ * @author kumitatepazuru
+ */
 public class Municipal extends iPhoneBase {
     @Override
     public void executeGui(MenuItem menuItem) {
@@ -31,6 +36,10 @@ public class Municipal extends iPhoneBase {
         }
     }
 
+    /**
+     * 自治体ブックを作成する関数。
+     * @return 自治体作成ブックのデータ
+     */
     public static ItemStack createItemStack(){
         final ItemStack item = new ItemStack(Material.ENCHANTED_BOOK);
         final ItemMeta itemMeta = item.getItemMeta();
@@ -41,7 +50,7 @@ public class Municipal extends iPhoneBase {
         return item;
     }
 
-    public void createMunicipal(MenuItem menuItem) {
+    private void createMunicipal(MenuItem menuItem) {
         Player player = menuItem.getClicker();
         Economy econ = MetaversePlugin.getEcon();
         if(econ.has(player, 2000)) {
@@ -49,7 +58,7 @@ public class Municipal extends iPhoneBase {
             player.sendMessage(Component.text("まずはじめに、自治体の区域を設定しましょう。\n手元に")
                     .append(Component.text("自治体作成ブック").color(NamedTextColor.LIGHT_PURPLE).decorate(TextDecoration.BOLD).decorate(TextDecoration.UNDERLINED))
                     .append(Component.text("がインベントリ内にあるのでそこから操作をして区域の始点を設定しましょう。")));
-            player.getInventory().addItem(createItemStack());
+            ItemUtil.addItem(createItemStack(),player.getInventory(),player);
         } else {
             ChatUtil.error(player,"作成には2000円必要ですが、あなたにはそこまでお金はありません！\n残高: " + econ.format(econ.getBalance(player)));
         }

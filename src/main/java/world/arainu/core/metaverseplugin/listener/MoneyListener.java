@@ -1,11 +1,9 @@
 package world.arainu.core.metaverseplugin.listener;
 
-import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.advancement.Advancement;
@@ -20,8 +18,15 @@ import world.arainu.core.metaverseplugin.MetaversePlugin;
 import java.util.List;
 import java.util.Objects;
 
-
+/**
+ * プリエやーに報酬を与える関数群が集まったクラス。
+ * @author kumitatepazuru
+ */
 public class MoneyListener implements Listener {
+    /**
+     * プレイヤーがエンティティを倒したときに報酬を与える関数。
+     * @param e イベント
+     */
     @EventHandler
     public void onEntityDeath(EntityDeathEvent e){
         if(e.getEntity().getKiller() != null) {
@@ -70,20 +75,23 @@ public class MoneyListener implements Listener {
         }
     }
 
+    /**
+     * 進捗を達成したときにプレイヤーに報酬を与える関数。
+     * @param e イベント
+     */
     @EventHandler
     public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent e){
         Advancement advancement = e.getAdvancement();
         if(advancement.getDisplay() != null) {
-            Bukkit.getLogger().info("done");
             switch (Objects.requireNonNull(e.getAdvancement().getDisplay()).frame()){
-                case TASK -> addMoney(e.getPlayer(),100);
-                case GOAL -> addMoney(e.getPlayer(),500);
-                case CHALLENGE -> addMoney(e.getPlayer(),1500);
+                case TASK -> addMoney(e.getPlayer(),500);
+                case GOAL -> addMoney(e.getPlayer(),1500);
+                case CHALLENGE -> addMoney(e.getPlayer(),5000);
             }
         }
     }
 
-    record money(EntityType type,int money){
+    private record money(EntityType type,int money){
     }
 
     private void addMoney(Player player, int money){

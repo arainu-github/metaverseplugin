@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -39,7 +38,7 @@ public class ServerStore {
      * @param ServerName サーバー名
      */
     public static void setServerName(String ServerName) {
-        Bukkit.getLogger().info("BungeecordのServer Name: " + ServerName);
+        MetaversePlugin.logger().info("BungeecordのServer Name: " + ServerName);
         serverName = ServerName;
     }
 
