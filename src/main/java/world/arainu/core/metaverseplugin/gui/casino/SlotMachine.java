@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiFunction;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 public class SlotMachine implements Listener {
@@ -63,10 +63,14 @@ public class SlotMachine implements Listener {
      */
     public void start(Player player) {
         if (!Gui.isBedrock(player)) {
+            AtomicBoolean complete = new AtomicBoolean(false);
             new AnvilGUI.Builder()
                     .title("賭ける金額を入力")
-                    .onClose(p -> ChatUtil.warning(p, "賭ける金額の入力を取りやめました。"))
-                    .onComplete(this::slotMechanic)
+                    .onClose(p -> {if(!complete.get()) ChatUtil.warning(p, "賭ける金額の入力を取りやめました。");})
+                    .onComplete((p,string) -> {
+                        complete.set(true);
+                        return this.slotMechanic(p,string);
+                    })
                     .itemLeft(new ItemStack(Material.PAPER))
                     .plugin(MetaversePlugin.getInstance())
                     .text("半角数字で!残高=" + MetaversePlugin.getEcon().getBalance(player) + "円")

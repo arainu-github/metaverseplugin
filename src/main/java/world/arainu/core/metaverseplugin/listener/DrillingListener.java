@@ -24,7 +24,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -116,42 +118,68 @@ public class DrillingListener implements Listener {
      */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
-        if(e.getBlock().getMetadata("metaverse-drilling").size() == 0){
+        Block block = e.getBlock();
+        Player player = e.getPlayer();
+        if(!block.hasMetadata("metaverse-drilling")){
             return;
         }
-        UUID playerUID = (UUID) e.getBlock().getMetadata("metaverse-drilling").get(0).value();
-        if (!Objects.requireNonNull(playerUID).equals(e.getPlayer().getUniqueId())) {
+        UUID playerUID = (UUID) block.getMetadata("metaverse-drilling").get(0).value();
+        if (!Objects.requireNonNull(playerUID).equals(player.getUniqueId())) {
+            ChatUtil.error(player, "他のプレイヤーの採掘マシーンを破壊することはできません！");
             e.setCancelled(true);
-            ChatUtil.error(e.getPlayer(), "他のプレイヤーの採掘マシーンを破壊することはできません！");
             return;
         }
-        if (e.getBlock().hasMetadata("metaverse-drilling")) {
-            final ItemStack pickaxe = (ItemStack) e.getBlock().getMetadata("metaverse-drilling__pickaxe").get(0).value();
-            final ItemStack shovel = (ItemStack) e.getBlock().getMetadata("metaverse-drilling__shovel").get(0).value();
-            if (Objects.requireNonNull(pickaxe).getType() != Material.AIR) {
-                ItemUtil.addItem(pickaxe, e.getPlayer().getInventory(), e.getPlayer());
-            }
-            if (Objects.requireNonNull(shovel).getType() != Material.AIR) {
-                ItemUtil.addItem(shovel, e.getPlayer().getInventory(), e.getPlayer());
-            }
-            locationList.remove(e.getBlock().getLocation());
-            e.getBlock().removeMetadata("metaverse-drilling", MetaversePlugin.getInstance());
-            e.getBlock().removeMetadata("metaverse-drilling__vector", MetaversePlugin.getInstance());
-            e.getBlock().removeMetadata("metaverse-drilling__pickaxe", MetaversePlugin.getInstance());
-            e.getBlock().removeMetadata("metaverse-drilling__shovel", MetaversePlugin.getInstance());
-            e.getBlock().removeMetadata("metaverse-drilling__vector2", MetaversePlugin.getInstance());
-            e.getBlock().removeMetadata("metaverse-drilling__item", MetaversePlugin.getInstance());
-            e.getBlock().removeMetadata("metaverse-drilling__starting", MetaversePlugin.getInstance());
-            ParticleScheduler.removeQueue(particleMap.get(e.getBlock()));
-            particleMap.remove(e.getBlock());
-            ParticleScheduler.removeQueue(particleDrillingMap.get(e.getBlock()));
-            particleDrillingMap.remove(e.getBlock());
-            if (drillingTaskMap.containsKey(e.getBlock())) {
-                ChatUtil.warning(e.getPlayer(), "採掘マシーンが破壊されたため採掘を強制終了しました。");
-                drillingTaskMap.get(e.getBlock()).cancel();
-                drillingTaskMap.remove(e.getBlock());
-            }
+        final ItemStack pickaxe = (ItemStack) block.getMetadata("metaverse-drilling__pickaxe").get(0).value();
+        final ItemStack shovel = (ItemStack) block.getMetadata("metaverse-drilling__shovel").get(0).value();
+        if (Objects.requireNonNull(pickaxe).getType() != Material.AIR) {
+            ItemUtil.addItem(pickaxe, player.getInventory(), player);
         }
+        if (Objects.requireNonNull(shovel).getType() != Material.AIR) {
+            ItemUtil.addItem(shovel, player.getInventory(), player);
+        }
+        locationList.remove(block.getLocation());
+        block.removeMetadata("metaverse-drilling", MetaversePlugin.getInstance());
+        block.removeMetadata("metaverse-drilling__vector", MetaversePlugin.getInstance());
+        block.removeMetadata("metaverse-drilling__pickaxe", MetaversePlugin.getInstance());
+        block.removeMetadata("metaverse-drilling__shovel", MetaversePlugin.getInstance());
+        block.removeMetadata("metaverse-drilling__vector2", MetaversePlugin.getInstance());
+        block.removeMetadata("metaverse-drilling__item", MetaversePlugin.getInstance());
+        block.removeMetadata("metaverse-drilling__starting", MetaversePlugin.getInstance());
+        ParticleScheduler.removeQueue(particleMap.get(block));
+        particleMap.remove(block);
+        ParticleScheduler.removeQueue(particleDrillingMap.get(block));
+        particleDrillingMap.remove(block);
+        if (drillingTaskMap.containsKey(block)) {
+            ChatUtil.warning(player, "採掘マシーンが破壊されたため採掘を強制終了しました。");
+            drillingTaskMap.get(block).cancel();
+            drillingTaskMap.remove(block);
+        }
+    }
+
+    /**
+     * ブロックが爆破によって破壊したときにブロックデータを削除する関数。
+     * @param e　イベント
+     */
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent e) {
+        e.blockList().forEach(block -> {
+            if(block.hasMetadata("metaverse-drilling")){
+                Bukkit.getServer().getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> block.getLocation().getBlock().setType(Material.BRICKS),1);
+            }
+        });
+    }
+
+    /**
+     * ブロックが爆破によって破壊したときにブロックデータを削除する関数。
+     * @param e　イベント
+     */
+    @EventHandler
+    public void onBlockExplode(BlockExplodeEvent e) {
+        e.blockList().forEach(block -> {
+            if(block.hasMetadata("metaverse-drilling")){
+                Bukkit.getServer().getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> block.getLocation().getBlock().setType(Material.BRICKS),1);
+            }
+        });
     }
 
     /**
@@ -314,7 +342,7 @@ public class DrillingListener implements Listener {
     // ┗━━━━━━━━━┛  ↓+Z方向
     @EventHandler
     public void onBlockClick(PlayerInteractEvent e) {
-        if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+        if (e.getAction().isRightClick() && !e.getPlayer().isSneaking()) {
             Block block = Objects.requireNonNull(e.getClickedBlock());
             if (!block.getMetadata("metaverse-drilling").isEmpty()) {
                 UUID playerUID = (UUID) block.getMetadata("metaverse-drilling").get(0).value();
