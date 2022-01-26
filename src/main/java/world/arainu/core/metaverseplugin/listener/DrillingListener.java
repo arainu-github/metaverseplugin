@@ -342,8 +342,8 @@ public class DrillingListener implements Listener {
     // ┗━━━━━━━━━┛  ↓+Z方向
     @EventHandler
     public void onBlockClick(PlayerInteractEvent e) {
-        if (e.getAction().isRightClick() && !e.getPlayer().isSneaking()) {
-            Block block = Objects.requireNonNull(e.getClickedBlock());
+        if (e.getAction().isRightClick() && !e.getPlayer().isSneaking() && e.getClickedBlock() != null) {
+            Block block = e.getClickedBlock();
             if (!block.getMetadata("metaverse-drilling").isEmpty()) {
                 UUID playerUID = (UUID) block.getMetadata("metaverse-drilling").get(0).value();
                 if (Objects.requireNonNull(playerUID).equals(e.getPlayer().getUniqueId())) {
