@@ -12,6 +12,7 @@ import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -28,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChestLockListener implements Listener {
     @EventHandler
@@ -79,7 +81,7 @@ public class ChestLockListener implements Listener {
      */
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
-        explode(e.blockList());
+        breakCheck(e.blockList());
     }
 
     /**
@@ -89,22 +91,33 @@ public class ChestLockListener implements Listener {
      */
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent e) {
-        explode(e.blockList());
+        breakCheck(e.blockList());
     }
 
-    private void explode(List<Block> blockList){
+    /**
+     * ロック済みチェストが所有者以外のプレイヤーによって破壊されないようにする関数。
+     * @param e　イベント
+     */
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent e) {
+        e.setCancelled(breakCheck(List.of(e.getBlock())));
+    }
+
+    private boolean breakCheck(List<Block> blockList){
+        AtomicBoolean isCancel = new AtomicBoolean(false);
         blockList.forEach(block -> {
             if (block.getType().equals(Material.CHEST)) {
                 PersistentDataContainer persistentDataContainer = ((Chest) block.getState()).getPersistentDataContainer();
                 if (persistentDataContainer.has(ChestLock.getChestIDKey(), PersistentDataType.STRING)) {
-
+                    isCancel.set(true);
                     String uuid = persistentDataContainer.get(ChestLock.getChestIDKey(), PersistentDataType.STRING);
                     Bukkit.getServer().getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
                         block.setType(Material.CHEST);
-                        persistentDataContainer.set(ChestLock.getChestIDKey(), PersistentDataType.STRING, Objects.requireNonNull(uuid));
+                        ((Chest) block.getState()).getPersistentDataContainer().set(ChestLock.getChestIDKey(), PersistentDataType.STRING, Objects.requireNonNull(uuid));
                     }, 1);
                 }
             }
         });
+        return isCancel.get();
     }
 }
