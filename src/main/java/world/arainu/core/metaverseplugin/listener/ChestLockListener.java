@@ -24,12 +24,12 @@ import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.iphone.ChestLock;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChestLockListener implements Listener {
     @EventHandler
@@ -96,28 +96,41 @@ public class ChestLockListener implements Listener {
 
     /**
      * ロック済みチェストが所有者以外のプレイヤーによって破壊されないようにする関数。
-     * @param e　イベント
+     *
+     * @param e 　イベント
      */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
-        e.setCancelled(breakCheck(List.of(e.getBlock())));
+        Block block = e.getBlock();
+        if (block.getType().equals(Material.CHEST)) {
+            PersistentDataContainer persistentDataContainer = ((Chest) block.getState()).getPersistentDataContainer();
+            if (!(Objects.equals(persistentDataContainer.get(ChestLock.getChestIDKey(), PersistentDataType.STRING), e.getPlayer().getUniqueId().toString()))) {
+                e.setCancelled(true);
+            }
+        }
     }
 
-    private boolean breakCheck(List<Block> blockList){
-        AtomicBoolean isCancel = new AtomicBoolean(false);
+    private void breakCheck(List<Block> blockList) {
         blockList.forEach(block -> {
             if (block.getType().equals(Material.CHEST)) {
                 PersistentDataContainer persistentDataContainer = ((Chest) block.getState()).getPersistentDataContainer();
                 if (persistentDataContainer.has(ChestLock.getChestIDKey(), PersistentDataType.STRING)) {
-                    isCancel.set(true);
                     String uuid = persistentDataContainer.get(ChestLock.getChestIDKey(), PersistentDataType.STRING);
+                    List<ItemStack> items = new ArrayList<>();
+                    for (int i = 0; i < 27; i++) {
+                        items.add(((Chest) block.getState()).getInventory().getItem(i));
+                    }
+                    ((Chest) block.getState()).getInventory().clear();
+                    block.setType(Material.AIR);
                     Bukkit.getServer().getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
                         block.setType(Material.CHEST);
                         ((Chest) block.getState()).getPersistentDataContainer().set(ChestLock.getChestIDKey(), PersistentDataType.STRING, Objects.requireNonNull(uuid));
+                        for (int i = 0; i < 27; i++) {
+                            ((Chest) block.getState()).getInventory().setItem(i, items.get(i));
+                        }
                     }, 1);
                 }
             }
         });
-        return isCancel.get();
     }
 }
