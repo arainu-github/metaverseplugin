@@ -2,19 +2,24 @@ package world.arainu.core.metaverseplugin.listener;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
+import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.iphone.ChestLock;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
@@ -41,11 +46,11 @@ public class ChestLockListener implements Listener {
                             InventoryHolder holder = state.getInventory().getHolder();
                             List<Chest> chests;
                             if (holder instanceof DoubleChest doubleChest) {
-                                chests = Arrays.asList((Chest) doubleChest.getLeftSide(),(Chest) doubleChest.getRightSide());
+                                chests = Arrays.asList((Chest) doubleChest.getLeftSide(), (Chest) doubleChest.getRightSide());
                             } else {
                                 chests = Collections.singletonList(state);
                             }
-                            for(Chest i: chests) {
+                            for (Chest i : chests) {
                                 i.getPersistentDataContainer().set(ChestLock.getChestIDKey(), PersistentDataType.STRING, player.getUniqueId().toString());
                                 i.update();
                             }
@@ -63,8 +68,43 @@ public class ChestLockListener implements Listener {
                         e.setCancelled(true);
                     }
                 }
-
             }
         }
+    }
+
+    /**
+     * ブロックが爆破によって破壊されないようにする関数。
+     *
+     * @param e 　イベント
+     */
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent e) {
+        explode(e.blockList());
+    }
+
+    /**
+     * ブロックが爆破によって破壊されないようにする関数。
+     *
+     * @param e 　イベント
+     */
+    @EventHandler
+    public void onBlockExplode(BlockExplodeEvent e) {
+        explode(e.blockList());
+    }
+
+    private void explode(List<Block> blockList){
+        blockList.forEach(block -> {
+            if (block.getType().equals(Material.CHEST)) {
+                PersistentDataContainer persistentDataContainer = ((Chest) block.getState()).getPersistentDataContainer();
+                if (persistentDataContainer.has(ChestLock.getChestIDKey(), PersistentDataType.STRING)) {
+
+                    String uuid = persistentDataContainer.get(ChestLock.getChestIDKey(), PersistentDataType.STRING);
+                    Bukkit.getServer().getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
+                        block.setType(Material.CHEST);
+                        persistentDataContainer.set(ChestLock.getChestIDKey(), PersistentDataType.STRING, Objects.requireNonNull(uuid));
+                    }, 1);
+                }
+            }
+        });
     }
 }
