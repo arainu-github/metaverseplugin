@@ -6,16 +6,21 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.block.Chest;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import world.arainu.core.metaverseplugin.iphone.ChestLock;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -33,8 +38,17 @@ public class ChestLockListener implements Listener {
                         if (persistentDataContainer.has(ChestLock.getChestIDKey(), PersistentDataType.STRING)) {
                             ChatUtil.error(player, "チェストをには既に鍵がかかっています！");
                         } else {
-                            persistentDataContainer.set(ChestLock.getChestIDKey(), PersistentDataType.STRING, player.getUniqueId().toString());
-                            state.update();
+                            InventoryHolder holder = state.getInventory().getHolder();
+                            List<Chest> chests;
+                            if (holder instanceof DoubleChest doubleChest) {
+                                chests = Arrays.asList((Chest) doubleChest.getLeftSide(),(Chest) doubleChest.getRightSide());
+                            } else {
+                                chests = Collections.singletonList(state);
+                            }
+                            for(Chest i: chests) {
+                                i.getPersistentDataContainer().set(ChestLock.getChestIDKey(), PersistentDataType.STRING, player.getUniqueId().toString());
+                                i.update();
+                            }
                             player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
                             ChatUtil.success(player, "チェストに鍵をかけました。\n今後はこのチェストの破壊や閲覧はあなたしかできません。\n再設置をすると鍵は外れます。");
                         }
