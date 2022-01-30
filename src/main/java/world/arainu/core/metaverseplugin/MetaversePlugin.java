@@ -29,6 +29,7 @@ import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.iphone.Bank;
+import world.arainu.core.metaverseplugin.iphone.ChestLock;
 import world.arainu.core.metaverseplugin.iphone.Drilling;
 import world.arainu.core.metaverseplugin.iphone.LinkDiscord;
 import world.arainu.core.metaverseplugin.iphone.MoveSurvival;
@@ -39,6 +40,7 @@ import world.arainu.core.metaverseplugin.iphone.Worldteleport;
 import world.arainu.core.metaverseplugin.iphone.iPhoneEnderDragon;
 import world.arainu.core.metaverseplugin.listener.AdvancementListener;
 import world.arainu.core.metaverseplugin.listener.BankListener;
+import world.arainu.core.metaverseplugin.listener.ChestLockListener;
 import world.arainu.core.metaverseplugin.listener.DrillingListener;
 import world.arainu.core.metaverseplugin.listener.MoneyListener;
 import world.arainu.core.metaverseplugin.listener.MunicipalCreateListener;
@@ -55,6 +57,7 @@ import world.arainu.core.metaverseplugin.store.iPhoneStore;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -179,6 +182,11 @@ public final class MetaversePlugin extends JavaPlugin {
         iPhoneStore.addGuiItem(new MenuItem("エンドラを復活させる", new iPhoneEnderDragon()::executeGui, true, Material.END_STONE), (p) -> !Gui.isEnderDragonLiving(p) && Gui.isPlayerInEnd(p));
         iPhoneStore.addGuiItem(new MenuItem("自治体", new Municipal()::executeGui, true, Material.END_STONE), (p) -> Objects.equals(ServerStore.getServerName(), "survival"));
         iPhoneStore.addGuiItem(new MenuItem("discordと連携する", new LinkDiscord()::executeGui, true, Material.PAPER), (p) -> DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(p.getUniqueId()) == null);
+        ItemStack chestItem = new ItemStack(Material.TRIPWIRE_HOOK);
+        ItemMeta chestMeta = chestItem.getItemMeta();
+        chestMeta.lore(Arrays.asList(Component.text("チェストに向かって使用することで"),Component.text("チェストを個人用チェストにすることができます。"),Component.text("300円/個").color(NamedTextColor.GOLD)));
+        chestItem.setItemMeta(chestMeta);
+        iPhoneStore.addGuiItem(new MenuItem("チェストの鍵を購入する", new ChestLock()::executeGui, true, chestItem), (p) -> Objects.equals(ServerStore.getServerName(), "survival"));
     }
 
     /**
@@ -196,6 +204,7 @@ public final class MetaversePlugin extends JavaPlugin {
         PM.registerEvents(new MunicipalCreateListener(), this);
         PM.registerEvents(new MoneyListener(), this);
         PM.registerEvents(new DrillingListener(), this);
+        PM.registerEvents(new ChestLockListener(), this);
         if(Objects.equals(ServerStore.getServerName(), "survival")) {
             PM.registerEvents(new AdvancementListener(), this);
         }

@@ -2,6 +2,7 @@ package world.arainu.core.metaverseplugin.utils;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -132,7 +133,7 @@ public class ChatUtil {
     public static void success(Player p, TextComponent message, Boolean playsound) {
         MetaversePlugin.logger().info(ComponentUtil.toString(
                 Component.text("[").append(p.displayName()).append(Component.text("] 成功>> ")).append(message)));
-        p.sendMessage(Component.text("[メタバースプラグイン] ").append(message).color(NamedTextColor.GREEN));
+        p.sendMessage(Component.text("[メタバースプラグイン] ").append(message).replaceText(TextReplacementConfig.builder().match("\n").replacement("\n[メタバースプラグイン] ").build()).color(NamedTextColor.GREEN));
         if (playsound) {
             p.playSound(p.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 1, 1f);
         }

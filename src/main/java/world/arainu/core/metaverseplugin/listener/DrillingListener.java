@@ -157,27 +157,27 @@ public class DrillingListener implements Listener {
     }
 
     /**
-     * ブロックが爆破によって破壊したときにブロックデータを削除する関数。
+     * ブロックが爆破によって破壊されないようにする関数。
      * @param e　イベント
      */
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
         e.blockList().forEach(block -> {
             if(block.hasMetadata("metaverse-drilling")){
-                Bukkit.getServer().getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> block.getLocation().getBlock().setType(Material.BRICKS),1);
+                Bukkit.getServer().getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> block.setType(Material.BRICKS),1);
             }
         });
     }
 
     /**
-     * ブロックが爆破によって破壊したときにブロックデータを削除する関数。
+     * ブロックが爆破によって破壊されないようにする関数。
      * @param e　イベント
      */
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent e) {
         e.blockList().forEach(block -> {
             if(block.hasMetadata("metaverse-drilling")){
-                Bukkit.getServer().getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> block.getLocation().getBlock().setType(Material.BRICKS),1);
+                Bukkit.getServer().getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> block.setType(Material.BRICKS),1);
             }
         });
     }
@@ -342,8 +342,8 @@ public class DrillingListener implements Listener {
     // ┗━━━━━━━━━┛  ↓+Z方向
     @EventHandler
     public void onBlockClick(PlayerInteractEvent e) {
-        if (e.getAction().isRightClick() && !e.getPlayer().isSneaking()) {
-            Block block = Objects.requireNonNull(e.getClickedBlock());
+        if (e.getAction().isRightClick() && !e.getPlayer().isSneaking() && e.getClickedBlock() != null) {
+            Block block = e.getClickedBlock();
             if (!block.getMetadata("metaverse-drilling").isEmpty()) {
                 UUID playerUID = (UUID) block.getMetadata("metaverse-drilling").get(0).value();
                 if (Objects.requireNonNull(playerUID).equals(e.getPlayer().getUniqueId())) {
