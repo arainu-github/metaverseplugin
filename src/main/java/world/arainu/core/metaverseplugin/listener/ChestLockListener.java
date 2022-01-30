@@ -31,7 +31,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * チェストロックシステムを実装するクラス。
+ *
+ * @author kumitatepazuru
+ */
 public class ChestLockListener implements Listener {
+    /**
+     * プレイヤーがチェストを右クリックしたときの処理をする関数。
+     * @param e イベント
+     */
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         Player player = e.getPlayer();
