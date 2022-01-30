@@ -64,10 +64,12 @@ public class ChestLockListener implements Listener {
                 }
                 if (persistentDataContainer.has(ChestLock.getChestIDKey(), PersistentDataType.STRING)) {
                     UUID target = UUID.fromString(Objects.requireNonNull(persistentDataContainer.get(ChestLock.getChestIDKey(), PersistentDataType.STRING)));
-                    if (!player.getUniqueId().equals(target)) {
+                    if (!player.getUniqueId().equals(target) && !player.isOp()) {
                         player.sendActionBar(Component.text("チェストはロックされています！").color(NamedTextColor.RED));
                         player.playSound(player.getLocation(), Sound.BLOCK_CHEST_LOCKED, SoundCategory.BLOCKS, 1, 1f);
                         e.setCancelled(true);
+                    } else if(player.isOp()){
+                        ChatUtil.warning(player,"ロックされているチェストを開いています。");
                     }
                 }
             }
@@ -102,7 +104,7 @@ public class ChestLockListener implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
         Block block = e.getBlock();
-        if (block.getType().equals(Material.CHEST)) {
+        if (block.getType().equals(Material.CHEST) && !e.getPlayer().isOp()) {
             PersistentDataContainer persistentDataContainer = ((Chest) block.getState()).getPersistentDataContainer();
             if(!persistentDataContainer.has(ChestLock.getChestIDKey(), PersistentDataType.STRING)){
                 return;
