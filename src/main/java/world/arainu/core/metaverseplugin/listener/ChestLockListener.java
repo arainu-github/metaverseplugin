@@ -104,6 +104,9 @@ public class ChestLockListener implements Listener {
         Block block = e.getBlock();
         if (block.getType().equals(Material.CHEST)) {
             PersistentDataContainer persistentDataContainer = ((Chest) block.getState()).getPersistentDataContainer();
+            if(!persistentDataContainer.has(ChestLock.getChestIDKey(), PersistentDataType.STRING)){
+                return;
+            }
             if (!(Objects.equals(persistentDataContainer.get(ChestLock.getChestIDKey(), PersistentDataType.STRING), e.getPlayer().getUniqueId().toString()))) {
                 e.setCancelled(true);
             }
@@ -123,10 +126,12 @@ public class ChestLockListener implements Listener {
                     ((Chest) block.getState()).getInventory().clear();
                     block.setType(Material.AIR);
                     Bukkit.getServer().getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
+                        Chest state = (Chest) block.getState();
                         block.setType(Material.CHEST);
-                        ((Chest) block.getState()).getPersistentDataContainer().set(ChestLock.getChestIDKey(), PersistentDataType.STRING, Objects.requireNonNull(uuid));
+                        state.getPersistentDataContainer().set(ChestLock.getChestIDKey(), PersistentDataType.STRING, Objects.requireNonNull(uuid));
+                        state.update();
                         for (int i = 0; i < 27; i++) {
-                            ((Chest) block.getState()).getInventory().setItem(i, items.get(i));
+                            state.getInventory().setItem(i, items.get(i));
                         }
                     }, 1);
                 }
