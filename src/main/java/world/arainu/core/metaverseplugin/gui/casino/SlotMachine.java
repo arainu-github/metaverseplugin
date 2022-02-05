@@ -2,11 +2,7 @@ package world.arainu.core.metaverseplugin.gui.casino;
 
 import net.kyori.adventure.text.Component;
 import net.wesjd.anvilgui.AnvilGUI;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
+import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,10 +13,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitTask;
-import org.geysermc.cumulus.CustomForm;
-import org.geysermc.cumulus.response.CustomFormResponse;
-import org.geysermc.floodgate.api.FloodgateApi;
-import org.geysermc.floodgate.api.player.FloodgatePlayer;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
@@ -30,15 +22,28 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiFunction;
 import java.util.regex.Pattern;
+
+/**
+ * スロットを動かすクラス
+ *
+ * @author JolTheGreat
+ */
 
 public class SlotMachine implements Listener {
 
     final private static ArrayList<BukkitTask> tasks = new ArrayList<>();
     final private static SlotUtil.SlotListeners listeners = new SlotUtil.SlotListeners();
+
+    /**
+     * スロットで使うインベントリ（JAVA用）
+     */
     static Inventory inventory = Bukkit.createInventory(null, 54, Component.text(ChatColor.GOLD + "Slot Machine"));
 
+    /**
+     * コンストラクター
+     */
     public SlotMachine() {
         MetaversePlugin.getInstance().getServer().getPluginManager().registerEvents(this, MetaversePlugin.getInstance());
     }
@@ -63,36 +68,22 @@ public class SlotMachine implements Listener {
      */
     public void start(Player player) {
         if (!Gui.isBedrock(player)) {
-            AtomicBoolean complete = new AtomicBoolean(false);
             new AnvilGUI.Builder()
                     .title("賭ける金額を入力")
-                    .onClose(p -> {if(!complete.get()) ChatUtil.warning(p, "賭ける金額の入力を取りやめました。");})
-                    .onComplete((p,string) -> {
-                        complete.set(true);
-                        return this.slotMechanic(p,string);
-                    })
+                    .onClose(p -> ChatUtil.warning(p, "賭ける金額の入力を取りやめました。"))
+                    .onComplete(slotMechanic())
                     .itemLeft(new ItemStack(Material.PAPER))
                     .plugin(MetaversePlugin.getInstance())
-                    .text("半角数字で!残高=" + MetaversePlugin.getEcon().getBalance(player) + "円")
+                    .text("半角数字で!:残高=" + MetaversePlugin.getEcon().getBalance(player) + "円")
                     .open(player);
-        } else {
-            CustomForm.Builder builder = CustomForm.builder()
-                    .title("賭ける金額を入力")
-                    .input("送金する金額を入力", "半角数字で!残高=" + MetaversePlugin.getEcon().getBalance(player) + "円")
-                    .responseHandler((form, responseData) -> {
-                        CustomFormResponse response = form.parseResponse(responseData);
-                        if (!response.isCorrect()) ChatUtil.warning(player, "賭ける金額の入力を取りやめました。");
-                        else slotMechanic(player,response.getInput(0));
-                    });
-            final FloodgatePlayer fPlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
-            fPlayer.sendForm(builder);
         }
     }
 
     /**
      * @return 賭ける金額のAnvilGuiを閉じたときの処理（カジノの処理でもあるョ）
      */
-    public AnvilGUI.Response slotMechanic(Player player,String s) {
+    public static BiFunction<Player, String, AnvilGUI.Response> slotMechanic() {
+        return (player, s) -> {
             listeners.clearSlotFinishListeners();
             tasks.clear();
             //数字かどうか確認
@@ -135,6 +126,7 @@ public class SlotMachine implements Listener {
 
                         listeners.addSlotFinishListener((stopMethod) -> {
                             SlotUtil.SlotResult result = getWinMoney(getPattern(), stopMethod, bet);
+                            System.out.println(result);
                             if (result.getPrize() != 0) {
                                 String itemNameJapanese = "";
                                 String method = "";
@@ -197,6 +189,7 @@ public class SlotMachine implements Listener {
                 ChatUtil.error(player, "数字以外のものが含まれているか無効な数字です！");
             }
             return AnvilGUI.Response.close();
+        };
     }
 
     /**
@@ -328,6 +321,11 @@ public class SlotMachine implements Listener {
         return slotResult;
     }
 
+    /**
+     * スロットマシーンのインベントリ内のクリックに反応するリスナー
+     *
+     * @param event 　イベント
+     */
     @EventHandler
     public void inventoryClick(InventoryClickEvent event) {
         ItemStack eventStack = event.getCurrentItem();
