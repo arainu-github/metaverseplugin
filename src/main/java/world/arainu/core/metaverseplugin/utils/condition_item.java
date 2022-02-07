@@ -9,17 +9,6 @@ import java.util.function.Function;
 /**
  * menuItemをiphoneに表示させるかを設定する情報を格納するクラス
  */
-public class condition_item {
-    @Getter private final MenuItem menuItem;
-    @Getter private final Function<Player, Boolean> condition;
-
-    /**
-     * 初期化
-     * @param menuItem menuItem
-     * @param condition 表示させるかのFunction
-     */
-    public condition_item(MenuItem menuItem, Function<Player, Boolean> condition) {
-        this.menuItem = menuItem;
-        this.condition = condition;
-    }
+public record condition_item(@Getter MenuItem menuItem,
+                             @Getter Function<Player, Boolean> condition) {
 }

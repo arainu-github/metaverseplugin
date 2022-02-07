@@ -4,7 +4,6 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.commands.CommandiPhone;
@@ -25,7 +24,7 @@ import java.util.function.Consumer;
  */
 public class Worldteleport extends iPhoneBase {
     @Override
-    public boolean execute(Player player, Command command, String label, String[] args) {
+    public boolean execute(Player player, String[] args) {
         Run(player,true);
         return true;
     }

@@ -83,7 +83,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
     }
 
     @Override
-    public boolean execute(Player player, Command command, String label, String[] args) {
+    public boolean execute(Player player, String[] args) {
         if (args.length == 1) {
             switch (args[0]) {
                 case "casino-villager" -> {

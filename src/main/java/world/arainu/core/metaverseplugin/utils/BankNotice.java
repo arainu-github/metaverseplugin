@@ -11,22 +11,11 @@ import java.util.UUID;
  * 銀行の入金情報のデータを格納するクラス
  * TODO: mysql化
  */
-public class BankNotice {
-    @Getter private final OfflinePlayer player;
-    @Getter private final int money;
-
-    /**
-     * 初期化
-     * @param player 入金元のプレイヤー
-     * @param money 値段
-     */
-    public BankNotice(OfflinePlayer player, int money){
-        this.player = player;
-        this.money = money;
-    }
+public record BankNotice(@Getter OfflinePlayer player, @Getter int money) {
 
     /**
      * プレイヤーのUUIDを取得する関数
+     *
      * @return UUID
      */
     public UUID getPlayerUID() {
@@ -35,9 +24,10 @@ public class BankNotice {
 
     /**
      * jecon等で設定されている整形された料金表示を返す関数
+     *
      * @return 料金(str)
      */
-    public String getFormatedMoney(){
+    public String getFormatedMoney() {
         Economy econ = MetaversePlugin.getEcon();
         return econ.format(money);
     }

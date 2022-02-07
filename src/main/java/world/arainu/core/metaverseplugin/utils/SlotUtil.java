@@ -8,6 +8,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
@@ -40,7 +41,7 @@ public class SlotUtil {
     public static List<ItemStack> getAll() {
         SkullMeta meta = (SkullMeta) head.getItemMeta();
         assert meta != null;
-        meta.setOwningPlayer(Bukkit.getOfflinePlayer("inutanuking"));
+        meta.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString("0a5e6e13-dda1-4eb8-b4d3-019d8eca7c40")));
         head.setItemMeta(meta);
         ItemStack[] stacks = {birchWood, apple, bread, iron, gold, diamond, netherite, dragonHead, head};
         return Arrays.stream(stacks).toList();

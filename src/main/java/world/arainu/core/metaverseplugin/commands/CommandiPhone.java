@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class CommandiPhone extends CommandPlayerOnlyBase {
     @Override
-    public boolean execute(Player player, Command command, String label, String[] args) {
+    public boolean execute(Player player, String[] args) {
         run(player);
         return true;
     }
@@ -32,8 +32,8 @@ public class CommandiPhone extends CommandPlayerOnlyBase {
         final String title = ChatColor.BLUE+"iPhone 13 Pro Max";
         List<MenuItem> guiItem = new ArrayList<>();
         for(condition_item item:iPhoneStore.getGuiItem()){
-            if(item.getCondition().apply(player)){
-                guiItem.add(item.getMenuItem());
+            if(item.condition().apply(player)){
+                guiItem.add(item.menuItem());
             }
         }
         Gui.getInstance().openMenu(player, title, guiItem);
