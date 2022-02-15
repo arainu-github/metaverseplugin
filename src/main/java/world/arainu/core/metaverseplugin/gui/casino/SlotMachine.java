@@ -1,6 +1,7 @@
 package world.arainu.core.metaverseplugin.gui.casino;
 
 import net.kyori.adventure.text.Component;
+import net.milkbowl.vault.economy.Economy;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -130,7 +131,7 @@ public class SlotMachine implements Listener {
 
                         listeners.addSlotFinishListener((stopMethod) -> {
                             SlotUtil.SlotResult result = getWinMoney(getPattern(), stopMethod, bet);
-                            System.out.println(result);
+                            Economy economy = MetaversePlugin.getEcon();
                             if (result.getPrize() != 0) {
                                 String itemNameJapanese = "";
                                 String method = "";
@@ -163,14 +164,12 @@ public class SlotMachine implements Listener {
                                 }
 
                                 ChatUtil.success(player, "のような模様で揃い、スロットが" + method + "止められたので、" + result.getPrize() + "円ゲットです！");
+                                economy.depositPlayer(player, result.getPrize());
                             } else {
                                 player.playSound(player.getLocation(), Sound.BLOCK_BELL_USE, SoundCategory.PLAYERS, 1F, 0.5F);
                                 ChatUtil.error(player, "残念！あなたは" + bet + "円負けました。ご臨終様です。");
+                                economy.withdrawPlayer(player, bet);
                             }
-
-                            /*
-                             * @todo result.getPrize()にあるだけプレイヤーにお金を口座に直接入金するコードを書く
-                             */
 
                             final ItemStack againButton = new ItemStack(Material.SPECTRAL_ARROW);
                             final ItemMeta againButtonMeta = againButton.getItemMeta();
@@ -368,7 +367,7 @@ public class SlotMachine implements Listener {
                         inventory.setItem(30, inventory.getItem(21));
                         inventory.setItem(21, inventory.getItem(12));
                         inventory.setItem(12, newSlot);
-                    }, 0, 3));
+                    }, 0, 4));
 
                     final ItemStack stopAllButton = new ItemStack(Material.RED_STAINED_GLASS_PANE);
                     final ItemMeta stopAllButtonMeta = stopAllButton.getItemMeta();
