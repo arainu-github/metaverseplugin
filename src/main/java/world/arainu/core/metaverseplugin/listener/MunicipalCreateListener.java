@@ -65,17 +65,29 @@ public class MunicipalCreateListener implements Listener {
                     );
                 } else if(ServerStore.getMarkerData().get(e.getPlayer()).size() < 3){
                     menuItem = List.of(
-                            new MenuItem("自治体の頂点を作成", this::add, true, Material.CALCITE)
+                            new MenuItem("自治体の頂点を作成", this::add, true, Material.CALCITE),
+                            new MenuItem("最初からやり直す", this::begin,true,Material.REDSTONE_BLOCK)
                     );
                 } else {
                     menuItem = List.of(
                             new MenuItem("自治体の頂点を作成", this::add, true, Material.CALCITE),
+                            new MenuItem("最初からやり直す", this::begin,true,Material.REDSTONE_BLOCK),
                             new MenuItem("自治体を作成", this::end, true, Material.TUFF)
                     );
                 }
                 Gui.getInstance().openMenu(e.getPlayer(),"自治体作成メニュー", menuItem);
             }
         }
+    }
+
+    private void begin(MenuItem menuItem) {
+        Player p = menuItem.getClicker();
+        ParticleScheduler.removeQueue(playerParticle.get(p));
+        playerParticle.remove(p);
+        final HashMap<Player, ArrayList<Location>> markerData = ServerStore.getMarkerData();
+        markerData.remove(p);
+        ServerStore.setMarkerData(markerData);
+        ChatUtil.success(p,"自治体の頂点・始点をすべて削除しました。");
     }
 
     private void create(MenuItem menuItem){
