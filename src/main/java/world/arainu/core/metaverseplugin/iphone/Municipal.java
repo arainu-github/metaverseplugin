@@ -13,7 +13,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.dynmap.DynmapAPI;
-import org.dynmap.markers.GenericMarker;
 import org.dynmap.markers.MarkerAPI;
 import org.dynmap.markers.MarkerSet;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
@@ -53,8 +52,10 @@ public class Municipal extends iPhoneBase {
                         return new MenuItem(data.get(1),null,true, item);
                     }
             ).collect(Collectors.toList());
+            ItemStack item = new ItemStack(Material.SLIME_BALL);
+            item.lore(List.of(Component.text("費用:15000円")));
             Gui.getInstance().openMultiPageMenu(menuItem.getClicker(), "自治体メニュー", menuList,
-                    new MenuItem("自分で自治体を作る", this::createMunicipal, true, Material.SLIME_BALL));
+                    new MenuItem("自分で自治体を作る", this::createMunicipal, true, item));
         } else {
             ChatUtil.error(menuItem.getClicker(),"自治体機能はdiscordとminecraftを連携することによって使用できます。\niphone内の「discordと連携する」から、discordとminecraftを連携してください。");
         }
@@ -77,14 +78,15 @@ public class Municipal extends iPhoneBase {
     private void createMunicipal(MenuItem menuItem) {
         Player player = menuItem.getClicker();
         Economy econ = MetaversePlugin.getEcon();
-        if(econ.has(player, 2000)) {
-            econ.withdrawPlayer(player, 2000);
+        if(econ.has(player, 15000)) {
+            econ.withdrawPlayer(player, 15000);
+            ChatUtil.success(player,"15000円を自治体作成費用として徴収しました。");
             player.sendMessage(Component.text("まずはじめに、自治体の区域を設定しましょう。\n手元に")
                     .append(Component.text("自治体作成ブック").color(NamedTextColor.LIGHT_PURPLE).decorate(TextDecoration.BOLD).decorate(TextDecoration.UNDERLINED))
                     .append(Component.text("がインベントリ内にあるのでそこから操作をして区域の始点を設定しましょう。")));
             ItemUtil.addItem(createItemStack(),player.getInventory(),player);
         } else {
-            ChatUtil.error(player,"作成には2000円必要ですが、あなたにはそこまでお金はありません！\n残高: " + econ.format(econ.getBalance(player)));
+            ChatUtil.error(player,"作成には15000円必要ですが、あなたにはそこまでお金はありません！\n残高: " + econ.format(econ.getBalance(player)));
         }
     }
 }
