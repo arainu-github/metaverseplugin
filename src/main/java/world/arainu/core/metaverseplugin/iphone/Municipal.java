@@ -5,20 +5,30 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.dynmap.DynmapAPI;
+import org.dynmap.markers.GenericMarker;
+import org.dynmap.markers.MarkerAPI;
+import org.dynmap.markers.MarkerSet;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
 import world.arainu.core.metaverseplugin.store.ServerStore;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
 import world.arainu.core.metaverseplugin.utils.ItemUtil;
+import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * iPhoneの自治体に関するプログラム群があるクラス
@@ -28,9 +38,23 @@ public class Municipal extends iPhoneBase {
     @Override
     public void executeGui(MenuItem menuItem) {
         if(DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(menuItem.getClicker().getUniqueId()) != null) {
-            Gui.getInstance().openMenu(menuItem.getClicker(), "自治体メニュー", List.of(
-                    new MenuItem("自分で自治体を作る", this::createMunicipal, true, Material.SLIME_BALL)
-            ));
+            final DynmapAPI dynmap = MetaversePlugin.getDynmap();
+            final MarkerAPI marker = dynmap.getMarkerAPI();
+            MarkerSet markerSet = marker.getMarkerSet("municipal");
+            if(markerSet == null) {
+                markerSet = marker.createMarkerSet("municipal","自治体",null,true);
+            }
+            List<MenuItem> menuList = markerSet.getAreaMarkers().stream().map(n -> Arrays.asList(n.getMarkerID(),n.getLabel())).map(
+                    data -> {
+                        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
+                        SkullMeta skull = (SkullMeta) item.getItemMeta();
+                        skull.setOwningPlayer(Bukkit.getOfflinePlayer(Objects.requireNonNull(sqlUtil.getMunicipal(data.get(0))).uuid()));
+                        item.setItemMeta(skull);
+                        return new MenuItem(data.get(1),null,true, item);
+                    }
+            ).collect(Collectors.toList());
+            Gui.getInstance().openMultiPageMenu(menuItem.getClicker(), "自治体メニュー", menuList,
+                    new MenuItem("自分で自治体を作る", this::createMunicipal, true, Material.SLIME_BALL));
         } else {
             ChatUtil.error(menuItem.getClicker(),"自治体機能はdiscordとminecraftを連携することによって使用できます。\niphone内の「discordと連携する」から、discordとminecraftを連携してください。");
         }

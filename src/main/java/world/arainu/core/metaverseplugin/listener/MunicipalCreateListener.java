@@ -31,12 +31,14 @@ import world.arainu.core.metaverseplugin.scheduler.ParticleScheduler;
 import world.arainu.core.metaverseplugin.store.ServerStore;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
 import world.arainu.core.metaverseplugin.utils.ParticleUtil;
+import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -135,7 +137,11 @@ public class MunicipalCreateListener implements Listener {
                             markerData.remove(player);
                             ServerStore.setMarkerData(markerData);
                         }
-                        else createMunicipal(player, response.getInput(0));
+                        else if(Objects.requireNonNull(response.getInput(0)).length() < 64){
+                            ChatUtil.error(player, "自治体の名前は64文字以内にしてください！");
+                        }else{
+                            createMunicipal(player, response.getInput(0));
+                        }
                     });
             final FloodgatePlayer fPlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
             fPlayer.sendForm(builder);
@@ -152,8 +158,12 @@ public class MunicipalCreateListener implements Listener {
                         }
                     })
                     .onComplete((p, text) -> {
-                        complete.set(true);
-                        createMunicipal(p, text);
+                        if(text.length() < 64) {
+                            complete.set(true);
+                            createMunicipal(p, text);
+                        } else {
+                            ChatUtil.error(p, "自治体の名前は64文字以内にしてください！");
+                        }
                         return AnvilGUI.Response.close();
                     })
                     .title("自治体名を入力")
@@ -182,8 +192,7 @@ public class MunicipalCreateListener implements Listener {
         markerSet.createAreaMarker("m"+i,title,false,markerData.get(p).get(0).getWorld().getName(),X_list,Z_list,true);
         markerData.remove(p);
         ServerStore.setMarkerData(markerData);
-        ChatUtil.success(p, "自治体を正常に作成しました。");
-        String discordId =  DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(p.getUniqueId());
+        String discordId = DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(p.getUniqueId());
         ServerListener.getChannel().sendMessage(
                 new EmbedBuilder()
                         .setTitle("`"+p.getName()+"`が自治体`"+title+"`を作成しました。")
@@ -194,6 +203,8 @@ public class MunicipalCreateListener implements Listener {
                         .setColor(Color.PINK)
                         .build()
         ).queue();
+        sqlUtil.addMunicipal(p.getUniqueId(),"m"+i, List.of());
+        ChatUtil.success(p, "自治体を正常に作成しました。");
     }
 
     private final static HashMap<Player,ParticleUtil> playerParticle = new HashMap<>();
