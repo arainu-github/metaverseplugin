@@ -1,5 +1,9 @@
 package world.arainu.core.metaverseplugin.iphone;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
 import github.scarsz.discordsrv.DiscordSRV;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -13,6 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.dynmap.DynmapAPI;
+import org.dynmap.markers.AreaMarker;
 import org.dynmap.markers.MarkerAPI;
 import org.dynmap.markers.MarkerSet;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
@@ -97,7 +102,11 @@ public class Municipal extends iPhoneBase {
         if (markerSet == null) {
             markerSet = marker.createMarkerSet("municipal", "自治体", null, true);
         }
-        markerSet.findAreaMarker((String) data.get(0)).deleteMarker();
+        AreaMarker areaMarker = markerSet.findAreaMarker((String) data.get(0));
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        RegionManager regions = container.get(BukkitAdapter.adapt(Objects.requireNonNull(Bukkit.getWorld(areaMarker.getWorld()))));
+        Objects.requireNonNull(regions).removeRegion("region-"+data.get(0));
+        areaMarker.deleteMarker();
         sqlUtil.removeMunicipal((String) data.get(0));
     }
 

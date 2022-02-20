@@ -1,5 +1,13 @@
 package world.arainu.core.metaverseplugin.listener;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector2;
+import com.sk89q.worldedit.world.World;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.dependencies.jda.api.EmbedBuilder;
 import github.scarsz.discordsrv.util.DiscordUtil;
@@ -202,6 +210,16 @@ public class MunicipalCreateListener implements Listener {
             i++;
         }
         markerSet.createAreaMarker("m"+i,title,false,markerData.get(p).get(0).getWorld().getName(),X_list,Z_list,true);
+
+        // WG設定
+        List<BlockVector2> points = new ArrayList<>();
+        for(int j=0;j<X_list.length;j++){
+            points.add(BlockVector2.at(X_list[j], Z_list[j]));
+        }
+        ProtectedRegion region = new ProtectedPolygonalRegion("region-m"+i, points, -64, 319);
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        RegionManager regions = container.get(BukkitAdapter.adapt(markerData.get(p).get(0).getWorld()));
+        Objects.requireNonNull(regions).addRegion(region);
         markerData.remove(p);
         ServerStore.setMarkerData(markerData);
         String discordId = DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(p.getUniqueId());
