@@ -66,7 +66,7 @@ public class sqlUtil {
 
     private static void create_municipal_table() {
         try {
-            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `municipal` ( `name` VARCHAR(64) NOT NULL , `uuid` VARCHAR(36) NOT NULL, `member` TEXT NOT NULL, PRIMARY KEY (`name`)) ");
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `municipal` ( `name` VARCHAR(64) NOT NULL , `uuid` VARCHAR(36) NOT NULL, `member` TEXT NOT NULL, `permission` TEXT NOT NULL DEFAULT '', PRIMARY KEY (`name`)) ");
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -577,7 +577,8 @@ public class sqlUtil {
             ResultSet rs = stmt.executeQuery("SELECT * FROM municipal WHERE name LIKE '"+name+"'");
             rs.next();
             List<String> result = Arrays.asList(rs.getString(3).split(","));
-            MunicipalData r = new MunicipalData(UUID.fromString(rs.getString(2)),result);
+            List<String> permission = Arrays.asList(rs.getString(3).split(","));
+            MunicipalData r = new MunicipalData(UUID.fromString(rs.getString(2)),result,permission);
             rs.close();
             stmt.close();
             return r;
@@ -590,7 +591,7 @@ public class sqlUtil {
     /**
      * Returnに使われる内部関数。
      */
-    public record MunicipalData(UUID uuid,List<String> member) {
+    public record MunicipalData(UUID uuid,List<String> member,List<String> permission) {
     }
 
     /**

@@ -2,6 +2,8 @@ package world.arainu.core.metaverseplugin.iphone;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.Flags;
+import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import github.scarsz.discordsrv.DiscordSRV;
@@ -40,6 +42,8 @@ import java.util.stream.Collectors;
  * @author kumitatepazuru
  */
 public class Municipal extends iPhoneBase {
+    private List<StateFlag> PERMISSION_NAMES = Arrays.asList(Flags.BUILD);
+
     @Override
     public void executeGui(MenuItem menuItem) {
         if (DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(menuItem.getClicker().getUniqueId()) != null) {
@@ -77,12 +81,25 @@ public class Municipal extends iPhoneBase {
         if(menuItem.getClicker().isOp()){
             ItemStack removeItem = new ItemStack(Material.BARRIER);
             removeItem.lore(List.of(Component.text("Moderator only")));
-            menus.add(new MenuItem("自治体を削除する",this::remove,true,removeItem,data));
+            menus.add(new MenuItem("自治体を削除する",this::remove,true,removeItem,data,true));
         }
+        ItemStack settingItem = new ItemStack(Material.REDSTONE_WIRE);
+        settingItem.lore(List.of(Component.text("自治体作成者権限")));
+        menus.add(new MenuItem("この自治体の設定をする",this::setPermission,true,settingItem,data.get(0)));
         menus.add(new MenuItem("この自治体の住民になる",this::addResidents,true,Material.NAME_TAG,data.get(0)));
         menus.add(new MenuItem("この自治体の住民一覧を見る",this::listResidents,true,Material.BOOK,data));
         menus.add(new MenuItem("前ページに戻る",this::executeGui,true,Material.ARROW,null,8,0));
         Gui.getInstance().openMenu(menuItem.getClicker(),"自治体:"+data.get(1),menus);
+    }
+
+    private void setPermission(MenuItem menuItem) {
+        String data = (String) menuItem.getCustomData();
+        sqlUtil.MunicipalData municipalData = sqlUtil.getMunicipal(data);
+        List<MenuItem> items = new ArrayList<>();
+        for(int i = 0; i< Objects.requireNonNull(municipalData).permission().size(); i++){
+            items.add(new MenuItem(PERMISSION_NAMES.get(i).getName(),null,false,Material.GREEN_WOOL));
+        }
+        Gui.getInstance().openMultiPageMenu(menuItem.getClicker(),"権限設定",items,new MenuItem("前ページに戻る",this::manage,true,Material.ARROW,data));
     }
 
     private void addResidents(MenuItem menuItem) {
