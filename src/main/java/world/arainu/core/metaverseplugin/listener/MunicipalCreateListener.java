@@ -2,8 +2,8 @@ package world.arainu.core.metaverseplugin.listener;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector2;
-import com.sk89q.worldedit.world.World;
 import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -55,6 +55,17 @@ import java.util.stream.Collectors;
  * @author kumitatepazuru
  */
 public class MunicipalCreateListener implements Listener {
+
+    static public MarkerSet getMunicipalMarker() {
+        final DynmapAPI dynmap = MetaversePlugin.getDynmap();
+        final MarkerAPI marker = dynmap.getMarkerAPI();
+        MarkerSet markerSet = marker.getMarkerSet("municipal");
+        if (markerSet == null) {
+            markerSet = marker.createMarkerSet("municipal", "自治体", null, true);
+        }
+        return markerSet;
+    }
+
     /**
      * 自治体作成ブックを使用したときに動く関数。
      * @param e イベント
@@ -194,13 +205,7 @@ public class MunicipalCreateListener implements Listener {
     }
 
     private void createMunicipal(Player p, String title){
-        final DynmapAPI dynmap = MetaversePlugin.getDynmap();
-        final MarkerAPI marker = dynmap.getMarkerAPI();
-        MarkerSet markerSet = marker.getMarkerSet("municipal");
-        if(markerSet == null) {
-            markerSet = marker.createMarkerSet("municipal","自治体",null,true);
-        }
-
+        final MarkerSet markerSet = getMunicipalMarker();
         final HashMap<Player, ArrayList<Location>> markerData = ServerStore.getMarkerData();
         double[] X_list = markerData.get(p).stream().map(Location::getX).mapToDouble(b -> b).toArray();
         double[] Z_list = markerData.get(p).stream().map(Location::getZ).mapToDouble(b -> b).toArray();
@@ -217,6 +222,9 @@ public class MunicipalCreateListener implements Listener {
             points.add(BlockVector2.at(X_list[j], Z_list[j]));
         }
         ProtectedRegion region = new ProtectedPolygonalRegion("region-m"+i, points, -64, 319);
+        for(Municipal.Permission j: Municipal.PERMISSION_NAMES){
+            region.setFlag(j.flag(), StateFlag.State.ALLOW);
+        }
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionManager regions = container.get(BukkitAdapter.adapt(markerData.get(p).get(0).getWorld()));
         Objects.requireNonNull(regions).addRegion(region);
