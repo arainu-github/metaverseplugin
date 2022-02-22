@@ -96,7 +96,7 @@ public class Municipal extends iPhoneBase {
             removeItem.lore(List.of(Component.text("Moderator only")));
             menus.add(new MenuItem("自治体を削除する",this::remove,true,removeItem,data,true));
         }
-        ItemStack settingItem = new ItemStack(Material.REDSTONE_WIRE);
+        ItemStack settingItem = new ItemStack(Material.REDSTONE);
         settingItem.lore(List.of(Component.text("自治体作成者権限")));
         menus.add(new MenuItem("この自治体の設定をする",this::setPermission,true,settingItem,data));
         menus.add(new MenuItem("この自治体の住民になる",this::addResidents,true,Material.NAME_TAG,data.get(0)));
@@ -131,11 +131,14 @@ public class Municipal extends iPhoneBase {
         ProtectedRegion region = regions.getRegion("region-" + data.get(0));
         for(Permission i: PERMISSION_NAMES){
             StateFlag.State flag = Objects.requireNonNull(region).getFlag(i.flag());
+            ItemStack item;
             if(flag == StateFlag.State.ALLOW || flag == null) {
-                items.add(new MenuItem(i.name(), this::changePermission, true, Material.GREEN_WOOL,Arrays.asList(data,i.flag())));
+                item = new ItemStack(Material.GREEN_WOOL);
             } else {
-                items.add(new MenuItem(i.name(), this::changePermission, true, Material.RED_WOOL,Arrays.asList(data,i.flag())));
+                item = new ItemStack(Material.RED_WOOL);
             }
+            item.lore(List.of(Component.text(i.description())));
+            items.add(new MenuItem(i.name(), this::changePermission, true, item,Arrays.asList(data,i.flag())));
         }
         Gui.getInstance().openMultiPageMenu(menuItem.getClicker(),"権限設定",items,new MenuItem("前ページに戻る",this::manage,true,Material.ARROW,data));
     }
@@ -158,6 +161,7 @@ public class Municipal extends iPhoneBase {
         Objects.requireNonNull(regions).removeRegion("region-"+data.get(0));
         areaMarker.deleteMarker();
         sqlUtil.removeMunicipal((String) data.get(0));
+        ChatUtil.success(menuItem.getClicker(),"正常に自治体を削除しました。");
     }
 
     private void listResidents(MenuItem menuItem) {
