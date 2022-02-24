@@ -25,13 +25,9 @@ import org.geysermc.cumulus.SimpleForm;
 import org.geysermc.cumulus.response.SimpleFormResponse;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
+import world.arainu.core.metaverseplugin.MetaversePlugin;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -200,6 +196,7 @@ public class Gui implements Listener {
                 .title(title);
 
         for (var item : items) {
+            List<String> buttonText = new ArrayList<>();
             Component text = item.getIcon().getItemMeta().displayName();
             if (text == null) {
                 text = item.getIcon().displayName();
@@ -207,12 +204,19 @@ public class Gui implements Listener {
             if (item.isShiny()) {
                 text = text.color(NamedTextColor.GREEN);
             }
+            if (text instanceof TextComponent) buttonText.add(((TextComponent) text).content());
+            else buttonText.add(item.getIcon().getI18NDisplayName());
+            if(item.getIcon().lore() != null) {
+                for (Component i : Objects.requireNonNull(item.getIcon().lore())) {
+                    if(i instanceof TextComponent) {
+                        buttonText.add(((TextComponent) i).content());
+                    }
+                }
+            }
             if (item.isClose()) {
-                if (text instanceof TextComponent) builder.button(((TextComponent) text).content());
-                else builder.button(Objects.requireNonNull(item.getIcon().getI18NDisplayName()));
+                builder.button(String.join("\n",buttonText));
             } else {
-                if (text instanceof TextComponent) builder.content(((TextComponent) text).content());
-                else builder.content(Objects.requireNonNull(item.getIcon().getI18NDisplayName()));
+                builder.content(String.join("\n",buttonText));
             }
         }
 
@@ -274,7 +278,8 @@ public class Gui implements Listener {
             p.teleport(new Location(Bukkit.getWorld("world"), 0, 0, 0));
         }
         if (isBedrock(p)) {
-            openMenuBedrockImpl(p,title,menuItems.toArray(new MenuItem[0]));
+            menuItems.add(0,centerItem);
+            openMenuBedrockImpl(p,title, menuItems.toArray(new MenuItem[0]));
         } else {
             Inventory inv = Bukkit.createInventory(null, 27, Component.text(title));
             update(inv, 1,menuItems,centerItem);

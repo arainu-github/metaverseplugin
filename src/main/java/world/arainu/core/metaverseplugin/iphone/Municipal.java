@@ -131,14 +131,17 @@ public class Municipal extends iPhoneBase {
         ProtectedRegion region = regions.getRegion("region-" + data.get(0));
         for(Permission i: PERMISSION_NAMES){
             StateFlag.State flag = Objects.requireNonNull(region).getFlag(i.flag());
-            ItemStack item;
+            final ItemStack item;
+            final String suffix;
             if(flag == StateFlag.State.ALLOW || flag == null) {
                 item = new ItemStack(Material.GREEN_WOOL);
+                suffix = "許可";
             } else {
                 item = new ItemStack(Material.RED_WOOL);
+                suffix = "拒否";
             }
             item.lore(List.of(Component.text(i.description())));
-            items.add(new MenuItem(i.name(), this::changePermission, true, item,Arrays.asList(data,i.flag())));
+            items.add(new MenuItem(i.name()+":"+suffix, this::changePermission, true, item,Arrays.asList(data,i.flag())));
         }
         Gui.getInstance().openMultiPageMenu(menuItem.getClicker(),"権限設定",items,new MenuItem("前ページに戻る",this::manage,true,Material.ARROW,data));
     }

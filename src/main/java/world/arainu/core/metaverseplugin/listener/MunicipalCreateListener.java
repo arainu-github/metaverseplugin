@@ -169,9 +169,9 @@ public class MunicipalCreateListener implements Listener {
                             ServerStore.setMarkerData(markerData);
                         }
                         else if(Objects.requireNonNull(response.getInput(0)).length() < 64){
-                            ChatUtil.error(player, "自治体の名前は64文字以内にしてください！");
-                        }else{
                             createMunicipal(player, response.getInput(0));
+                        }else{
+                            ChatUtil.error(player, "自治体の名前は64文字以内にしてください！");
                         }
                     });
             final FloodgatePlayer fPlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
