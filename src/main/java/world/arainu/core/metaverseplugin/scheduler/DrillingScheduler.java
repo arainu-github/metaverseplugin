@@ -14,6 +14,7 @@ import java.util.Objects;
 /**
  * 採掘をするときに使用するスケジューラー。
  * 一定時間経過後に採掘される。
+ *
  * @author kumitatepazuru
  */
 public class DrillingScheduler extends BukkitRunnable {
@@ -28,7 +29,8 @@ public class DrillingScheduler extends BukkitRunnable {
 
     /**
      * 初期化
-     * @param block 採掘マシーンのブロックデータ
+     *
+     * @param block   採掘マシーンのブロックデータ
      * @param useTool 使用するツール
      */
     public DrillingScheduler(Block block, ItemStack useTool) {
@@ -51,11 +53,11 @@ public class DrillingScheduler extends BukkitRunnable {
         location.add(vector3D);
         final Block breakBlock = location.getBlock();
         if (breakBlock.getType() != Material.BEDROCK) {
-            if(isItem){
+            if (isItem) {
                 Location chestLocation = block.getLocation();
-                chestLocation.add(0,1,0);
-                if(chestLocation.getBlock().getType() == Material.CHEST){
-                    breakBlock.getDrops(useTool).forEach(e -> ItemUtil.addItem(e,((Chest)chestLocation.getBlock().getState()).getInventory(),chestLocation));
+                chestLocation.add(0, 1, 0);
+                if (chestLocation.getBlock().getType() == Material.CHEST) {
+                    breakBlock.getDrops(useTool).forEach(e -> ItemUtil.addItem(e, ((Chest) chestLocation.getBlock().getState()).getInventory(), chestLocation));
                 } else {
                     breakBlock.getDrops(useTool).forEach(e -> chestLocation.getWorld().dropItemNaturally(chestLocation, e));
                 }

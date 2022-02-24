@@ -19,6 +19,6 @@ public class PublicListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
 //        SlotMachine.start(e.getPlayer());
-        MoveSurvival.Move(e.getPlayer(),"公共施設使用時にサーバーから退出したため、サバイバルサーバーへ強制送還しました。");
+        MoveSurvival.Move(e.getPlayer(), "公共施設使用時にサーバーから退出したため、サバイバルサーバーへ強制送還しました。");
     }
 }

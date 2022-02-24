@@ -19,18 +19,18 @@ import java.util.HashMap;
  */
 public class ServerStore {
     @Getter
-    private static String serverName = "";
-    @Getter
     private static final BidiMap<String, String> serverDisplayMap = new DualHashBidiMap<>() {{
         put("lobby", "ロビー");
         put("survival", "サバイバル");
         put("creative", "クリエイティブ");
     }};
     @Getter
+    private static final NamespacedKey MunicipalBookKey = new NamespacedKey(MetaversePlugin.getInstance(), "metaverse-municipal");
+    @Getter
+    private static String serverName = "";
+    @Getter
     @Setter
     private static HashMap<Player, ArrayList<Location>> MarkerData = new HashMap<>();
-
-    @Getter private static final NamespacedKey MunicipalBookKey = new NamespacedKey(MetaversePlugin.getInstance(), "metaverse-municipal");
 
     /**
      * bungeeのサーバー名を設定する

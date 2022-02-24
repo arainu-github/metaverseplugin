@@ -18,6 +18,24 @@ import java.util.function.Consumer;
  * @author kumitatepazuru
  */
 public class MenuItem {
+    @Getter
+    private final ItemStack icon;
+    @Getter
+    private final Consumer<MenuItem> onClick;
+    @Getter
+    private final Object customData;
+    @Getter
+    private final boolean shiny;
+    @Getter
+    private final boolean close;
+    @Getter
+    private final int x;
+    @Getter
+    private final int y;
+    @Getter
+    @Setter
+    private Player clicker;
+
     /**
      * メニューのアイテム。
      *
@@ -115,7 +133,6 @@ public class MenuItem {
     public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, Material icon, Object customData, int x, int y) {
         this(name, onClick, close, icon, customData, 1, false, x, y);
     }
-
     /**
      * メニューのアイテム。
      *
@@ -132,7 +149,6 @@ public class MenuItem {
     public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, Material icon, Object customData, int count, boolean shiny, int x, int y) {
         this(Component.text(name), onClick, close, new ItemStack(icon, count), customData, shiny, x, y);
     }
-
     /**
      * メニューのアイテム。
      *
@@ -144,7 +160,6 @@ public class MenuItem {
     public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, ItemStack icon) {
         this(name, onClick, close, icon, null);
     }
-
     /**
      * メニューのアイテム。
      *
@@ -157,7 +172,6 @@ public class MenuItem {
     public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, ItemStack icon, Object customData) {
         this(Component.text(name), onClick, close, icon, customData, false, -1, -1);
     }
-
     /**
      * メニューのアイテム。
      *
@@ -171,7 +185,6 @@ public class MenuItem {
     public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, ItemStack icon, Object customData, Boolean shiny) {
         this(Component.text(name), onClick, close, icon, customData, shiny, -1, -1);
     }
-
     /**
      * メニューのアイテム。
      *
@@ -186,7 +199,6 @@ public class MenuItem {
     public MenuItem(String name, Consumer<MenuItem> onClick, Boolean close, ItemStack icon, Object customData, int x, int y) {
         this(Component.text(name), onClick, close, icon, customData, false, x, y);
     }
-
     /**
      * メニューのアイテム。
      *
@@ -201,7 +213,7 @@ public class MenuItem {
      */
     public MenuItem(TextComponent name, Consumer<MenuItem> onClick, Boolean close, ItemStack icon, Object customData, boolean shiny, int x, int y) {
         ItemMeta meta = icon.getItemMeta();
-        meta.displayName(name.decoration(TextDecoration.ITALIC,false));
+        meta.displayName(name.decoration(TextDecoration.ITALIC, false));
         icon.setItemMeta(meta);
         this.onClick = onClick;
         this.icon = icon;
@@ -211,7 +223,6 @@ public class MenuItem {
         this.x = x;
         this.y = y;
     }
-
     /**
      * メニューのアイテム。
      *
@@ -232,22 +243,4 @@ public class MenuItem {
         this.x = x;
         this.y = y;
     }
-
-    @Getter
-    private final ItemStack icon;
-    @Getter
-    private final Consumer<MenuItem> onClick;
-    @Getter
-    private final Object customData;
-    @Getter
-    private final boolean shiny;
-    @Getter
-    private final boolean close;
-    @Getter
-    private final int x;
-    @Getter
-    private final int y;
-    @Getter
-    @Setter
-    private Player clicker;
 }

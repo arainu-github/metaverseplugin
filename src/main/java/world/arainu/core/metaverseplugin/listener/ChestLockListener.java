@@ -39,6 +39,7 @@ import java.util.UUID;
 public class ChestLockListener implements Listener {
     /**
      * プレイヤーがチェストを右クリックしたときの処理をする関数。
+     *
      * @param e イベント
      */
     @EventHandler
@@ -77,8 +78,8 @@ public class ChestLockListener implements Listener {
                         player.sendActionBar(Component.text("チェストはロックされています！").color(NamedTextColor.RED));
                         player.playSound(player.getLocation(), Sound.BLOCK_CHEST_LOCKED, SoundCategory.BLOCKS, 1, 1f);
                         e.setCancelled(true);
-                    } else if(player.isOp()){
-                        ChatUtil.warning(player,"ロックされているチェストを開いています。");
+                    } else if (player.isOp()) {
+                        ChatUtil.warning(player, "ロックされているチェストを開いています。");
                     }
                 }
             }
@@ -115,7 +116,7 @@ public class ChestLockListener implements Listener {
         Block block = e.getBlock();
         if (block.getType().equals(Material.CHEST) && !e.getPlayer().isOp()) {
             PersistentDataContainer persistentDataContainer = ((Chest) block.getState()).getPersistentDataContainer();
-            if(!persistentDataContainer.has(ChestLock.getChestIDKey(), PersistentDataType.STRING)){
+            if (!persistentDataContainer.has(ChestLock.getChestIDKey(), PersistentDataType.STRING)) {
                 return;
             }
             if (!(Objects.equals(persistentDataContainer.get(ChestLock.getChestIDKey(), PersistentDataType.STRING), e.getPlayer().getUniqueId().toString()))) {

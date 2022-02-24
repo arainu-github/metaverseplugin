@@ -38,50 +38,18 @@ import java.util.regex.Pattern;
 
 public class SlotMachine implements Listener {
 
-    final private static ArrayList<BukkitTask> tasks = new ArrayList<>();
-    final private static SlotUtil.SlotListeners listeners = new SlotUtil.SlotListeners();
-
     /**
      * スロットで使うインベントリ（JAVA用）
      */
     static final Inventory inventory = Bukkit.createInventory(null, 54, Component.text(ChatColor.GOLD + "Slot Machine"));
+    final private static ArrayList<BukkitTask> tasks = new ArrayList<>();
+    final private static SlotUtil.SlotListeners listeners = new SlotUtil.SlotListeners();
 
     /**
      * コンストラクター
      */
     public SlotMachine() {
         MetaversePlugin.getInstance().getServer().getPluginManager().registerEvents(this, MetaversePlugin.getInstance());
-    }
-
-    /**
-     * とりあえずリスナーとスロットのコードを同じクラスにまとめました。
-     *
-     * @param event イベント
-     */
-    @EventHandler
-    public void onInventoryClose(InventoryCloseEvent event) {
-        if (event.getInventory().equals(inventory)) {
-            tasks.forEach(BukkitTask::cancel);
-            SlotUtil.isSlotStarted = false;
-        }
-    }
-
-    /**
-     * スロットマシーンを開く関数
-     *
-     * @param player スロットのguiを表示させたいプレイヤー
-     */
-    public void start(Player player) {
-        if (!Gui.isBedrock(player)) {
-            new AnvilGUI.Builder()
-                    .title("賭ける金額を入力")
-                    .onClose(p -> ChatUtil.warning(p, "賭ける金額の入力を取りやめました。"))
-                    .onComplete(slotMechanic())
-                    .itemLeft(new ItemStack(Material.PAPER))
-                    .plugin(MetaversePlugin.getInstance())
-                    .text("半角数字で!:残高=" + MetaversePlugin.getEcon().getBalance(player) + "円")
-                    .open(player);
-        }
     }
 
     /**
@@ -325,6 +293,56 @@ public class SlotMachine implements Listener {
     }
 
     /**
+     * スロット内の９つのアイテムを取得する関数
+     *
+     * @return アイテムの状態
+     */
+    public static List<Material> getPattern() {
+        return Arrays.asList(Objects.requireNonNull(
+                        Objects.requireNonNull(inventory.getItem(10)).getType()),
+                Objects.requireNonNull(inventory.getItem(11)).getType(),
+                Objects.requireNonNull(inventory.getItem(12)).getType(),
+                Objects.requireNonNull(inventory.getItem(19)).getType(),
+                Objects.requireNonNull(inventory.getItem(20)).getType(),
+                Objects.requireNonNull(inventory.getItem(21)).getType(),
+                Objects.requireNonNull(inventory.getItem(28)).getType(),
+                Objects.requireNonNull(inventory.getItem(29)).getType(),
+                Objects.requireNonNull(inventory.getItem(30)).getType()
+        );
+    }
+
+    /**
+     * とりあえずリスナーとスロットのコードを同じクラスにまとめました。
+     *
+     * @param event イベント
+     */
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (event.getInventory().equals(inventory)) {
+            tasks.forEach(BukkitTask::cancel);
+            SlotUtil.isSlotStarted = false;
+        }
+    }
+
+    /**
+     * スロットマシーンを開く関数
+     *
+     * @param player スロットのguiを表示させたいプレイヤー
+     */
+    public void start(Player player) {
+        if (!Gui.isBedrock(player)) {
+            new AnvilGUI.Builder()
+                    .title("賭ける金額を入力")
+                    .onClose(p -> ChatUtil.warning(p, "賭ける金額の入力を取りやめました。"))
+                    .onComplete(slotMechanic())
+                    .itemLeft(new ItemStack(Material.PAPER))
+                    .plugin(MetaversePlugin.getInstance())
+                    .text("半角数字で!:残高=" + MetaversePlugin.getEcon().getBalance(player) + "円")
+                    .open(player);
+        }
+    }
+
+    /**
      * スロットマシーンのインベントリ内のクリックに反応するリスナー
      *
      * @param event 　イベント
@@ -397,24 +415,5 @@ public class SlotMachine implements Listener {
             }
             event.setCancelled(true);
         }
-    }
-
-    /**
-     * スロット内の９つのアイテムを取得する関数
-     *
-     * @return アイテムの状態
-     */
-    public static List<Material> getPattern() {
-        return Arrays.asList(Objects.requireNonNull(
-                        Objects.requireNonNull(inventory.getItem(10)).getType()),
-                Objects.requireNonNull(inventory.getItem(11)).getType(),
-                Objects.requireNonNull(inventory.getItem(12)).getType(),
-                Objects.requireNonNull(inventory.getItem(19)).getType(),
-                Objects.requireNonNull(inventory.getItem(20)).getType(),
-                Objects.requireNonNull(inventory.getItem(21)).getType(),
-                Objects.requireNonNull(inventory.getItem(28)).getType(),
-                Objects.requireNonNull(inventory.getItem(29)).getType(),
-                Objects.requireNonNull(inventory.getItem(30)).getType()
-        );
     }
 }

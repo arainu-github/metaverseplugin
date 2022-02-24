@@ -20,12 +20,13 @@ import java.util.stream.IntStream;
 
 /**
  * Discord内のランクロール等を付与するスケジューラー。
+ *
  * @author kumitatepazuru
  */
 public class DiscordScheduler extends BukkitRunnable {
     @Override
     public void run() {
-        if(Objects.equals(ServerStore.getServerName(), "lobby")) {
+        if (Objects.equals(ServerStore.getServerName(), "lobby")) {
             Economy econ = MetaversePlugin.getEcon();
             List<@NotNull OfflinePlayer> offlinePlayers = Arrays.stream(Bukkit.getOfflinePlayers()).toList();
             IntStream.range(0, offlinePlayers.size())

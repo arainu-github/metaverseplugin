@@ -75,7 +75,7 @@ public class BankListener implements Listener {
                             player_inv.remove(i);
                         }
                     }
-                    Bank.addMoneyForInventory(inv, returnMoney.total_money(),p);
+                    Bank.addMoneyForInventory(inv, returnMoney.total_money(), p);
                 }
             }
             if (id < 9) e.setCancelled(true);
@@ -125,7 +125,7 @@ public class BankListener implements Listener {
             Inventory newInv = p.getInventory();
             for (ItemStack item : items) {
                 // アイテムを入れる
-                ItemUtil.addItem(item,newInv,p);
+                ItemUtil.addItem(item, newInv, p);
             }
 
             gui_hashmap.remove(p.getUniqueId());

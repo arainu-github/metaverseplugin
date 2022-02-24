@@ -15,24 +15,20 @@ import java.util.List;
 
 /**
  * プラグインの機能が全て集結しているメニューGuiを表示する魔法のアイテム
+ *
  * @author kumitatepazuru
  */
 public class CommandiPhone extends CommandPlayerOnlyBase {
-    @Override
-    public boolean execute(Player player, String[] args) {
-        run(player);
-        return true;
-    }
-
     /**
      * 主要関数
+     *
      * @param player iphoneを表示させるプレイヤー
      */
-    public static void run(Player player){
-        final String title = ChatColor.BLUE+"iPhone 13 Pro Max";
+    public static void run(Player player) {
+        final String title = ChatColor.BLUE + "iPhone 13 Pro Max";
         List<MenuItem> guiItem = new ArrayList<>();
-        for(condition_item item:iPhoneStore.getGuiItem()){
-            if(item.condition().apply(player)){
+        for (condition_item item : iPhoneStore.getGuiItem()) {
+            if (item.condition().apply(player)) {
                 guiItem.add(item.menuItem());
             }
         }
@@ -41,10 +37,17 @@ public class CommandiPhone extends CommandPlayerOnlyBase {
 
     /**
      * 主要関数。Guiから呼び出すとき用
+     *
      * @param menuItem menuItem
      */
     public static void run(MenuItem menuItem) {
         run(menuItem.getClicker());
+    }
+
+    @Override
+    public boolean execute(Player player, String[] args) {
+        run(player);
+        return true;
     }
 
     @Override
