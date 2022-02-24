@@ -1,5 +1,13 @@
 package world.arainu.core.metaverseplugin.listener;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector2;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.dependencies.jda.api.EmbedBuilder;
 import github.scarsz.discordsrv.util.DiscordUtil;
@@ -31,12 +39,14 @@ import world.arainu.core.metaverseplugin.scheduler.ParticleScheduler;
 import world.arainu.core.metaverseplugin.store.ServerStore;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
 import world.arainu.core.metaverseplugin.utils.ParticleUtil;
+import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -45,6 +55,17 @@ import java.util.stream.Collectors;
  * @author kumitatepazuru
  */
 public class MunicipalCreateListener implements Listener {
+
+    static public MarkerSet getMunicipalMarker() {
+        final DynmapAPI dynmap = MetaversePlugin.getDynmap();
+        final MarkerAPI marker = dynmap.getMarkerAPI();
+        MarkerSet markerSet = marker.getMarkerSet("municipal");
+        if (markerSet == null) {
+            markerSet = marker.createMarkerSet("municipal", "自治体", null, true);
+        }
+        return markerSet;
+    }
+
     /**
      * 自治体作成ブックを使用したときに動く関数。
      * @param e イベント
@@ -63,17 +84,29 @@ public class MunicipalCreateListener implements Listener {
                     );
                 } else if(ServerStore.getMarkerData().get(e.getPlayer()).size() < 3){
                     menuItem = List.of(
-                            new MenuItem("自治体の頂点を作成", this::add, true, Material.CALCITE)
+                            new MenuItem("自治体の頂点を作成", this::add, true, Material.CALCITE),
+                            new MenuItem("最初からやり直す", this::begin,true,Material.REDSTONE_BLOCK)
                     );
                 } else {
                     menuItem = List.of(
                             new MenuItem("自治体の頂点を作成", this::add, true, Material.CALCITE),
+                            new MenuItem("最初からやり直す", this::begin,true,Material.REDSTONE_BLOCK),
                             new MenuItem("自治体を作成", this::end, true, Material.TUFF)
                     );
                 }
                 Gui.getInstance().openMenu(e.getPlayer(),"自治体作成メニュー", menuItem);
             }
         }
+    }
+
+    private void begin(MenuItem menuItem) {
+        Player p = menuItem.getClicker();
+        ParticleScheduler.removeQueue(playerParticle.get(p));
+        playerParticle.remove(p);
+        final HashMap<Player, ArrayList<Location>> markerData = ServerStore.getMarkerData();
+        markerData.remove(p);
+        ServerStore.setMarkerData(markerData);
+        ChatUtil.success(p,"自治体の頂点・始点をすべて削除しました。");
     }
 
     private void create(MenuItem menuItem){
@@ -135,7 +168,11 @@ public class MunicipalCreateListener implements Listener {
                             markerData.remove(player);
                             ServerStore.setMarkerData(markerData);
                         }
-                        else createMunicipal(player, response.getInput(0));
+                        else if(Objects.requireNonNull(response.getInput(0)).length() < 64){
+                            createMunicipal(player, response.getInput(0));
+                        }else{
+                            ChatUtil.error(player, "自治体の名前は64文字以内にしてください！");
+                        }
                     });
             final FloodgatePlayer fPlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
             fPlayer.sendForm(builder);
@@ -152,8 +189,12 @@ public class MunicipalCreateListener implements Listener {
                         }
                     })
                     .onComplete((p, text) -> {
-                        complete.set(true);
-                        createMunicipal(p, text);
+                        if(text.length() < 64) {
+                            complete.set(true);
+                            createMunicipal(p, text);
+                        } else {
+                            ChatUtil.error(p, "自治体の名前は64文字以内にしてください！");
+                        }
                         return AnvilGUI.Response.close();
                     })
                     .title("自治体名を入力")
@@ -164,13 +205,7 @@ public class MunicipalCreateListener implements Listener {
     }
 
     private void createMunicipal(Player p, String title){
-        final DynmapAPI dynmap = MetaversePlugin.getDynmap();
-        final MarkerAPI marker = dynmap.getMarkerAPI();
-        MarkerSet markerSet = marker.getMarkerSet("municipal");
-        if(markerSet == null) {
-            markerSet = marker.createMarkerSet("municipal","自治体",null,true);
-        }
-
+        final MarkerSet markerSet = getMunicipalMarker();
         final HashMap<Player, ArrayList<Location>> markerData = ServerStore.getMarkerData();
         double[] X_list = markerData.get(p).stream().map(Location::getX).mapToDouble(b -> b).toArray();
         double[] Z_list = markerData.get(p).stream().map(Location::getZ).mapToDouble(b -> b).toArray();
@@ -180,10 +215,22 @@ public class MunicipalCreateListener implements Listener {
             i++;
         }
         markerSet.createAreaMarker("m"+i,title,false,markerData.get(p).get(0).getWorld().getName(),X_list,Z_list,true);
+
+        // WG設定
+        List<BlockVector2> points = new ArrayList<>();
+        for(int j=0;j<X_list.length;j++){
+            points.add(BlockVector2.at(X_list[j], Z_list[j]));
+        }
+        ProtectedRegion region = new ProtectedPolygonalRegion("region-m"+i, points, -64, 319);
+        for(Municipal.Permission j: Municipal.PERMISSION_NAMES){
+            region.setFlag(j.flag(), StateFlag.State.ALLOW);
+        }
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        RegionManager regions = container.get(BukkitAdapter.adapt(markerData.get(p).get(0).getWorld()));
+        Objects.requireNonNull(regions).addRegion(region);
         markerData.remove(p);
         ServerStore.setMarkerData(markerData);
-        ChatUtil.success(p, "自治体を正常に作成しました。");
-        String discordId =  DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(p.getUniqueId());
+        String discordId = DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(p.getUniqueId());
         ServerListener.getChannel().sendMessage(
                 new EmbedBuilder()
                         .setTitle("`"+p.getName()+"`が自治体`"+title+"`を作成しました。")
@@ -194,6 +241,8 @@ public class MunicipalCreateListener implements Listener {
                         .setColor(Color.PINK)
                         .build()
         ).queue();
+        sqlUtil.addMunicipal(p.getUniqueId(),"m"+i, List.of());
+        ChatUtil.success(p, "自治体を正常に作成しました。");
     }
 
     private final static HashMap<Player,ParticleUtil> playerParticle = new HashMap<>();
