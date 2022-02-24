@@ -260,7 +260,7 @@ public class VillagerListener implements Listener {
         for (ItemStack i : money_list) {
             if (Bank.isMoney(i)) {
                 final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
-                total_money += persistentDataContainer.get(BankStore.getKey(), PersistentDataType.INTEGER) * i.getAmount();
+                total_money += Objects.requireNonNull(persistentDataContainer.get(BankStore.getKey(), PersistentDataType.INTEGER)) * i.getAmount();
             }
         }
         return new ReturnMoney(money_list, total_money);
@@ -295,7 +295,7 @@ public class VillagerListener implements Listener {
         Villager villager = ((Mapdata) e.getCustomData()).villager;
         boolean isPurchase = Bank.isMoney(recipe.getResult());
         ItemStack money = Bank.isMoney(recipe.getResult()) ? recipe.getResult() : recipe.getIngredients().get(0);
-        int price = money.getAmount() * money.getItemMeta().getPersistentDataContainer().get(BankStore.getKey(), PersistentDataType.INTEGER);
+        int price = money.getAmount() * Objects.requireNonNull(money.getItemMeta().getPersistentDataContainer().get(BankStore.getKey(), PersistentDataType.INTEGER));
         final Inventory inv;
         if (isPurchase) {
             inv = Bukkit.createInventory(null, 27, e.getIcon().displayName().append(Component.text(" を買取")).color(NamedTextColor.BLACK));

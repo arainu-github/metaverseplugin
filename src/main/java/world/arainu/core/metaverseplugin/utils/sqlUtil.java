@@ -18,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -58,6 +59,15 @@ public class sqlUtil {
         try {
             PreparedStatement ps = conn.prepareStatement("/* ping */ SELECT 1");
             ps.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void create_municipal_table() {
+        try {
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `municipal` ( `name` VARCHAR(64) NOT NULL , `uuid` VARCHAR(36) NOT NULL, `member` TEXT NOT NULL, PRIMARY KEY (`name`)) ");
+            ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -518,6 +528,69 @@ public class sqlUtil {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 自治体IDと管理者を紐付ける関数。
+     * @param uuid プレイヤーUUID
+     * @param name 自治体のID
+     * @param member 自治体のメンバー
+     */
+    public static void addMunicipal(UUID uuid, String name, List<String> member) {
+        try {
+            create_municipal_table();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO municipal VALUES(?,?,?) ON DUPLICATE KEY UPDATE member = VALUES(member)");
+            ps.setString(2,uuid.toString());
+            ps.setString(1,name);
+            ps.setString(3,String.join(",",member));
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 自治体を削除する関数。主に運営用。
+     * @param name 自治体ID
+     */
+    public static void removeMunicipal(String name) {
+        try {
+            create_municipal_table();
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM `municipal` WHERE `name` LIKE ?");
+            ps.setString(1,name);
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 自治体データを取得する関数。
+     * @param name 自治体ID
+     */
+    public static MunicipalData getMunicipal(String name) {
+        try {
+            create_municipal_table();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM municipal WHERE name LIKE '"+name+"'");
+            rs.next();
+            List<String> result = Arrays.asList(rs.getString(3).split(","));
+            MunicipalData r = new MunicipalData(UUID.fromString(rs.getString(2)),result);
+            rs.close();
+            stmt.close();
+            return r;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Returnに使われる内部関数。
+     */
+    public record MunicipalData(UUID uuid,List<String> member) {
     }
 
     /**

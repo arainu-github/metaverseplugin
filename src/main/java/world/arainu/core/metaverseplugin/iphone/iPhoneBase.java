@@ -1,7 +1,6 @@
 package world.arainu.core.metaverseplugin.iphone;
 
 import lombok.Getter;
-import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import world.arainu.core.metaverseplugin.commands.CommandPlayerOnlyBase;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
@@ -23,7 +22,7 @@ public abstract class iPhoneBase extends CommandPlayerOnlyBase {
     }
 
     @Override
-    public boolean execute(Player player, Command command, String label, String[] args) {
+    public boolean execute(Player player, String[] args) {
         ChatUtil.error(player, "コマンドは実装されていません");
         return false;
     }
