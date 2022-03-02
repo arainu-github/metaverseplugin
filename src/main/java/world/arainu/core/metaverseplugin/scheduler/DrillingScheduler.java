@@ -1,5 +1,6 @@
 package world.arainu.core.metaverseplugin.scheduler;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -7,9 +8,11 @@ import org.bukkit.block.Chest;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.utils.ItemUtil;
 
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * 採掘をするときに使用するスケジューラー。
@@ -62,6 +65,9 @@ public class DrillingScheduler extends BukkitRunnable {
                     breakBlock.getDrops(useTool).forEach(e -> chestLocation.getWorld().dropItemNaturally(chestLocation, e));
                 }
             }
+            UUID player = (UUID) block.getMetadata("metaverse-drilling").get(0).value();
+            Objects.requireNonNull(MetaversePlugin.getInstance().getCoreProtect()).
+                    logRemoval(Bukkit.getOfflinePlayer(Objects.requireNonNull(player)).getName(),breakBlock.getLocation(),breakBlock.getType(),breakBlock.getBlockData());
             breakBlock.setType(Material.AIR);
         }
         ended = 1;
