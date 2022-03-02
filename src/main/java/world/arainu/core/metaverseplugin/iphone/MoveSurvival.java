@@ -19,7 +19,8 @@ import java.util.UUID;
 public class MoveSurvival extends iPhoneBase {
     /**
      * プレイヤーをサバイバルサーバーに戻す関数
-     * @param p 対象のプレイヤー
+     *
+     * @param p   対象のプレイヤー
      * @param msg 戻すときのメッセージ（nullの場合は送らない）
      */
     public static void Move(Player p, String msg) {

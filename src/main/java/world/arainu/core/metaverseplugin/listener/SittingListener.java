@@ -34,9 +34,10 @@ import java.util.Objects;
 public class SittingListener implements Listener {
     /**
      * アーマースタンドの召喚
-     * @param block 座らせるブロック
+     *
+     * @param block  座らせるブロック
      * @param player 対象のプレイヤー
-     * @param yaw 方向
+     * @param yaw    方向
      */
     public void spawnArmorStand(Block block, Player player, double yaw) {
 

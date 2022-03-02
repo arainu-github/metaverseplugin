@@ -66,12 +66,12 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
     /**
      * 村人を作成(?)する関数。
      *
-     * @param name 店員の名前
-     * @param type 店員の役職
+     * @param name   店員の名前
+     * @param type   店員の役職
      * @param player プレイヤー（ここの座標に作成する）
      * @return 村人
      */
-    public static Villager createVillager(String name,Villager.Profession type,Player player){
+    public static Villager createVillager(String name, Villager.Profession type, Player player) {
         Villager villager = (Villager) player.getWorld().spawnEntity(player.getLocation(), EntityType.VILLAGER);
         villager.setProfession(type);
         villager.setVillagerLevel(5);
@@ -224,7 +224,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                 }
                 case "mob-villager" -> {
                     Villager villager = createVillager("モブ店員", Villager.Profession.FARMER, player);
-                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]+"-shop");
+                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0] + "-shop");
                     List<MerchantRecipe> recipes = new ArrayList<>();
                     recipes.add(createRecipe2(1000, 5, new ItemStack(Material.AXOLOTL_SPAWN_EGG)));
                     recipes.add(createRecipe2(500, 5, new ItemStack(Material.BEE_SPAWN_EGG)));
@@ -299,6 +299,6 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
                                       String[] args) {
-        return List.of("casino-villager","mason-villager", "stone-villager", "mason-villager-shop", "stone-villager-shop", "mob-villager","sandstone-villager","sandstone-villager-shop");
+        return List.of("casino-villager", "mason-villager", "stone-villager", "mason-villager-shop", "stone-villager-shop", "mob-villager", "sandstone-villager", "sandstone-villager-shop");
     }
 }

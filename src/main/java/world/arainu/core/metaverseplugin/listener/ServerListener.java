@@ -44,6 +44,7 @@ public class ServerListener implements Listener {
     @Getter
     static private final TextChannel channel = Objects
             .requireNonNull(jda.getTextChannelById(MetaversePlugin.getConfiguration().getLong("discord.warn_channel")));
+    private final HashMap<UUID, TimeAndMsg> last_log_map = new HashMap<>();
 
     private void sendMessage(UUID uuid, MessageEmbed embed) {
         if (last_log_map.containsKey(uuid)) {
@@ -113,6 +114,7 @@ public class ServerListener implements Listener {
 
     /**
      * プレイヤーがログアウトしたときに内部プレイヤーデータを削除する関数。
+     *
      * @param e イベント
      */
     @EventHandler
@@ -127,15 +129,14 @@ public class ServerListener implements Listener {
 
     /**
      * プレイヤーがログインしたときに新機能を通知する関数。
+     *
      * @param e イベント
      */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        final String url = "https://data.arainu.world/advancements/?uuid="+e.getPlayer().getUniqueId();
+        final String url = "https://data.arainu.world/advancements/?uuid=" + e.getPlayer().getUniqueId();
         e.getPlayer().sendMessage(Component.text("あなたの進捗の達成度を確認できるようになりました！\n").append(Component.text(url).clickEvent(ClickEvent.openUrl(url)).decorate(TextDecoration.UNDERLINED)));
     }
-
-    private final HashMap<UUID, TimeAndMsg> last_log_map = new HashMap<>();
 
     /**
      * 時間とメッセージのクラス。そのままでわかりやすいね★

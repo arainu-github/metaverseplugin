@@ -21,6 +21,17 @@ import java.util.UUID;
  * 村人市場の取引に関するものをまとめているクラス
  */
 public class LateScheduler extends BukkitRunnable {
+    private static final HashMap<String, List<Integer>> quantity_p = new HashMap<>() {
+        {
+            put("mason-villager", new ArrayList<>(Collections.nCopies(7, 0)));
+            put("stone-villager", new ArrayList<>(Collections.nCopies(47, 0)));
+            put("sandstone-villager", new ArrayList<>(Collections.nCopies(9, 0)));
+            put("mob-villager", new ArrayList<>(Collections.nCopies(27, 0)));
+        }
+    };
+    private final HashMap<String, List<Integer>> quantity_t_minus1 = new HashMap<>();
+    private long old_time;
+
     @Override
     public void run() {
         if (Bukkit.getWorlds().get(0).getTime() < old_time) {
@@ -170,27 +181,16 @@ public class LateScheduler extends BukkitRunnable {
 
             for (UUID uuid : Objects.requireNonNull(sqlUtil.getuuidsbytype(type))) {
                 Villager villager = (Villager) Bukkit.getEntity(uuid);
-                if(villager != null) {
+                if (villager != null) {
                     villager.setRecipes(recipes);
                 }
             }
             for (UUID uuid : Objects.requireNonNull(sqlUtil.getuuidsbytype(type + "-shop"))) {
                 Villager villager = (Villager) Bukkit.getEntity(uuid);
-                if(villager != null) {
+                if (villager != null) {
                     villager.setRecipes(recipes2);
                 }
             }
         }
     }
-
-    private final HashMap<String, List<Integer>> quantity_t_minus1 = new HashMap<>();
-    private static final HashMap<String, List<Integer>> quantity_p = new HashMap<>() {
-        {
-            put("mason-villager", new ArrayList<>(Collections.nCopies(7, 0)));
-            put("stone-villager", new ArrayList<>(Collections.nCopies(47, 0)));
-            put("sandstone-villager", new ArrayList<>(Collections.nCopies(9, 0)));
-            put("mob-villager", new ArrayList<>(Collections.nCopies(27, 0)));
-        }
-    };
-    private long old_time;
 }

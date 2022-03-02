@@ -8,6 +8,7 @@ import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
 /**
  * iPhoneから初期スポーン地点に戻ることができるようにするクラス。
+ *
  * @author kumitatepazuru
  */
 public class Spawn extends iPhoneBase {

@@ -14,5 +14,7 @@ import java.util.UUID;
  * トラップタワーの情報を格納するクラス
  */
 public class TrapTowerStore {
-    @Getter @Setter private static List<UUID> using_player_list = new ArrayList<>(Collections.nCopies(Objects.requireNonNull(MetaversePlugin.getConfiguration().getList("traptower.pos")).size(), null));
+    @Getter
+    @Setter
+    private static List<UUID> using_player_list = new ArrayList<>(Collections.nCopies(Objects.requireNonNull(MetaversePlugin.getConfiguration().getList("traptower.pos")).size(), null));
 }

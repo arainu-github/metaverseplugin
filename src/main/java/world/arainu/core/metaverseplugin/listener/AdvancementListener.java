@@ -15,11 +15,12 @@ import java.util.List;
 
 /**
  * 進捗データを操作する内部関数群をまとめたクラス。
+ *
  * @author kumitatepazuru
  */
 public class AdvancementListener implements Listener {
-    private void addPlayerAdvancement(Advancement advancement,Player p){
-        if(advancement.getDisplay() != null) {
+    private void addPlayerAdvancement(Advancement advancement, Player p) {
+        if (advancement.getDisplay() != null) {
             String id = advancement.getKey().getNamespace() + ":" + advancement.getKey().getKey();
             AdvancementProgress advancementProgress = p.getAdvancementProgress(advancement);
             List<String> awarded = advancementProgress.getAwardedCriteria().stream().toList();
@@ -30,25 +31,27 @@ public class AdvancementListener implements Listener {
 
     /**
      * プレイヤー入室時にSQL上にプレイヤーの進捗データを保存し、同期する関数。
+     *
      * @param e イベント
      */
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent e){
-        Bukkit.getScheduler().runTaskAsynchronously(MetaversePlugin.getInstance(),() -> {
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        Bukkit.getScheduler().runTaskAsynchronously(MetaversePlugin.getInstance(), () -> {
             Player p = e.getPlayer();
             MetaversePlugin.logger().info("syncing advancement data");
             sqlUtil.removePlayerAdvancement(p.getUniqueId());
-            Bukkit.advancementIterator().forEachRemaining(advancement -> addPlayerAdvancement(advancement,p));
+            Bukkit.advancementIterator().forEachRemaining(advancement -> addPlayerAdvancement(advancement, p));
             MetaversePlugin.logger().info("synced");
         });
     }
 
     /**
      * プレイヤーが進捗を達成したときにSQL上のプレイヤーの進捗データを更新する関数。
+     *
      * @param e イベント
      */
     @EventHandler
-    public void onPlayerAdvancementCriterionGrant(PlayerAdvancementCriterionGrantEvent e){
-        addPlayerAdvancement(e.getAdvancement(),e.getPlayer());
+    public void onPlayerAdvancementCriterionGrant(PlayerAdvancementCriterionGrantEvent e) {
+        addPlayerAdvancement(e.getAdvancement(), e.getPlayer());
     }
 }

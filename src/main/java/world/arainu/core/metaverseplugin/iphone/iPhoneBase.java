@@ -8,13 +8,16 @@ import world.arainu.core.metaverseplugin.utils.ChatUtil;
 
 /**
  * iphoneのGuiのアイテムのベースクラス
+ *
  * @author kumitatepazuru
  */
 public abstract class iPhoneBase extends CommandPlayerOnlyBase {
-    @Getter private static iPhoneBase Instance;
+    @Getter
+    private static iPhoneBase Instance;
 
     /**
      * iphoneのGuiのアイテムのベースクラス
+     *
      * @author kumitatepazuru
      */
     iPhoneBase() {
@@ -29,6 +32,7 @@ public abstract class iPhoneBase extends CommandPlayerOnlyBase {
 
     /**
      * Guiから実行したときに動く関数
+     *
      * @param menuItem クリックしたアイテムの情報が入っている
      */
     public abstract void executeGui(MenuItem menuItem);

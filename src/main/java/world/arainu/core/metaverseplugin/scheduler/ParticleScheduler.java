@@ -9,10 +9,29 @@ import java.util.List;
 
 /**
  * 独自の線パーティクルなどを表示するスケジューラー。
+ *
  * @author kumitatepazuru
  */
 public class ParticleScheduler extends BukkitRunnable {
     private static final List<ParticleUtil> queue = new ArrayList<>();
+
+    /**
+     * パーティクルキューを追加する関数。
+     *
+     * @param particle 追加するパーティクル
+     */
+    public static void addQueue(ParticleUtil particle) {
+        queue.add(particle);
+    }
+
+    /**
+     * パーティクルキューを削除する関数。
+     *
+     * @param particle 削除するパーティクル
+     */
+    public static void removeQueue(ParticleUtil particle) {
+        queue.remove(particle);
+    }
 
     @Override
     public void run() {
@@ -37,7 +56,7 @@ public class ParticleScheduler extends BukkitRunnable {
                 if (Double.isNaN(f)) {
                     f = 0;
                 }
-                for (double j = 0; j < r+0.5; j += 0.5) {
+                for (double j = 0; j < r + 0.5; j += 0.5) {
                     final double x = i.x1() + j * Math.sin(t) * Math.cos(f);
                     final double z = i.z1() + j * Math.sin(t) * Math.sin(f);
                     final double y = i.y1() + j * Math.cos(t);
@@ -45,21 +64,5 @@ public class ParticleScheduler extends BukkitRunnable {
                 }
             }
         }
-    }
-
-    /**
-     * パーティクルキューを追加する関数。
-     * @param particle 追加するパーティクル
-     */
-    public static void addQueue(ParticleUtil particle){
-        queue.add(particle);
-    }
-
-    /**
-     * パーティクルキューを削除する関数。
-     * @param particle 削除するパーティクル
-     */
-    public static void removeQueue(ParticleUtil particle){
-        queue.remove(particle);
     }
 }

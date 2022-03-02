@@ -30,6 +30,21 @@ import java.util.UUID;
  * @author kumitatepazuru
  */
 public class sqlUtil {
+    @Getter
+    private final static String db_name = MetaversePlugin.getConfiguration().getString("mysql.db_name");
+    @Getter
+    private final static String db_public = MetaversePlugin.getConfiguration().getString("mysql.db_public");
+    @Getter
+    private final static String user = MetaversePlugin.getConfiguration().getString("mysql.user");
+    @Getter
+    private final static String pass = MetaversePlugin.getConfiguration().getString("mysql.pass");
+    @Getter
+    private final static int port = MetaversePlugin.getConfiguration().getInt("mysql.port");
+    @Getter
+    private final static String url = MetaversePlugin.getConfiguration().getString("mysql.url");
+    private final static String url_connection = "jdbc:mysql://" + url + ":" + port + "/" + db_name + "?useUnicode=true&characterEncoding=utf8&autoReconnect=true&maxReconnects=10&useSSL=false";
+    private static Connection conn;
+
     /**
      * SQLに接続する
      */
@@ -135,6 +150,7 @@ public class sqlUtil {
             e.printStackTrace();
         }
     }
+
     /**
      * 何かしらのタイプとUUIDを紐付ける関数。
      *
@@ -401,13 +417,6 @@ public class sqlUtil {
     }
 
     /**
-     * Returnに使われる内部関数。
-     */
-    public record returnDrilling(Location location, UUID player, Vector vector3D, Vector vector3D2, boolean item,
-                                 boolean starting) {
-    }
-
-    /**
      * 採掘マシーンのデータを保存するのに使われる関数。
      *
      * @param location  採掘マシーンの場所
@@ -467,23 +476,24 @@ public class sqlUtil {
 
     /**
      * web進捗に使うためのデータを保存する関数。
-     * @param id minecraftのネームスペース
-     * @param title 進捗名
+     *
+     * @param id          minecraftのネームスペース
+     * @param title       進捗名
      * @param description 進捗の説明
-     * @param children この進捗の子のID群
-     * @param icon アイコンのファイル名
-     * @param type 進捗の種類
+     * @param children    この進捗の子のID群
+     * @param icon        アイコンのファイル名
+     * @param type        進捗の種類
      */
-    public static void addAdvancement(String id, String title, String description, List<String> children,String icon,String type) {
+    public static void addAdvancement(String id, String title, String description, List<String> children, String icon, String type) {
         try {
             create_advancement_table();
             PreparedStatement ps = conn.prepareStatement("INSERT INTO advancement VALUES(?,?,?,?,?,?)");
-            ps.setString(1,id);
-            ps.setString(2,title);
-            ps.setString(3,description);
-            ps.setString(4,String.join(",",children));
-            ps.setString(5,icon);
-            ps.setString(6,type);
+            ps.setString(1, id);
+            ps.setString(2, title);
+            ps.setString(3, description);
+            ps.setString(4, String.join(",", children));
+            ps.setString(5, icon);
+            ps.setString(6, type);
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -508,21 +518,22 @@ public class sqlUtil {
     /**
      * プレイヤーの進捗データを保存する関数。
      * awardedとremainingに関しては、固有のものが存在するのでその関数を使用すること。
-     * @param uuid プレイヤーUUID
-     * @param id 進捗の固有ID
-     * @param awarded 既に取得している基準のリスト
+     *
+     * @param uuid      プレイヤーUUID
+     * @param id        進捗の固有ID
+     * @param awarded   既に取得している基準のリスト
      * @param remaining まだ取得していない基準のリスト
-     * @param done 進捗が完了しているか
+     * @param done      進捗が完了しているか
      */
-    public static void addPlayerAdvancement(UUID uuid, String id, List<String> awarded, List<String> remaining,boolean done) {
+    public static void addPlayerAdvancement(UUID uuid, String id, List<String> awarded, List<String> remaining, boolean done) {
         try {
             create_playeradvancement_table();
             PreparedStatement ps = conn.prepareStatement("INSERT INTO playeradvancement VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE awarded = VALUES(awarded), remaining = VALUES(remaining),done = VALUES(done)");
-            ps.setString(1,uuid.toString());
-            ps.setString(2,id);
-            ps.setString(3,String.join(",",awarded));
-            ps.setString(4,String.join(",",remaining));
-            ps.setBoolean(5,done);
+            ps.setString(1, uuid.toString());
+            ps.setString(2, id);
+            ps.setString(3, String.join(",", awarded));
+            ps.setString(4, String.join(",", remaining));
+            ps.setBoolean(5, done);
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -532,17 +543,18 @@ public class sqlUtil {
 
     /**
      * 自治体IDと管理者を紐付ける関数。
-     * @param uuid プレイヤーUUID
-     * @param name 自治体のID
+     *
+     * @param uuid   プレイヤーUUID
+     * @param name   自治体のID
      * @param member 自治体のメンバー
      */
     public static void addMunicipal(UUID uuid, String name, List<String> member) {
         try {
             create_municipal_table();
             PreparedStatement ps = conn.prepareStatement("INSERT INTO municipal VALUES(?,?,?) ON DUPLICATE KEY UPDATE member = VALUES(member)");
-            ps.setString(2,uuid.toString());
-            ps.setString(1,name);
-            ps.setString(3,String.join(",",member));
+            ps.setString(2, uuid.toString());
+            ps.setString(1, name);
+            ps.setString(3, String.join(",", member));
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -552,13 +564,14 @@ public class sqlUtil {
 
     /**
      * 自治体を削除する関数。主に運営用。
+     *
      * @param name 自治体ID
      */
     public static void removeMunicipal(String name) {
         try {
             create_municipal_table();
             PreparedStatement ps = conn.prepareStatement("DELETE FROM `municipal` WHERE `name` LIKE ?");
-            ps.setString(1,name);
+            ps.setString(1, name);
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -568,16 +581,17 @@ public class sqlUtil {
 
     /**
      * 自治体データを取得する関数。
+     *
      * @param name 自治体ID
      */
     public static MunicipalData getMunicipal(String name) {
         try {
             create_municipal_table();
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM municipal WHERE name LIKE '"+name+"'");
+            ResultSet rs = stmt.executeQuery("SELECT * FROM municipal WHERE name LIKE '" + name + "'");
             rs.next();
             List<String> result = Arrays.asList(rs.getString(3).split(","));
-            MunicipalData r = new MunicipalData(UUID.fromString(rs.getString(2)),result);
+            MunicipalData r = new MunicipalData(UUID.fromString(rs.getString(2)), result);
             rs.close();
             stmt.close();
             return r;
@@ -588,13 +602,8 @@ public class sqlUtil {
     }
 
     /**
-     * Returnに使われる内部関数。
-     */
-    public record MunicipalData(UUID uuid,List<String> member) {
-    }
-
-    /**
      * web進捗のデータを全削除する関数。
+     *
      * @param uuid プレイヤーUUID
      */
     public static void removePlayerAdvancement(UUID uuid) {
@@ -608,18 +617,16 @@ public class sqlUtil {
         }
     }
 
-    @Getter
-    private final static String db_name = MetaversePlugin.getConfiguration().getString("mysql.db_name");
-    @Getter
-    private final static String db_public = MetaversePlugin.getConfiguration().getString("mysql.db_public");
-    @Getter
-    private final static String user = MetaversePlugin.getConfiguration().getString("mysql.user");
-    @Getter
-    private final static String pass = MetaversePlugin.getConfiguration().getString("mysql.pass");
-    @Getter
-    private final static int port = MetaversePlugin.getConfiguration().getInt("mysql.port");
-    @Getter
-    private final static String url = MetaversePlugin.getConfiguration().getString("mysql.url");
-    private final static String url_connection = "jdbc:mysql://" + url + ":" + port + "/" + db_name + "?useUnicode=true&characterEncoding=utf8&autoReconnect=true&maxReconnects=10&useSSL=false";
-    private static Connection conn;
+    /**
+     * Returnに使われる内部関数。
+     */
+    public record returnDrilling(Location location, UUID player, Vector vector3D, Vector vector3D2, boolean item,
+                                 boolean starting) {
+    }
+
+    /**
+     * Returnに使われる内部関数。
+     */
+    public record MunicipalData(UUID uuid, List<String> member) {
+    }
 }

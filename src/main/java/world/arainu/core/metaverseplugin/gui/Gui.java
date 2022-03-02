@@ -36,13 +36,9 @@ import java.util.function.Consumer;
  * @author kumitatepazuru
  */
 public class Gui implements Listener {
+    private static Gui instance;
     private final HashMap<Inventory, MenuData> multiPageMenuMap = new HashMap<>();
-
-    /**
-     * Guiで主に使用するItemStackと場所(index)を紐付けるクラス
-     */
-    public record PosItemStack(ItemStack item, int index) {
-    }
+    private final HashMap<Inventory, HashMap<Integer, MenuItem>> invMap = new HashMap<>();
 
     /**
      * インスタンスを取得します。
@@ -58,6 +54,41 @@ public class Gui implements Listener {
      */
     public static void resetInstance() {
         instance = null;
+    }
+
+    /**
+     * プレイヤーがBE勢かを調べる
+     *
+     * @param player 対象のプレイヤー
+     * @return BEの場合はtrue
+     */
+    public static boolean isBedrock(Player player) {
+        return FloodgateApi.getInstance().isFloodgateId(player.getUniqueId());
+    }
+
+    /**
+     * プレイヤーがエンドにいるか調べる
+     *
+     * @param player プレイヤー
+     * @return エンドにいる場合はtrue
+     */
+    public static boolean isPlayerInEnd(Player player) {
+        return player.getWorld().getEnvironment() == World.Environment.THE_END;
+    }
+
+    /**
+     * エンドラが死んでいるかどうか調べる
+     *
+     * @param player 　プレイヤー
+     * @return エンドラが死んでる場合はtrue
+     */
+
+    public static boolean isEnderDragonLiving(Player player) {
+        List<LivingEntity> entity = player.getWorld().getLivingEntities();
+        for (LivingEntity i : entity) {
+            if (i instanceof EnderDragon) return true;
+        }
+        return false;
     }
 
     /**
@@ -95,7 +126,7 @@ public class Gui implements Listener {
         if (id < 0) return;
         else if (!menuItems.containsKey(id)) return;
         final MenuItem clickedMenuItem = menuItems.get(id);
-        runHandler(clickedMenuItem,(Player) p);
+        runHandler(clickedMenuItem, (Player) p);
     }
 
     /**
@@ -116,29 +147,29 @@ public class Gui implements Listener {
             switch (id) {
                 case 3 -> {
                     if (invData.page() != 1) {
-                        update(inv, invData.page() - 1, invData.menuItems(),invData.centerItem());
+                        update(inv, invData.page() - 1, invData.menuItems(), invData.centerItem());
                         multiPageMenuMap.replace(inv, new MenuData(invData.menuItems(), invData.centerItem(), invData.page() - 1));
                     }
                 }
                 case 5 -> {
                     if (invData.page() < Math.floor(invData.menuItems().size() / 18f) + 1) {
-                        update(inv, invData.page() + 1, invData.menuItems(),invData.centerItem());
+                        update(inv, invData.page() + 1, invData.menuItems(), invData.centerItem());
                         multiPageMenuMap.replace(inv, new MenuData(invData.menuItems(), invData.centerItem(), invData.page() + 1));
                     }
                 }
                 case 4 -> {
                     final MenuItem clickedMenuItem = invData.centerItem();
-                    runHandler(clickedMenuItem,p);
+                    runHandler(clickedMenuItem, p);
                 }
             }
             if (id > 8 && id < 27 && e.getCurrentItem() != null) {
-                final MenuItem clickedMenuItem = invData.menuItems().get((invData.page()-1)*18+id-9);
-                runHandler(clickedMenuItem,p);
+                final MenuItem clickedMenuItem = invData.menuItems().get((invData.page() - 1) * 18 + id - 9);
+                runHandler(clickedMenuItem, p);
             }
         }
     }
 
-    private void runHandler(MenuItem clickedMenuItem,Player p){
+    private void runHandler(MenuItem clickedMenuItem, Player p) {
         if (clickedMenuItem.isClose()) {
             p.closeInventory();
         }
@@ -206,17 +237,17 @@ public class Gui implements Listener {
             }
             if (text instanceof TextComponent) buttonText.add(((TextComponent) text).content());
             else buttonText.add(item.getIcon().getI18NDisplayName());
-            if(item.getIcon().lore() != null) {
+            if (item.getIcon().lore() != null) {
                 for (Component i : Objects.requireNonNull(item.getIcon().lore())) {
-                    if(i instanceof TextComponent) {
+                    if (i instanceof TextComponent) {
                         buttonText.add(((TextComponent) i).content());
                     }
                 }
             }
             if (item.isClose()) {
-                builder.button(String.join("\n",buttonText));
+                builder.button(String.join("\n", buttonText));
             } else {
-                builder.content(String.join("\n",buttonText));
+                builder.content(String.join("\n", buttonText));
             }
         }
 
@@ -238,61 +269,26 @@ public class Gui implements Listener {
         fPlayer.sendForm(builder);
     }
 
-    /**
-     * プレイヤーがBE勢かを調べる
-     *
-     * @param player 対象のプレイヤー
-     * @return BEの場合はtrue
-     */
-    public static boolean isBedrock(Player player) {
-        return FloodgateApi.getInstance().isFloodgateId(player.getUniqueId());
-    }
-
-    /**
-     * プレイヤーがエンドにいるか調べる
-     *
-     * @param player プレイヤー
-     * @return エンドにいる場合はtrue
-     */
-    public static boolean isPlayerInEnd(Player player) {
-        return player.getWorld().getEnvironment() == World.Environment.THE_END;
-    }
-
-    /**
-     * エンドラが死んでいるかどうか調べる
-     *
-     * @param player 　プレイヤー
-     * @return エンドラが死んでる場合はtrue
-     */
-
-    public static boolean isEnderDragonLiving(Player player) {
-        List<LivingEntity> entity = player.getWorld().getLivingEntities();
-        for (LivingEntity i : entity) {
-            if (i instanceof EnderDragon) return true;
-        }
-        return false;
-    }
-
-    public void openMultiPageMenu(Player p, String title, List<MenuItem> menuItems,MenuItem centerItem) {
+    public void openMultiPageMenu(Player p, String title, List<MenuItem> menuItems, MenuItem centerItem) {
         if (!p.getWorld().getName().equals("world")) {
             p.teleport(new Location(Bukkit.getWorld("world"), 0, 0, 0));
         }
         if (isBedrock(p)) {
-            menuItems.add(0,centerItem);
-            openMenuBedrockImpl(p,title, menuItems.toArray(new MenuItem[0]));
+            menuItems.add(0, centerItem);
+            openMenuBedrockImpl(p, title, menuItems.toArray(new MenuItem[0]));
         } else {
             Inventory inv = Bukkit.createInventory(null, 27, Component.text(title));
-            update(inv, 1,menuItems,centerItem);
+            update(inv, 1, menuItems, centerItem);
             p.openInventory(inv);
-            multiPageMenuMap.put(inv, new MenuData(menuItems, centerItem,1));
+            multiPageMenuMap.put(inv, new MenuData(menuItems, centerItem, 1));
         }
     }
 
-    public void openMultiPageMenu(Player p, String title, List<MenuItem> menuItems){
-        openMultiPageMenu(p,title,menuItems,null);
+    public void openMultiPageMenu(Player p, String title, List<MenuItem> menuItems) {
+        openMultiPageMenu(p, title, menuItems, null);
     }
 
-    private void update(Inventory inv, int page, List<MenuItem> menuItems,MenuItem centerItem) {
+    private void update(Inventory inv, int page, List<MenuItem> menuItems, MenuItem centerItem) {
         inv.clear();
         final ItemStack back_button = new ItemStack(Material.RED_WOOL);
         ItemMeta itemMeta = back_button.getItemMeta();
@@ -312,15 +308,18 @@ public class Gui implements Listener {
         int count = 0;
         for (MenuItem i : menuItems) {
             if ((page - 1) * 18 - 1 < count && count < page * 18) {
-                    inv.setItem(count + 9 - (page - 1) * 18, i.getIcon());
+                inv.setItem(count + 9 - (page - 1) * 18, i.getIcon());
             }
             count++;
         }
     }
 
-    record MenuData(List<MenuItem> menuItems, MenuItem centerItem, int page) {
+    /**
+     * Guiで主に使用するItemStackと場所(index)を紐付けるクラス
+     */
+    public record PosItemStack(ItemStack item, int index) {
     }
 
-    private final HashMap<Inventory, HashMap<Integer, MenuItem>> invMap = new HashMap<>();
-    private static Gui instance;
+    record MenuData(List<MenuItem> menuItems, MenuItem centerItem, int page) {
+    }
 }

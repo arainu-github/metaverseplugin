@@ -22,10 +22,12 @@ import java.util.stream.Collectors;
 /**
  * 採掘マシーンをプレイヤーのインベントリ内に入れるクラス。
  * iPhoneから操作する部分。
+ *
  * @author kumitatepazuru
  */
 public class Drilling extends iPhoneBase {
-    @Getter private static final NamespacedKey key = new NamespacedKey(MetaversePlugin.getInstance(), "metaverse-drilling");
+    @Getter
+    private static final NamespacedKey key = new NamespacedKey(MetaversePlugin.getInstance(), "metaverse-drilling");
 
     @Override
     public void executeGui(MenuItem menuItem) {
@@ -33,12 +35,12 @@ public class Drilling extends iPhoneBase {
         ItemStack item = new ItemStack(Material.BRICKS);
         ItemMeta itemMeta = item.getItemMeta();
         itemMeta.displayName(Component.text("採掘マシーン").color(NamedTextColor.LIGHT_PURPLE).decorate(TextDecoration.BOLD).decorate(TextDecoration.ITALIC));
-        itemMeta.getPersistentDataContainer().set(key,PersistentDataType.INTEGER,1);
+        itemMeta.getPersistentDataContainer().set(key, PersistentDataType.INTEGER, 1);
         itemMeta.lore(Collections.singletonList(Component.text("採掘したい場所の中心に設置して使用する。")));
         item.setItemMeta(itemMeta);
         item.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
-        if(!p.getInventory().all(Material.BRICKS).values().stream().map(itemStack -> itemStack.getItemMeta().getPersistentDataContainer().has(key, PersistentDataType.INTEGER)).collect(Collectors.toList()).contains(true)) {
-            ItemUtil.addItem(item,p.getInventory(),p);
+        if (!p.getInventory().all(Material.BRICKS).values().stream().map(itemStack -> itemStack.getItemMeta().getPersistentDataContainer().has(key, PersistentDataType.INTEGER)).collect(Collectors.toList()).contains(true)) {
+            ItemUtil.addItem(item, p.getInventory(), p);
             Component component = Component.text("採掘マシーン").color(NamedTextColor.LIGHT_PURPLE).decorate(TextDecoration.BOLD).decorate(TextDecoration.UNDERLINED);
             component = component.append(Component.text("をインベントリ内に追加しました。\nこちらのブロックを採掘したい場所の端に設置して専用画面を開きましょう。").color(NamedTextColor.WHITE)
                     .decorations(new HashMap<>() {{

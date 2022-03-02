@@ -20,17 +20,19 @@ import java.util.Objects;
 
 /**
  * プリエやーに報酬を与える関数群が集まったクラス。
+ *
  * @author kumitatepazuru
  */
 public class MoneyListener implements Listener {
     /**
      * プレイヤーがエンティティを倒したときに報酬を与える関数。
+     *
      * @param e イベント
      */
     @EventHandler
-    public void onEntityDeath(EntityDeathEvent e){
-        if(e.getEntity().getKiller() != null) {
-            if(!e.getEntity().getKiller().getWorld().getName().equals(MetaversePlugin.getInstance().getConfig().getString("world.traptower"))) {
+    public void onEntityDeath(EntityDeathEvent e) {
+        if (e.getEntity().getKiller() != null) {
+            if (!e.getEntity().getKiller().getWorld().getName().equals(MetaversePlugin.getInstance().getConfig().getString("world.traptower"))) {
                 List.of(
                         new money(EntityType.IRON_GOLEM, 100),
                         new money(EntityType.POLAR_BEAR, 150),
@@ -77,27 +79,28 @@ public class MoneyListener implements Listener {
 
     /**
      * 進捗を達成したときにプレイヤーに報酬を与える関数。
+     *
      * @param e イベント
      */
     @EventHandler
-    public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent e){
+    public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent e) {
         Advancement advancement = e.getAdvancement();
-        if(advancement.getDisplay() != null) {
-            switch (Objects.requireNonNull(e.getAdvancement().getDisplay()).frame()){
-                case TASK -> addMoney(e.getPlayer(),500);
-                case GOAL -> addMoney(e.getPlayer(),1500);
-                case CHALLENGE -> addMoney(e.getPlayer(),5000);
+        if (advancement.getDisplay() != null) {
+            switch (Objects.requireNonNull(e.getAdvancement().getDisplay()).frame()) {
+                case TASK -> addMoney(e.getPlayer(), 500);
+                case GOAL -> addMoney(e.getPlayer(), 1500);
+                case CHALLENGE -> addMoney(e.getPlayer(), 5000);
             }
         }
     }
 
-    private record money(EntityType type,int money){
+    private void addMoney(Player player, int money) {
+        Economy econ = MetaversePlugin.getEcon();
+        player.sendActionBar(Component.text("+" + econ.format(money)).color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD).decorate(TextDecoration.UNDERLINED));
+        econ.depositPlayer(player, money);
+        player.playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 1, 1f);
     }
 
-    private void addMoney(Player player, int money){
-        Economy econ = MetaversePlugin.getEcon();
-        player.sendActionBar(Component.text("+"+econ.format(money)).color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD).decorate(TextDecoration.UNDERLINED));
-        econ.depositPlayer(player,money);
-        player.playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 1, 1f);
+    private record money(EntityType type, int money) {
     }
 }

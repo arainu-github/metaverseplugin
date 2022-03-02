@@ -4,6 +4,8 @@ import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.api.Subscribe;
 import github.scarsz.discordsrv.api.events.DiscordReadyEvent;
 import lombok.Getter;
+import net.coreprotect.CoreProtect;
+import net.coreprotect.CoreProtectAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -17,6 +19,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -81,6 +84,15 @@ public final class MetaversePlugin extends JavaPlugin {
     private static DynmapAPI dynmap;
     private final HashMap<String, CommandBase> commands = new HashMap<>();
 
+    /**
+     * プラグインのLoggerを取得する関数。
+     *
+     * @return Logger
+     */
+    static public @NotNull Logger logger() {
+        return getInstance().getLogger();
+    }
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
@@ -93,7 +105,7 @@ public final class MetaversePlugin extends JavaPlugin {
         EnablePlugins();
         setListener();
         setScheduler();
-        if(Objects.equals(ServerStore.getServerName(), "survival")) {
+        if (Objects.equals(ServerStore.getServerName(), "survival")) {
             Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
                 getLogger().info("saving advancements data...");
                 sqlUtil.truncateAdvancement();
@@ -112,14 +124,6 @@ public final class MetaversePlugin extends JavaPlugin {
             });
         }
         getLogger().info("メタバースプラグインが有効になりました。");
-    }
-
-    /**
-     * プラグインのLoggerを取得する関数。
-     * @return Logger
-     */
-    static public @NotNull Logger logger() {
-        return getInstance().getLogger();
     }
 
     private void setScheduler() {
@@ -184,7 +188,7 @@ public final class MetaversePlugin extends JavaPlugin {
         iPhoneStore.addGuiItem(new MenuItem("discordと連携する", new LinkDiscord()::executeGui, true, Material.PAPER), (p) -> DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(p.getUniqueId()) == null);
         ItemStack chestItem = new ItemStack(Material.TRIPWIRE_HOOK);
         ItemMeta chestMeta = chestItem.getItemMeta();
-        chestMeta.lore(Arrays.asList(Component.text("チェストに向かって使用することで"),Component.text("チェストを個人用チェストにすることができます。"),Component.text("300円/個").color(NamedTextColor.GOLD)));
+        chestMeta.lore(Arrays.asList(Component.text("チェストに向かって使用することで"), Component.text("チェストを個人用チェストにすることができます。"), Component.text("300円/個").color(NamedTextColor.GOLD)));
         chestItem.setItemMeta(chestMeta);
         iPhoneStore.addGuiItem(new MenuItem("チェストの鍵を購入する", new ChestLock()::executeGui, true, chestItem), (p) -> Objects.equals(ServerStore.getServerName(), "survival"));
     }
@@ -205,7 +209,7 @@ public final class MetaversePlugin extends JavaPlugin {
         PM.registerEvents(new MoneyListener(), this);
         PM.registerEvents(new DrillingListener(), this);
         PM.registerEvents(new ChestLockListener(), this);
-        if(Objects.equals(ServerStore.getServerName(), "survival")) {
+        if (Objects.equals(ServerStore.getServerName(), "survival")) {
             PM.registerEvents(new AdvancementListener(), this);
         }
         DiscordSRV.api.subscribe(this);
@@ -251,6 +255,28 @@ public final class MetaversePlugin extends JavaPlugin {
         addCommand("iphone", new CommandiPhone());
         addCommand("spawn", new CommandSpawn());
         addCommand("whitelist", new CommandWhitelist());
+    }
+
+    public CoreProtectAPI getCoreProtect() {
+        Plugin plugin = getServer().getPluginManager().getPlugin("CoreProtect");
+
+        // Check that CoreProtect is loaded
+        if (!(plugin instanceof CoreProtect)) {
+            return null;
+        }
+
+        // Check that the API is enabled
+        CoreProtectAPI CoreProtect = ((CoreProtect) plugin).getAPI();
+        if (!CoreProtect.isEnabled()) {
+            return null;
+        }
+
+        // Check that a compatible version of the API is loaded
+        if (CoreProtect.APIVersion() < 7) {
+            return null;
+        }
+
+        return CoreProtect;
     }
 
     @Override

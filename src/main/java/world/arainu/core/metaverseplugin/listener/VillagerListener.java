@@ -48,6 +48,26 @@ import java.util.stream.Collectors;
  * @author kumitatepazuru
  */
 public class VillagerListener implements Listener {
+    private final HashMap<Inventory, GuiData> invMap = new HashMap<>();
+
+    /**
+     * インベントリ内のお金を取得する関数
+     *
+     * @param inv 対象のインベントリ
+     * @return お金の情報
+     */
+    public static ReturnMoney getTotalmoney(Inventory inv) {
+        final List<ItemStack> money_list = new ArrayList<>(inv.all(Material.EMERALD).values());
+        int total_money = 0;
+        for (ItemStack i : money_list) {
+            if (Bank.isMoney(i)) {
+                final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
+                total_money += Objects.requireNonNull(persistentDataContainer.get(BankStore.getKey(), PersistentDataType.INTEGER)) * i.getAmount();
+            }
+        }
+        return new ReturnMoney(money_list, total_money);
+    }
+
     /**
      * プレイヤーが右クリックしたときに特定の村人の場合は独自UIを表示させるリスナー
      *
@@ -84,12 +104,6 @@ public class VillagerListener implements Listener {
         }
     }
 
-    /**
-     * Mapのreturnに使うやつ
-     */
-    record Mapdata(MerchantRecipe recipe, int index, Villager villager) {
-    }
-
     private void updatePrice(Inventory inv, ItemStack item) {
         Economy econ = MetaversePlugin.getEcon();
         ItemStack priceItem = Objects.requireNonNull(inv.getItem(6));
@@ -113,7 +127,7 @@ public class VillagerListener implements Listener {
         final Inventory inv = e.getInventory();
         final HumanEntity p = e.getWhoClicked();
         GuiData guiData = invMap.get(inv);
-        if( guiData != null ) {
+        if (guiData != null) {
             final ItemStack item = Objects.requireNonNull(inv.getItem(2));
 
             // 管理インベントリでなければ無視
@@ -181,13 +195,13 @@ public class VillagerListener implements Listener {
                                 Bank.addMoneyForPlayer((Player) p, returnMoney.total_money() - required_money);
                                 final ItemStack addItem = new ItemStack(item.getType());
                                 addItem.setAmount(item.getAmount());
-                                ItemUtil.addItem(addItem,e.getInventory(), (Player) p);
+                                ItemUtil.addItem(addItem, e.getInventory(), (Player) p);
                             }
                         }
-                        if(okay){
+                        if (okay) {
                             MerchantRecipe recipe = guiData.villager.getRecipe(guiData.index);
-                            recipe.setUses(recipe.getUses()+1);
-                            guiData.villager.setRecipe(guiData.index,recipe);
+                            recipe.setUses(recipe.getUses() + 1);
+                            guiData.villager.setRecipe(guiData.index, recipe);
                         }
                     }
                 }
@@ -233,43 +247,19 @@ public class VillagerListener implements Listener {
                 priceItem.setItemMeta(itemMeta);
             }, 1);
         } else {
-            if(inv.getType() == InventoryType.MERCHANT) {
+            if (inv.getType() == InventoryType.MERCHANT) {
                 HashMap<Integer, ? extends ItemStack> items = inv.all(Material.EMERALD);
                 List<Boolean> isMoney = items.values().stream()
                         .map(itemStack -> itemStack.getItemMeta().getPersistentDataContainer().has(BankStore.getKey(), PersistentDataType.INTEGER))
                         .collect(Collectors.toList());
                 MerchantRecipe recipe = ((MerchantInventory) inv).getSelectedRecipe();
-                if(recipe != null && isMoney.contains(true)) {
+                if (recipe != null && isMoney.contains(true)) {
                     recipe.setUses(recipe.getUses() - 1);
-                    ChatUtil.error(p,"ゲーム内通貨で通常の村人と貿易することはできません！");
+                    ChatUtil.error(p, "ゲーム内通貨で通常の村人と貿易することはできません！");
                     e.setCancelled(true);
                 }
             }
         }
-    }
-
-    /**
-     * インベントリ内のお金を取得する関数
-     *
-     * @param inv 対象のインベントリ
-     * @return お金の情報
-     */
-    public static ReturnMoney getTotalmoney(Inventory inv) {
-        final List<ItemStack> money_list = new ArrayList<>(inv.all(Material.EMERALD).values());
-        int total_money = 0;
-        for (ItemStack i : money_list) {
-            if (Bank.isMoney(i)) {
-                final PersistentDataContainer persistentDataContainer = i.getItemMeta().getPersistentDataContainer();
-                total_money += Objects.requireNonNull(persistentDataContainer.get(BankStore.getKey(), PersistentDataType.INTEGER)) * i.getAmount();
-            }
-        }
-        return new ReturnMoney(money_list, total_money);
-    }
-
-    /**
-     * お金に関するクラス
-     */
-    public record ReturnMoney(List<ItemStack> money_list, int total_money) {
     }
 
     /**
@@ -284,7 +274,7 @@ public class VillagerListener implements Listener {
         for (int i = 18; i < inv.getSize(); i++) {
             ItemStack item = inv.getItem(i);
             if (item == null) continue;
-            ItemUtil.addItem(item,e.getPlayer().getInventory(), (Player) e.getPlayer());
+            ItemUtil.addItem(item, e.getPlayer().getInventory(), (Player) e.getPlayer());
         }
         invMap.remove(inv);
     }
@@ -359,11 +349,21 @@ public class VillagerListener implements Listener {
             inv.setItem(i, partition);
         }
 
-        invMap.put(inv, new GuiData(price, index, isPurchase,villager));
+        invMap.put(inv, new GuiData(price, index, isPurchase, villager));
         e.getClicker().openInventory(inv);
     }
 
-    private final HashMap<Inventory, GuiData> invMap = new HashMap<>();
+    /**
+     * Mapのreturnに使うやつ
+     */
+    record Mapdata(MerchantRecipe recipe, int index, Villager villager) {
+    }
+
+    /**
+     * お金に関するクラス
+     */
+    public record ReturnMoney(List<ItemStack> money_list, int total_money) {
+    }
 
     private record GuiData(int price, int index, boolean isPurchase, Villager villager) {
     }

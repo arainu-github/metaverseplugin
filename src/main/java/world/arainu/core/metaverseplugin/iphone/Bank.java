@@ -80,7 +80,7 @@ public class Bank extends iPhoneBase {
      * @param yen    換金する額
      */
     public static void addMoneyForPlayer(Player player, int yen) {
-        addMoneyForInventory(player.getInventory(), yen,player);
+        addMoneyForInventory(player.getInventory(), yen, player);
     }
 
     /**
@@ -88,16 +88,16 @@ public class Bank extends iPhoneBase {
      *
      * @param inv 対象のインベントリ
      * @param yen 換金する額
-     * @param p 現金を入れるプレイヤー
+     * @param p   現金を入れるプレイヤー
      */
-    public static void addMoneyForInventory(Inventory inv, int yen,Player p) {
+    public static void addMoneyForInventory(Inventory inv, int yen, Player p) {
         int log_money = (int) Math.log(yen);
         if (log_money > 5) {
             log_money = 5;
         }
         for (int i = log_money; i >= 0; i--) {
             ItemStack moneyStack = getPluginMoneyEmerald((int) Math.pow(10, i), (int) (yen / Math.pow(10, i)));
-            ItemUtil.addItem(moneyStack,inv,p);
+            ItemUtil.addItem(moneyStack, inv, p);
             yen %= (int) Math.pow(10, i);
         }
     }
@@ -122,7 +122,7 @@ public class Bank extends iPhoneBase {
 
     private void payment_Complete(Player player, String text, AtomicBoolean complete_flag) {
         try {
-            if(Objects.equals(text, "#")){
+            if (Objects.equals(text, "#")) {
                 final Inventory player_inv = player.getInventory();
                 final VillagerListener.ReturnMoney returnMoney = VillagerListener.getTotalmoney(player_inv);
                 text = String.valueOf(returnMoney.total_money());

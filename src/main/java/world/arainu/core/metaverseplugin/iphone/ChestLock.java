@@ -18,9 +18,10 @@ import java.util.Arrays;
 
 /**
  * iPhoneからチェストの鍵を入手するクラス。
+ *
  * @author kumitatepazuru
  */
-public class ChestLock extends iPhoneBase{
+public class ChestLock extends iPhoneBase {
     @Getter
     private static final NamespacedKey chestIDKey = new NamespacedKey(MetaversePlugin.getInstance(), "metaverse-key");
 
@@ -29,8 +30,8 @@ public class ChestLock extends iPhoneBase{
         ItemStack chestKey = new ItemStack(Material.TRIPWIRE_HOOK);
         ItemMeta keyMeta = chestKey.getItemMeta();
         keyMeta.displayName(Component.text("設定されていない鍵").color(NamedTextColor.GOLD));
-        keyMeta.lore(Arrays.asList(Component.text("チェストに向かって使用することで"),Component.text("チェストに鍵をかけられる。")));
-        keyMeta.getPersistentDataContainer().set(chestIDKey,PersistentDataType.INTEGER,1);
+        keyMeta.lore(Arrays.asList(Component.text("チェストに向かって使用することで"), Component.text("チェストに鍵をかけられる。")));
+        keyMeta.getPersistentDataContainer().set(chestIDKey, PersistentDataType.INTEGER, 1);
         chestKey.setItemMeta(keyMeta);
         ItemUtil.addItem(chestKey, menuItem.getClicker().getInventory(), menuItem.getClicker());
         Economy econ = MetaversePlugin.getEcon();
