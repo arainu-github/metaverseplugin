@@ -47,5 +47,5 @@ jobs:
           server: ${{ secrets.SSH_SERVER }}
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
           local_path: './Metaverseplugin.jar'
-          remote_path: '/home/riku/minecraft/plugins/'
+          remote_path: '/var/minecraft/plugins/'
           args: '-o ConnectTimeout=5'
