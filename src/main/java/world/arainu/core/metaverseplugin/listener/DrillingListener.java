@@ -28,6 +28,8 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -450,34 +452,6 @@ public class DrillingListener implements Listener {
                     }
                 }
             }
-            case 14 -> {
-                e.setCancelled(false);
-                Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
-                    if (drillingTaskMap.containsKey(block)) {
-                        drillingTaskMap.get(block).cancel();
-                    }
-                    ItemStack item = e.getInventory().getItem(14);
-                    if (item == null) {
-                        item = new ItemStack(Material.AIR);
-                    }
-                    block.removeMetadata("metaverse-drilling__pickaxe", MetaversePlugin.getInstance());
-                    block.setMetadata("metaverse-drilling__pickaxe", new FixedMetadataValue(MetaversePlugin.getInstance(), item));
-                }, 1);
-            }
-            case 15 -> {
-                e.setCancelled(false);
-                Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
-                    if (drillingTaskMap.containsKey(block)) {
-                        drillingTaskMap.get(block).cancel();
-                    }
-                    ItemStack item = e.getInventory().getItem(15);
-                    if (item == null) {
-                        item = new ItemStack(Material.AIR);
-                    }
-                    block.removeMetadata("metaverse-drilling__shovel", MetaversePlugin.getInstance());
-                    block.setMetadata("metaverse-drilling__shovel", new FixedMetadataValue(MetaversePlugin.getInstance(), item));
-                }, 1);
-            }
             case 16 -> {
                 e.getInventory().close();
                 invList.remove(e.getInventory());
@@ -530,6 +504,49 @@ public class DrillingListener implements Listener {
                     }
                 }
             }
+        }
+        setToolData(id,block,e);
+    }
+
+    private void setToolData(int id, Block block, InventoryInteractEvent e){
+        switch(id) {
+            case 14 -> {
+                e.setCancelled(false);
+                Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
+                    if (drillingTaskMap.containsKey(block)) {
+                        drillingTaskMap.get(block).cancel();
+                    }
+                    ItemStack item = e.getInventory().getItem(14);
+                    if (item == null) {
+                        item = new ItemStack(Material.AIR);
+                    }
+                    block.removeMetadata("metaverse-drilling__pickaxe", MetaversePlugin.getInstance());
+                    block.setMetadata("metaverse-drilling__pickaxe", new FixedMetadataValue(MetaversePlugin.getInstance(), item));
+                }, 1);
+            }
+            case 15 -> {
+                e.setCancelled(false);
+                Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(), () -> {
+                    if (drillingTaskMap.containsKey(block)) {
+                        drillingTaskMap.get(block).cancel();
+                    }
+                    ItemStack item = e.getInventory().getItem(15);
+                    if (item == null) {
+                        item = new ItemStack(Material.AIR);
+                    }
+                    block.removeMetadata("metaverse-drilling__shovel", MetaversePlugin.getInstance());
+                    block.setMetadata("metaverse-drilling__shovel", new FixedMetadataValue(MetaversePlugin.getInstance(), item));
+                }, 1);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onInventoryDrag(InventoryDragEvent e){
+        if (!invList.containsKey(e.getInventory())) return;
+        final Block block = invList.get(e.getInventory());
+        for (Integer integer : e.getRawSlots()) {
+            setToolData(integer, block, e);
         }
     }
 
@@ -679,6 +696,7 @@ public class DrillingListener implements Listener {
         MetaversePlugin.logger().info("saving drilling data...");
         sqlUtil.truncateDrillingBlock();
         for (Location i : locationList) {
+            MetaversePlugin.logger().info("drilling location:"+i);
             Block block = i.getWorld().getBlockAt(i);
             UUID player = (UUID) block.getMetadata("metaverse-drilling").get(0).value();
             Vector vector3D = (Vector) block.getMetadata("metaverse-drilling__vector").get(0).value();
