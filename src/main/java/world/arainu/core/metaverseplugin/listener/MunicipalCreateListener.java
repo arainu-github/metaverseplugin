@@ -48,7 +48,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 /**
  * 自治体作成に使用されるリスナー。
@@ -214,7 +213,7 @@ public class MunicipalCreateListener implements Listener {
         double[] X_list = markerData.get(p).stream().map(Location::getX).mapToDouble(b -> b).toArray();
         double[] Z_list = markerData.get(p).stream().map(Location::getZ).mapToDouble(b -> b).toArray();
         int i = 0;
-        List<String> names = markerSet.getAreaMarkers().stream().map(GenericMarker::getMarkerID).collect(Collectors.toList());
+        List<String> names = markerSet.getAreaMarkers().stream().map(GenericMarker::getMarkerID).toList();
         while (names.contains("m" + i)) {
             i++;
         }
@@ -245,7 +244,7 @@ public class MunicipalCreateListener implements Listener {
                         .setColor(Color.PINK)
                         .build()
         ).queue();
-        sqlUtil.addMunicipal(p.getUniqueId(), "m" + i, List.of());
+        sqlUtil.addMunicipal(p.getUniqueId(), "m" + i, List.of(p.getUniqueId().toString()));
         ChatUtil.success(p, "自治体を正常に作成しました。");
     }
 }

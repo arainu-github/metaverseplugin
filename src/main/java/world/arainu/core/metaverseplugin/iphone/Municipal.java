@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -102,7 +103,8 @@ public class Municipal extends iPhoneBase {
         List<?> data = (List<?>) menuItem.getCustomData();
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skull = (SkullMeta) item.getItemMeta();
-        skull.setOwningPlayer(Bukkit.getOfflinePlayer(Objects.requireNonNull(sqlUtil.getMunicipal((String) data.get(0))).uuid()));
+        sqlUtil.MunicipalData municipalData = Objects.requireNonNull(sqlUtil.getMunicipal((String) data.get(0)));
+        skull.setOwningPlayer(Bukkit.getOfflinePlayer(municipalData.uuid()));
         item.setItemMeta(skull);
         List<MenuItem> menus = new ArrayList<>();
         if (menuItem.getClicker().isOp()) {
@@ -110,13 +112,28 @@ public class Municipal extends iPhoneBase {
             removeItem.lore(List.of(Component.text("Moderator only")));
             menus.add(new MenuItem("自治体を削除する", this::remove, true, removeItem, data, true));
         }
-        ItemStack settingItem = new ItemStack(Material.REDSTONE);
-        settingItem.lore(List.of(Component.text("自治体作成者権限")));
-        menus.add(new MenuItem("この自治体の設定をする", this::setPermission, true, settingItem, data));
-        menus.add(new MenuItem("この自治体の住民になる", this::addResidents, true, Material.NAME_TAG, data.get(0)));
+        if(municipalData.uuid().equals(menuItem.getClicker().getUniqueId()) || menuItem.getClicker().isOp()) {
+            ItemStack settingItem = new ItemStack(Material.REDSTONE);
+            settingItem.lore(List.of(Component.text("自治体作成者権限")));
+            menus.add(new MenuItem("この自治体の設定をする", this::setPermission, true, settingItem, data));
+        }
+        if(municipalData.member().contains(menuItem.getClicker().getUniqueId().toString())){
+            menus.add(new MenuItem("この自治体の住民をやめる", this::removeResidents, true, Material.BARRIER, data.get(0)));
+        }else {
+            menus.add(new MenuItem("この自治体の住民になる", this::addResidents, true, Material.NAME_TAG, data.get(0)));
+        }
         menus.add(new MenuItem("この自治体の住民一覧を見る", this::listResidents, true, Material.BOOK, data));
         menus.add(new MenuItem("前ページに戻る", this::executeGui, true, Material.ARROW, null, 8, 0));
         Gui.getInstance().openMenu(menuItem.getClicker(), "自治体:" + data.get(1), menus);
+    }
+
+    private void removeResidents(MenuItem menuItem) {
+        String data = (String) menuItem.getCustomData();
+        sqlUtil.MunicipalData municipalData = sqlUtil.getMunicipal(data);
+        List<String> member = new ArrayList<>(Objects.requireNonNull(municipalData).member());
+        member.remove(menuItem.getClicker().getUniqueId().toString());
+        sqlUtil.addMunicipal(municipalData.uuid(), data, member);
+        ChatUtil.success(menuItem.getClicker(), "自治体の住民をやめました。");
     }
 
     private void changePermission(MenuItem menuItem) {
@@ -187,9 +204,9 @@ public class Municipal extends iPhoneBase {
         Gui.getInstance().openMultiPageMenu(menuItem.getClicker(), "自治体の住民一覧", municipalData.member().stream().map(n -> {
             ItemStack item = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta skull = (SkullMeta) item.getItemMeta();
-            skull.setOwningPlayer(Bukkit.getOfflinePlayer(municipalData.uuid()));
+            skull.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString(n)));
             item.setItemMeta(skull);
-            return new MenuItem(Bukkit.getOfflinePlayer(municipalData.uuid()).getName(), null, false, item);
+            return new MenuItem(Bukkit.getOfflinePlayer(UUID.fromString(n)).getName(), null, false, item);
         }).collect(Collectors.toList()), new MenuItem("前ページに戻る", this::manage, true, Material.ARROW, data));
     }
 
