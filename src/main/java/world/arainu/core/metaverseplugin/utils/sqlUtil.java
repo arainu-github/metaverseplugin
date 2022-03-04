@@ -591,7 +591,6 @@ public class sqlUtil {
             ResultSet rs = stmt.executeQuery("SELECT * FROM municipal WHERE name LIKE '" + name + "'");
             rs.next();
             List<String> result = Arrays.asList(rs.getString(3).split(","));
-            MetaversePlugin.logger().info(String.valueOf(result));
             MunicipalData r = new MunicipalData(UUID.fromString(rs.getString(2)), result);
             rs.close();
             stmt.close();

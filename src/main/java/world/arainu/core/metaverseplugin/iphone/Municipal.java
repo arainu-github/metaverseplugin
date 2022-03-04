@@ -163,7 +163,7 @@ public class Municipal extends iPhoneBase {
     private void addResidents(MenuItem menuItem) {
         String data = (String) menuItem.getCustomData();
         sqlUtil.MunicipalData municipalData = sqlUtil.getMunicipal(data);
-        List<String> member = Objects.requireNonNull(municipalData).member();
+        List<String> member = new ArrayList<>(Objects.requireNonNull(municipalData).member());
         member.add(menuItem.getClicker().getUniqueId().toString());
         sqlUtil.addMunicipal(municipalData.uuid(), data, member);
         ChatUtil.success(menuItem.getClicker(), "正常に自治体の住民になりました！");
