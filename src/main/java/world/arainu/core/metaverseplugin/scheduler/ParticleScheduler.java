@@ -42,7 +42,7 @@ public class ParticleScheduler extends BukkitRunnable {
                 final double Y = i.y2() - i.y1();
                 final double S = Math.sqrt(Math.pow(X, 2) + Math.pow(Y, 2));
                 for (double j = 0; j < S; j += 1) {
-                    i.world().spawnParticle(Particle.END_ROD, i.show_player(), null, i.x1() + j * (X / S), 64, i.y1() + j * (Y / S), 10, 0.1, 5, 0.1, 0, null, true);
+                    i.world().spawnParticle(Particle.END_ROD, i.show_player(), null, i.x1() + j * (X / S), 128, i.y1() + j * (Y / S), 20, 0.1, 10, 0.1, 0, null, true);
                 }
             }
 
