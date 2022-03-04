@@ -551,7 +551,7 @@ public class sqlUtil {
     public static void addMunicipal(UUID uuid, String name, List<String> member) {
         try {
             create_municipal_table();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO municipal VALUES(?,?,?) ON DUPLICATE KEY UPDATE member = VALUES(member)");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO municipal VALUES(?,?,?) ON DUPLICATE KEY UPDATE `member` = VALUES(`member`)");
             ps.setString(2, uuid.toString());
             ps.setString(1, name);
             ps.setString(3, String.join(",", member));
