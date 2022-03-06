@@ -16,13 +16,15 @@ public class AdvancementScheduler extends BukkitRunnable {
     @Override
     public void run() {
         List<Player> queue = AdvancementListener.getSyncQueue();
-        if(queue.size() > 0) {
+        if (queue.size() > 0) {
             Player p = queue.get(0);
             if (p.isOnline()) {
-                MetaversePlugin.logger().info("syncing advancement data... size:" + queue.size());
-                sqlUtil.removePlayerAdvancement(p.getUniqueId());
-                Bukkit.advancementIterator().forEachRemaining(advancement -> addPlayerAdvancement(advancement, p));
-                MetaversePlugin.logger().info("synced");
+                Bukkit.getScheduler().runTaskAsynchronously(MetaversePlugin.getInstance(), () -> {
+                    MetaversePlugin.logger().info("syncing advancement data... size:" + queue.size());
+                    sqlUtil.removePlayerAdvancement(p.getUniqueId());
+                    Bukkit.advancementIterator().forEachRemaining(advancement -> addPlayerAdvancement(advancement, p));
+                    MetaversePlugin.logger().info("synced");
+                });
             }
             removeQueue();
         }
