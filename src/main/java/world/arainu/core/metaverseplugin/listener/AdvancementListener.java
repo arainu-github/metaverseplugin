@@ -1,6 +1,7 @@
 package world.arainu.core.metaverseplugin.listener;
 
 import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
@@ -11,6 +12,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,7 +21,10 @@ import java.util.List;
  * @author kumitatepazuru
  */
 public class AdvancementListener implements Listener {
-    private void addPlayerAdvancement(Advancement advancement, Player p) {
+    @Getter
+    static private final List<Player> syncQueue = new ArrayList<>();
+
+    public static void addPlayerAdvancement(Advancement advancement, Player p) {
         if (advancement.getDisplay() != null) {
             String id = advancement.getKey().getNamespace() + ":" + advancement.getKey().getKey();
             AdvancementProgress advancementProgress = p.getAdvancementProgress(advancement);
@@ -29,6 +34,10 @@ public class AdvancementListener implements Listener {
         }
     }
 
+    public static void removeQueue(){
+        syncQueue.remove(0);
+    }
+
     /**
      * プレイヤー入室時にSQL上にプレイヤーの進捗データを保存し、同期する関数。
      *
@@ -36,13 +45,7 @@ public class AdvancementListener implements Listener {
      */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        Bukkit.getScheduler().runTaskAsynchronously(MetaversePlugin.getInstance(), () -> {
-            Player p = e.getPlayer();
-            MetaversePlugin.logger().info("syncing advancement data");
-            sqlUtil.removePlayerAdvancement(p.getUniqueId());
-            Bukkit.advancementIterator().forEachRemaining(advancement -> addPlayerAdvancement(advancement, p));
-            MetaversePlugin.logger().info("synced");
-        });
+        syncQueue.add(e.getPlayer());
     }
 
     /**
