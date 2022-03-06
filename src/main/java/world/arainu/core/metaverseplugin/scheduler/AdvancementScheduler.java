@@ -27,8 +27,8 @@ public class AdvancementScheduler extends BukkitRunnable {
                 Bukkit.advancementIterator().forEachRemaining(advancement -> {
                     Bukkit.getScheduler().runTaskLater(MetaversePlugin.getInstance(),() -> addPlayerAdvancement(advancement, p),j.get());
                     i.getAndIncrement();
-                    if(i.get() == 50){
-                        j.set(j.get()+10);
+                    if(i.get()%50 == 0){
+                        j.set(j.get()+2);
                     }
                 });
                 MetaversePlugin.logger().info("synced");
