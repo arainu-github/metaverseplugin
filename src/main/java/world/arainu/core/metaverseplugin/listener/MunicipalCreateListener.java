@@ -3,6 +3,7 @@ package world.arainu.core.metaverseplugin.listener;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector2;
 import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
@@ -228,6 +229,8 @@ public class MunicipalCreateListener implements Listener {
         for (Municipal.Permission j : Municipal.PERMISSION_NAMES) {
             region.setFlag(j.flag(), StateFlag.State.ALLOW);
         }
+        region.setFlag(Flags.BUILD, StateFlag.State.ALLOW);
+        region.setFlag(Flags.INTERACT, StateFlag.State.ALLOW);
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionManager regions = container.get(BukkitAdapter.adapt(markerData.get(p).get(0).getWorld()));
         Objects.requireNonNull(regions).addRegion(region);
