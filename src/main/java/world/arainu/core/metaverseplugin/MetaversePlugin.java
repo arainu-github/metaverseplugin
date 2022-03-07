@@ -128,7 +128,7 @@ public final class MetaversePlugin extends JavaPlugin {
         new DiscordScheduler().runTaskTimer(this, 0, 20 * 10);
         new SqlScheduler().runTaskTimer(this, 0, 20 * 60 * 60);
         new ParticleScheduler().runTaskTimer(this, 0, 2);
-        new AdvancementScheduler().runTaskTimer(this, 0, 40);
+        // new AdvancementScheduler().runTaskTimer(this, 0, 40);
         createStairsYml();
     }
 
