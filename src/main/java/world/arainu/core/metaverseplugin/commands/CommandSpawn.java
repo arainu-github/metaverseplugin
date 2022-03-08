@@ -27,6 +27,13 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
     @Getter
     private static final Map<String, String> METAZON_VILLAGER = Map.of("mason-villager", "鉱石店員","stone-villager", "石工店員","mason-villager-shop","お金店員(鉱石)", "stone-villager-shop","お金店員(石系)", "mob-villager-shop","モブ店員", "sandstone-villager","砂岩砂利店員", "sandstone-villager-shop","お金店員(砂岩系&砂利)");
 
+    @Getter
+    private static CommandSpawn instance;
+
+    public CommandSpawn(){
+        instance = this;
+    }
+
     /**
      * 村人との取引（買いとり）のレシピを取得する関数
      *
