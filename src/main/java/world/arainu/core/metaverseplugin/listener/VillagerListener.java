@@ -75,11 +75,11 @@ public class VillagerListener implements Listener {
         return new ReturnMoney(money_list, total_money);
     }
 
-    public void open(Player player, Villager villager){
+    public void open(Player player, Villager villager,int fee){
         AtomicInteger i = new AtomicInteger(-1);
         List<MenuItem> tradeitems = villager.getRecipes().stream().map((recipe) -> {
                     i.getAndIncrement();
-                    return new Mapdata(recipe, i.get(), villager);
+                    return new Mapdata(recipe, i.get(), villager, fee);
                 })
                 .map((recipe) -> new MenuItem(
                         this::onClick,
@@ -109,7 +109,7 @@ public class VillagerListener implements Listener {
                     obj.start(e.getPlayer());
                 } else {
                     Villager villager = (Villager) e.getRightClicked();
-                    open(e.getPlayer(),villager);
+                    open(e.getPlayer(),villager, 0);
                 }
             }
         }
@@ -299,7 +299,7 @@ public class VillagerListener implements Listener {
         Villager villager = ((Mapdata) e.getCustomData()).villager;
         boolean isPurchase = Bank.isMoney(recipe.getResult());
         ItemStack money = Bank.isMoney(recipe.getResult()) ? recipe.getResult() : recipe.getIngredients().get(0);
-        int price = money.getAmount() * Objects.requireNonNull(money.getItemMeta().getPersistentDataContainer().get(BankStore.getKey(), PersistentDataType.INTEGER));
+        int price = money.getAmount() * Objects.requireNonNull(money.getItemMeta().getPersistentDataContainer().get(BankStore.getKey(), PersistentDataType.INTEGER)) + ((Mapdata) e.getCustomData()).fee();
         final Inventory inv;
         if (isPurchase) {
             inv = Bukkit.createInventory(null, 27, e.getIcon().displayName().append(Component.text(" を買取")).color(NamedTextColor.BLACK));
@@ -370,7 +370,7 @@ public class VillagerListener implements Listener {
     /**
      * Mapのreturnに使うやつ
      */
-    record Mapdata(MerchantRecipe recipe, int index, Villager villager) {
+    record Mapdata(MerchantRecipe recipe, int index, Villager villager,int fee) {
     }
 
     /**
