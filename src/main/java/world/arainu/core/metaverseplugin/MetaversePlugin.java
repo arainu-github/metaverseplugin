@@ -173,7 +173,7 @@ public final class MetaversePlugin extends JavaPlugin {
         ItemMeta teleportMeta2 = teleportItem2.getItemMeta();
         teleportMeta2.lore(Collections.singletonList(Component.text("500円/回").color(NamedTextColor.GOLD)));
         teleportItem2.setItemMeta(teleportMeta2);
-        iPhoneStore.addGuiItem(new MenuItem("初期スポーン地点にテレポート", new Spawn()::executeGui, true, teleportItem2));
+        iPhoneStore.addGuiItem(new MenuItem("初期スポーン地点にテレポート", new Spawn()::executeGui, true, teleportItem2), (p) -> !p.getWorld().getName().equals(configuration.getString("world.traptower")) && Objects.equals(ServerStore.getServerName(), "survival"));
         ItemStack traptowerItem = new ItemStack(Material.CRACKED_STONE_BRICKS);
         ItemMeta traptowerMeta = teleportItem.getItemMeta();
         traptowerMeta.lore(Collections.singletonList(Component.text("利用料金 200円/分").color(NamedTextColor.RED)));
