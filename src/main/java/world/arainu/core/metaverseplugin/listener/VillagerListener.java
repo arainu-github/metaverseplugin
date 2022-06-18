@@ -1,5 +1,6 @@
 package world.arainu.core.metaverseplugin.listener;
 
+import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.milkbowl.vault.economy.Economy;
@@ -21,6 +22,7 @@ import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffectType;
 import world.arainu.core.metaverseplugin.MetaversePlugin;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
@@ -49,6 +51,11 @@ import java.util.stream.Collectors;
  */
 public class VillagerListener implements Listener {
     private final HashMap<Inventory, GuiData> invMap = new HashMap<>();
+    @Getter private static VillagerListener instance;
+
+    public VillagerListener(){
+        instance = this;
+    }
 
     /**
      * インベントリ内のお金を取得する関数
@@ -68,6 +75,25 @@ public class VillagerListener implements Listener {
         return new ReturnMoney(money_list, total_money);
     }
 
+    public void open(Player player, Villager villager,int fee){
+        AtomicInteger i = new AtomicInteger(-1);
+        List<MenuItem> tradeitems = villager.getRecipes().stream().map((recipe) -> {
+                    i.getAndIncrement();
+                    return new Mapdata(recipe, i.get(), villager, fee);
+                })
+                .map((recipe) -> new MenuItem(
+                        this::onClick,
+                        true,
+                        Bank.isMoney(recipe.recipe.getResult()) ? recipe.recipe.getIngredients().get(0) : recipe.recipe.getResult(),
+                        recipe,
+                        false,
+                        -1,
+                        -1))
+                .collect(Collectors.toList());
+
+        Gui.getInstance().openMenu(player, villager.getName(), tradeitems);
+    }
+
     /**
      * プレイヤーが右クリックしたときに特定の村人の場合は独自UIを表示させるリスナー
      *
@@ -83,22 +109,7 @@ public class VillagerListener implements Listener {
                     obj.start(e.getPlayer());
                 } else {
                     Villager villager = (Villager) e.getRightClicked();
-                    AtomicInteger i = new AtomicInteger(-1);
-                    List<MenuItem> tradeitems = villager.getRecipes().stream().map((recipe) -> {
-                                i.getAndIncrement();
-                                return new Mapdata(recipe, i.get(), villager);
-                            })
-                            .map((recipe) -> new MenuItem(
-                                    this::onClick,
-                                    true,
-                                    Bank.isMoney(recipe.recipe.getResult()) ? recipe.recipe.getIngredients().get(0) : recipe.recipe.getResult(),
-                                    recipe,
-                                    false,
-                                    -1,
-                                    -1))
-                            .collect(Collectors.toList());
-
-                    Gui.getInstance().openMenu(e.getPlayer(), villager.getName(), tradeitems);
+                    open(e.getPlayer(),villager, 0);
                 }
             }
         }
@@ -250,8 +261,7 @@ public class VillagerListener implements Listener {
             if (inv.getType() == InventoryType.MERCHANT) {
                 HashMap<Integer, ? extends ItemStack> items = inv.all(Material.EMERALD);
                 List<Boolean> isMoney = items.values().stream()
-                        .map(itemStack -> itemStack.getItemMeta().getPersistentDataContainer().has(BankStore.getKey(), PersistentDataType.INTEGER))
-                        .collect(Collectors.toList());
+                        .map(itemStack -> itemStack.getItemMeta().getPersistentDataContainer().has(BankStore.getKey(), PersistentDataType.INTEGER)).toList();
                 MerchantRecipe recipe = ((MerchantInventory) inv).getSelectedRecipe();
                 if (recipe != null && isMoney.contains(true)) {
                     recipe.setUses(recipe.getUses() - 1);
@@ -276,6 +286,10 @@ public class VillagerListener implements Listener {
             if (item == null) continue;
             ItemUtil.addItem(item, e.getPlayer().getInventory(), (Player) e.getPlayer());
         }
+        if(invMap.get(inv).villager().getPotionEffect(PotionEffectType.INVISIBILITY) != null){
+            sqlUtil.removeuuidtype(invMap.get(inv).villager().getUniqueId());
+            invMap.get(inv).villager().remove();
+        }
         invMap.remove(inv);
     }
 
@@ -284,8 +298,8 @@ public class VillagerListener implements Listener {
         int index = ((Mapdata) e.getCustomData()).index;
         Villager villager = ((Mapdata) e.getCustomData()).villager;
         boolean isPurchase = Bank.isMoney(recipe.getResult());
-        ItemStack money = Bank.isMoney(recipe.getResult()) ? recipe.getResult() : recipe.getIngredients().get(0);
-        int price = money.getAmount() * Objects.requireNonNull(money.getItemMeta().getPersistentDataContainer().get(BankStore.getKey(), PersistentDataType.INTEGER));
+        ItemStack money = isPurchase ? recipe.getResult() : recipe.getIngredients().get(0);
+        int price = money.getAmount() * Objects.requireNonNull(money.getItemMeta().getPersistentDataContainer().get(BankStore.getKey(), PersistentDataType.INTEGER)) + ((Mapdata) e.getCustomData()).fee() * (isPurchase ? -1 : 1);
         final Inventory inv;
         if (isPurchase) {
             inv = Bukkit.createInventory(null, 27, e.getIcon().displayName().append(Component.text(" を買取")).color(NamedTextColor.BLACK));
@@ -356,7 +370,7 @@ public class VillagerListener implements Listener {
     /**
      * Mapのreturnに使うやつ
      */
-    record Mapdata(MerchantRecipe recipe, int index, Villager villager) {
+    record Mapdata(MerchantRecipe recipe, int index, Villager villager,int fee) {
     }
 
     /**

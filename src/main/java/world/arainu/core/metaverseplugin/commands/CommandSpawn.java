@@ -9,13 +9,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import world.arainu.core.metaverseplugin.iphone.Bank;
 import world.arainu.core.metaverseplugin.utils.ChatUtil;
 import world.arainu.core.metaverseplugin.utils.sqlUtil;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * プラグイン特有のmobをスポーンさせるコマンドを定義している関数
@@ -24,13 +25,13 @@ import java.util.List;
  */
 public class CommandSpawn extends CommandPlayerOnlyBase {
     @Getter
-    private final CommandSpawn Instance;
+    private static final Map<String, String> METAZON_VILLAGER = Map.of("mason-villager", "鉱石店員","stone-villager", "石工店員","mason-villager-shop","お金店員(鉱石)", "stone-villager-shop","お金店員(石系)", "mob-villager-shop","モブ店員", "sandstone-villager","砂岩砂利店員", "sandstone-villager-shop","お金店員(砂岩系&砂利)");
 
-    /**
-     * プラグイン特有のmobをスポーンさせるコマンドを定義している関数
-     */
-    public CommandSpawn() {
-        this.Instance = this;
+    @Getter
+    private static CommandSpawn instance;
+
+    public CommandSpawn(){
+        instance = this;
     }
 
     /**
@@ -71,7 +72,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
      * @param player プレイヤー（ここの座標に作成する）
      * @return 村人
      */
-    public static Villager createVillager(String name, Villager.Profession type, Player player) {
+    public static Villager createVillager(String name, Villager.Profession type, Player player,String[] args) {
         Villager villager = (Villager) player.getWorld().spawnEntity(player.getLocation(), EntityType.VILLAGER);
         villager.setProfession(type);
         villager.setVillagerLevel(5);
@@ -79,20 +80,22 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
         villager.setCustomNameVisible(true);
         villager.setAI(false);
         villager.setInvulnerable(true);
+        if(args.length == 2) {
+            if (Objects.equals(args[1], "invisible")) {
+                villager.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 9999, 255, false, false));
+            }
+        }
+        sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
         return villager;
     }
 
     @Override
     public boolean execute(Player player, String[] args) {
-        if (args.length == 1) {
+        if (args.length == 1 || args.length == 2) {
             switch (args[0]) {
-                case "casino-villager" -> {
-                    Villager villager = createVillager("スロットマン", Villager.Profession.MASON, player);
-                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
-                }
+                case "casino-villager" -> createVillager("スロットマン", Villager.Profession.MASON, player,args);
                 case "mason-villager" -> {
-                    Villager villager = createVillager("鉱石店員", Villager.Profession.MASON, player);
-                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
+                    Villager villager = createVillager(METAZON_VILLAGER.get(args[0]), Villager.Profession.MASON, player,args);
                     List<MerchantRecipe> recipes = new ArrayList<>();
                     recipes.add(createRecipe(1, 50, new ItemStack(Material.COAL)));
                     recipes.add(createRecipe(5, 40, new ItemStack(Material.RAW_COPPER)));
@@ -104,8 +107,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     villager.setRecipes(recipes);
                 }
                 case "mason-villager-shop" -> {
-                    Villager villager = createVillager("お金店員(鉱石)", Villager.Profession.MASON, player);
-                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
+                    Villager villager = createVillager(METAZON_VILLAGER.get(args[0]), Villager.Profession.MASON, player,args);
                     List<MerchantRecipe> recipes = new ArrayList<>();
                     recipes.add(createRecipe2(1, 50, new ItemStack(Material.COAL)));
                     recipes.add(createRecipe2(5, 40, new ItemStack(Material.RAW_COPPER)));
@@ -117,8 +119,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     villager.setRecipes(recipes);
                 }
                 case "stone-villager" -> {
-                    Villager villager = createVillager("石工店員", Villager.Profession.MASON, player);
-                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
+                    Villager villager = createVillager(METAZON_VILLAGER.get(args[0]), Villager.Profession.MASON, player,args);
                     List<MerchantRecipe> recipes = new ArrayList<>();
                     recipes.add(createRecipe(1, 3, new ItemStack(Material.COBBLESTONE)));
                     recipes.add(createRecipe(1, 5, new ItemStack(Material.MOSSY_COBBLESTONE)));
@@ -170,8 +171,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     villager.setRecipes(recipes);
                 }
                 case "stone-villager-shop" -> {
-                    Villager villager = createVillager("お金店員(石系)", Villager.Profession.MASON, player);
-                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
+                    Villager villager = createVillager(METAZON_VILLAGER.get(args[0]), Villager.Profession.MASON, player,args);
                     List<MerchantRecipe> recipes = new ArrayList<>();
                     recipes.add(createRecipe2(1, 3, new ItemStack(Material.COBBLESTONE)));
                     recipes.add(createRecipe2(1, 5, new ItemStack(Material.MOSSY_COBBLESTONE)));
@@ -222,9 +222,8 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     recipes.add(createRecipe2(1, 5, new ItemStack(Material.POINTED_DRIPSTONE)));
                     villager.setRecipes(recipes);
                 }
-                case "mob-villager" -> {
-                    Villager villager = createVillager("モブ店員", Villager.Profession.FARMER, player);
-                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0] + "-shop");
+                case "mob-villager-shop" -> {
+                    Villager villager = createVillager(METAZON_VILLAGER.get(args[0]), Villager.Profession.FARMER, player,args);
                     List<MerchantRecipe> recipes = new ArrayList<>();
                     recipes.add(createRecipe2(1000, 5, new ItemStack(Material.AXOLOTL_SPAWN_EGG)));
                     recipes.add(createRecipe2(500, 5, new ItemStack(Material.BEE_SPAWN_EGG)));
@@ -257,8 +256,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
 
                 }
                 case "sandstone-villager" -> {
-                    Villager villager = createVillager("砂岩砂利店員", Villager.Profession.MASON, player);
-                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
+                    Villager villager = createVillager(METAZON_VILLAGER.get(args[0]), Villager.Profession.MASON, player,args);
                     List<MerchantRecipe> recipes = new ArrayList<>();
                     recipes.add(createRecipe(1, 5, new ItemStack(Material.GRAVEL)));
                     recipes.add(createRecipe(1, 5, new ItemStack(Material.SANDSTONE)));
@@ -272,8 +270,7 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
                     villager.setRecipes(recipes);
                 }
                 case "sandstone-villager-shop" -> {
-                    Villager villager = createVillager("お金店員(砂岩系&砂利)", Villager.Profession.MASON, player);
-                    sqlUtil.setuuidtype(villager.getUniqueId(), args[0]);
+                    Villager villager = createVillager(METAZON_VILLAGER.get(args[0]), Villager.Profession.MASON, player,args);
                     List<MerchantRecipe> recipes = new ArrayList<>();
                     recipes.add(createRecipe2(1, 5, new ItemStack(Material.GRAVEL)));
                     recipes.add(createRecipe2(1, 5, new ItemStack(Material.SANDSTONE)));
@@ -299,6 +296,8 @@ public class CommandSpawn extends CommandPlayerOnlyBase {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
                                       String[] args) {
-        return List.of("casino-villager", "mason-villager", "stone-villager", "mason-villager-shop", "stone-villager-shop", "mob-villager", "sandstone-villager", "sandstone-villager-shop");
+        List<String> r = new ArrayList<>(METAZON_VILLAGER.keySet());
+        r.add("casino-villager");
+        return r;
     }
 }

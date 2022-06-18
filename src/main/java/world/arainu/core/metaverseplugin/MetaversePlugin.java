@@ -31,16 +31,7 @@ import world.arainu.core.metaverseplugin.commands.CommandWhitelist;
 import world.arainu.core.metaverseplugin.commands.CommandiPhone;
 import world.arainu.core.metaverseplugin.gui.Gui;
 import world.arainu.core.metaverseplugin.gui.MenuItem;
-import world.arainu.core.metaverseplugin.iphone.Bank;
-import world.arainu.core.metaverseplugin.iphone.ChestLock;
-import world.arainu.core.metaverseplugin.iphone.Drilling;
-import world.arainu.core.metaverseplugin.iphone.LinkDiscord;
-import world.arainu.core.metaverseplugin.iphone.MoveSurvival;
-import world.arainu.core.metaverseplugin.iphone.Municipal;
-import world.arainu.core.metaverseplugin.iphone.Spawn;
-import world.arainu.core.metaverseplugin.iphone.TrapTower;
-import world.arainu.core.metaverseplugin.iphone.Worldteleport;
-import world.arainu.core.metaverseplugin.iphone.iPhoneEnderDragon;
+import world.arainu.core.metaverseplugin.iphone.*;
 import world.arainu.core.metaverseplugin.listener.AdvancementListener;
 import world.arainu.core.metaverseplugin.listener.BankListener;
 import world.arainu.core.metaverseplugin.listener.ChestLockListener;
@@ -189,6 +180,7 @@ public final class MetaversePlugin extends JavaPlugin {
         chestMeta.lore(Arrays.asList(Component.text("チェストに向かって使用することで"), Component.text("チェストを個人用チェストにすることができます。"), Component.text("300円/個").color(NamedTextColor.GOLD)));
         chestItem.setItemMeta(chestMeta);
         iPhoneStore.addGuiItem(new MenuItem("チェストの鍵を購入する", new ChestLock()::executeGui, true, chestItem), (p) -> Objects.equals(ServerStore.getServerName(), "survival"));
+        iPhoneStore.addGuiItem(new MenuItem("Metazon", new Metazon()::executeGui, true, Material.CHEST), (p) -> Objects.equals(ServerStore.getServerName(), "survival"));
     }
 
     /**

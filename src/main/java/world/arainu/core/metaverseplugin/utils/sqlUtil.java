@@ -169,6 +169,23 @@ public class sqlUtil {
     }
 
     /**
+     * 何かしらのタイプとUUIDの紐付けを解除する関数
+     *
+     * @param uuid UUID
+     */
+    public static void removeuuidtype(UUID uuid) {
+        try {
+            create_uuidtype_table();
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM `uuidtype` WHERE `uuid` LIKE ?");
+            ps.setString(1,uuid.toString());
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 何かしらのタイプとUUIDを紐付ける関数。
      *
      * @param type type
